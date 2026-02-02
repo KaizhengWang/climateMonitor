@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+
+    <title>澳门数字气象系统</title>
+    <!-- Cesium CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/cesium@1.110/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <!-- Cesium JS -->
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.110/Build/Cesium/Cesium.js"></script>
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="cesiumContainer"></div>
+
+<div id="infoPanel" class="info-panel">
+    <div class="info-title" id="stationName"></div>
+    <div>温度：<span id="tempValue"></span> °C</div>
+    <div>湿度：<span id="humidityValue"></span> %</div>
+    <div>风速：<span id="windSpeedValue"></span> km/h</div>
+    <div>风向：<span id="windDirValue"></span></div>
+    <div>一小时雨量：<span id="rainHourValue"></span> mm</div>
+</div>
+
+<script src="/js/stations.js"></script>
+<script src="/js/cesium-init.js"></script>
+<script src="/js/ui.js"></script>
+</body>
+</html>
