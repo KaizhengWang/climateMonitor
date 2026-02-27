@@ -1,9 +1,12 @@
 package com.umiot.microclimate.controller;
 
+import com.umiot.microclimate.dto.WeatherDTO;
+import com.umiot.microclimate.service.WeatherCollectService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,6 +18,9 @@ import java.util.Map;
 
 @RestController
 public class WeatherController {
+
+    @Autowired
+    private WeatherCollectService collectService;
 
     @GetMapping("/api/weather/macau")
     public Map<String, Map<String, String>> getMacauWeather() {
@@ -149,6 +155,28 @@ public class WeatherController {
         allData.put("windSpeed", windSpeedData);
         allData.put("windDirection", windDirectionData);
         allData.put("rainHour", rainHourData);
+
+//        // -------- 顺手存库 --------
+//        for (String station : temperatureData.keySet()) {
+//
+//            WeatherDTO dto = new WeatherDTO();
+//
+//            dto.setTemperature(parseDouble(temperatureData.get(station)));
+//            dto.setHumidity(parseDouble(humidityData.get(station)));
+//            dto.setWindSpeed(parseDouble(windSpeedData.get(station)));
+//            dto.setWindDirection(windDirectionData.get(station));
+//            dto.setRainHour(parseDouble(rainHourData.get(station)));
+//
+//            collectService.saveWeather(station, dto);
+//        }
         return allData;
     }
+
+//    private Double parseDouble(String value) {
+//        try {
+//            return value == null ? null : Double.parseDouble(value);
+//        } catch (Exception e) {
+//            return null;
+//        }
+//    }
 }
