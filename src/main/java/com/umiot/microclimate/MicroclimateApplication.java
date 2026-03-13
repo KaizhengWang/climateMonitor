@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class MicroclimateApplication {
+public class MicroclimateApplication { // main class
 
     public static void main(String[] args) {
         SpringApplication.run(MicroclimateApplication.class, args);
