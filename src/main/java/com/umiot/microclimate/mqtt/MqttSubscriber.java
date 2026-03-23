@@ -1,12 +1,15 @@
 package com.umiot.microclimate.mqtt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.umiot.microclimate.dto.WeatherStationDTO;
 import com.umiot.microclimate.service.WeatherMqttService;
 import jakarta.annotation.PostConstruct;
 import org.eclipse.paho.client.mqttv3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class MqttSubscriber {
@@ -38,20 +41,27 @@ public class MqttSubscriber {
 
             client.subscribe(TOPIC, (topic, message) -> {
 
-                String payload = new String(message.getPayload());
-
-                System.out.println("MQTT收到数据:");
-                System.out.println(payload);
+                String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
 
                 try {
 
-                    WeatherStationDTO data =
-                            mapper.readValue(payload, WeatherStationDTO.class);
+                    if (!isLikelyJsonObject(payload)) {
+                        return;
+                    }
 
+                    JsonNode root = mapper.readTree(payload);
+                    if (!isWeatherPayload(root)) {
+                        return;
+                    }
+
+                    WeatherStationDTO data = mapper.treeToValue(root, WeatherStationDTO.class);
+
+                    System.out.println("MQTT收到数据:");
+                    System.out.println(payload);
                     weatherService.handleWeatherData(data);
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    // Ignore malformed/non-weather payloads to keep terminal clean.
                 }
 
             });
@@ -59,5 +69,24 @@ public class MqttSubscriber {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isLikelyJsonObject(String payload) {
+        if (payload == null) {
+            return false;
+        }
+        String trimmed = payload.trim();
+        return trimmed.startsWith("{") && trimmed.endsWith("}");
+    }
+
+    private boolean isWeatherPayload(JsonNode root) {
+        return root != null
+                && root.isObject()
+                && root.has("device_id")
+                && root.has("temp")
+                && root.has("hum")
+                && root.has("wind")
+                && root.has("dir")
+                && root.has("time");
     }
 }

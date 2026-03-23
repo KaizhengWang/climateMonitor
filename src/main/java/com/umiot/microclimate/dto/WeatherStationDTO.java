@@ -1,40 +1,36 @@
 package com.umiot.microclimate.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WeatherStationDTO {
 
-    private double temp;
-    private double hum;
-    private double wind;
+    @JsonProperty("device_id")
+    private String deviceId;
+
+    private Double temp;
+    private Double hum;
+    private Double wind;
     private String dir;
-    private double press;
-    private int rad;
+    private Double press;
+    private Integer rad;
 
-    private Power power;
-    private Network network;
-    private Storage storage;
+    private String gps;
+    private String time;
 
-    @Data
-    public static class Power {
-        private double soc;
-        private double volt;
-        private double curr;
-        private double pow;
+    @JsonProperty("SOC")
+    private Double soc;//state of charge
 
-        private String bat;
-        private String chg;
-        private String dis;
-    }
+    private Alarms alarms;
 
     @Data
-    public static class Network {
-        private boolean mqtt;
-    }
-
-    @Data
-    public static class Storage {
-        private boolean sd;
+    public static class Alarms {
+        private Boolean battery;
+        private Boolean network;
+        private Boolean storage;
+        private Boolean watchdog;
     }
 }

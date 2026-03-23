@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
@@ -204,6 +204,12 @@
                     <input type="date" id="dateInput" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white;">
                 </div>
 
+                <!-- 月份选择器 -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: #666; font-size: 14px; white-space: nowrap;">📅 月份</span>
+                    <input type="month" id="monthInput" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white;">
+                </div>
+
                 <!-- 查询按钮 -->
                 <button id="loadDataBtn" style="padding: 8px 24px; background: #4ECDC4; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; white-space: nowrap;">
                     🔍 查询数据
@@ -246,7 +252,10 @@ function showPage(name) {
             // 如果已经有数据，重新设置选项
             const station = document.getElementById('stationSelect').value;
             const date = document.getElementById('dateInput').value;
-            if (station && date) {
+            const month = document.getElementById('monthInput').value;
+            if (station && month && !date) {
+                renderMonthlyChart(station, month);
+            } else if (station && date) {
                 renderChart(station, date);
             } else {
                 // 如果没有数据，至少调整大小
@@ -366,13 +375,103 @@ function showPage(name) {
             });
     }
 
+    function renderMonthlyChart(station, month) {
+        axios.get(`/api/history/${encodeURIComponent(station)}`)
+            .then(res => {
+                const allData = res.data;
+                const monthPrefix = `${month}-`; // yyyy-MM-
+                const dataOfMonth = allData.filter(d => d.recordTime.startsWith(monthPrefix));
+
+                const [yearStr, monthStr] = month.split('-');
+                const year = parseInt(yearStr, 10);
+                const monthIndex = parseInt(monthStr, 10) - 1;
+                const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+
+                const dayLabels = [];
+                const temperature = [];
+                const humidity = [];
+                const windSpeed = [];
+                const rainHour = [];
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayStr = day.toString().padStart(2, '0');
+                    const dateStr = `${yearStr}-${monthStr}-${dayStr}`;
+                    dayLabels.push(dayStr);
+
+                    const records = dataOfMonth.filter(d => d.recordTime.startsWith(dateStr));
+                    if (records.length > 0) {
+                        const sum = (key) => records.reduce((acc, r) => acc + (Number(r[key]) || 0), 0);
+                        temperature.push(Number((sum('temperature') / records.length).toFixed(2)));
+                        humidity.push(Number((sum('humidity') / records.length).toFixed(2)));
+                        windSpeed.push(Number((sum('windSpeed') / records.length).toFixed(2)));
+                        rainHour.push(Number((sum('rainHour') / records.length).toFixed(2)));
+                    } else {
+                        temperature.push(null);
+                        humidity.push(null);
+                        windSpeed.push(null);
+                        rainHour.push(null);
+                    }
+                }
+
+                const tempOption = {
+                    title: { text: '温度日均 (°C)', left: 'center' },
+                    tooltip: { trigger: 'axis' },
+                    grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
+                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels },
+                    yAxis: { type: 'value', name: '温度(°C)' },
+                    series: [{ name: '温度', type: 'line', smooth: true, data: temperature, itemStyle: { color: '#FF6B6B' }}]
+                };
+
+                const humidityOption = {
+                    title: { text: '湿度日均 (%)', left: 'center' },
+                    tooltip: { trigger: 'axis' },
+                    grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
+                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels },
+                    yAxis: { type: 'value', name: '湿度(%)' },
+                    series: [{ name: '湿度', type: 'line', smooth: true, data: humidity, itemStyle: { color: '#4ECDC4' }}]
+                };
+
+                const windOption = {
+                    title: { text: '风速日均 (m/s)', left: 'center' },
+                    tooltip: { trigger: 'axis' },
+                    grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
+                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels },
+                    yAxis: { type: 'value', name: '风速(m/s)' },
+                    series: [{ name: '风速', type: 'line', smooth: true, data: windSpeed, itemStyle: { color: '#FFD93D' }}]
+                };
+
+                const rainOption = {
+                    title: { text: '降雨量日均 (mm)', left: 'center' },
+                    tooltip: { trigger: 'axis' },
+                    grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
+                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels },
+                    yAxis: { type: 'value', name: '降雨量(mm)' },
+                    series: [{ name: '降雨量', type: 'line', smooth: true, data: rainHour, itemStyle: { color: '#5A67F2' }}]
+                };
+
+                tempChart.setOption(tempOption);
+                humidityChart.setOption(humidityOption);
+                windChart.setOption(windOption);
+                rainChart.setOption(rainOption);
+            })
+            .catch(err => {
+                console.error(err);
+                alert("加载数据失败");
+            });
+    }
+
     // 点击加载按钮
     document.getElementById('loadDataBtn').addEventListener('click', () => {
         const station = document.getElementById('stationSelect').value;
         const date = document.getElementById('dateInput').value;
-        if (!station || !date) return alert("请选择站点和日期");
+        const month = document.getElementById('monthInput').value;
+        if (!station || (!date && !month)) return alert("请选择站点和日期/月份");
 
-        renderChart(station, date);
+        if (month && !date) {
+            renderMonthlyChart(station, month);
+        } else {
+            renderChart(station, date);
+        }
     });
 
     // 监听窗口变化，自动调整所有图表大小
@@ -390,3 +489,5 @@ function showPage(name) {
 </div>
 </body>
 </html>
+
+
