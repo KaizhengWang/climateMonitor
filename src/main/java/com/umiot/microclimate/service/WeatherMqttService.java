@@ -1,37 +1,84 @@
 package com.umiot.microclimate.service;
 
 import com.umiot.microclimate.dto.WeatherStationDTO;
+import com.umiot.microclimate.entity.SelfWeatherRecord;
+import com.umiot.microclimate.repository.SelfWeatherRecordRepository;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
 
 @Service
 public class WeatherMqttService {
 
-    // 保存最新气象数据
+    private final SelfWeatherRecordRepository selfWeatherRecordRepository;
+
     private WeatherStationDTO latestWeather;
 
+    public WeatherMqttService(SelfWeatherRecordRepository selfWeatherRecordRepository) {
+        this.selfWeatherRecordRepository = selfWeatherRecordRepository;
+    }
+
     public void handleWeatherData(WeatherStationDTO data) {
-//    private Double press;
-//    private Integer rad;
-        System.out.println("收到气象数据:");
-        System.out.println("设备ID: " + data.getDeviceId());
-        System.out.println("温度: " + data.getTemp());
-        System.out.println("湿度: " + data.getHum());
-        System.out.println("风速: " + data.getWind());
-        System.out.println("风向: " + data.getDir());
-        System.out.println("气压: " + data.getPress());
-        System.out.println("光辐射: " + data.getRad());
-        System.out.println("剩余电量: " + data.getSoc());
-
-
         latestWeather = data;
-
-        // 这里未来可以：
-        // 1 保存数据库
-        // 2 推 websocket
-        // 3 做报警判断
+        selfWeatherRecordRepository.save(toEntity(data));
     }
 
     public WeatherStationDTO getLatestWeather() {
         return latestWeather;
+    }
+
+    private SelfWeatherRecord toEntity(WeatherStationDTO data) {
+        SelfWeatherRecord record = new SelfWeatherRecord();
+        record.setDeviceId(data.getDeviceId());
+        record.setTemperature(data.getTemp());
+        record.setHumidity(data.getHum());
+        record.setWindSpeed(data.getWind());
+        record.setWindDirection(data.getDir());
+        record.setPressure(data.getPress());
+        record.setRadiation(data.getRad());
+        record.setGps(data.getGps());
+        record.setSoc(data.getSoc());
+        record.setRecordTime(parseRecordTime(data.getTime()));
+
+        WeatherStationDTO.Alarms alarms = data.getAlarms();
+        if (alarms != null) {
+            record.setBatteryAlarm(alarms.getBattery());
+            record.setNetworkAlarm(alarms.getNetwork());
+            record.setStorageAlarm(alarms.getStorage());
+            record.setWatchdogAlarm(alarms.getWatchdog());
+        }
+        return record;
+    }
+
+    private LocalDateTime parseRecordTime(String value) {
+        if (value == null || value.isBlank()) {
+            return LocalDateTime.now();
+        }
+
+        List<DateTimeFormatter> formatters = List.of(
+                DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
+                DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"),
+                DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")
+        );
+
+        for (DateTimeFormatter formatter : formatters) {
+            try {
+                return LocalDateTime.parse(value, formatter);
+            } catch (DateTimeParseException ignored) {
+            }
+        }
+
+        try {
+            return OffsetDateTime.parse(value).toLocalDateTime();
+        } catch (DateTimeParseException ignored) {
+        }
+
+        return LocalDateTime.now();
     }
 }
