@@ -606,6 +606,18 @@ function showPage(name) {
         selfSocChart.resize();
     }
 
+    function buildQuarterHourTimePoints() {
+        const timePoints = [];
+        for (let h = 0; h < 24; h++) {
+            for (let m = 0; m < 60; m += 15) {
+                const hh = h.toString().padStart(2, '0');
+                const mm = m.toString().padStart(2, '0');
+                timePoints.push(`${hh}:${mm}`);
+            }
+        }
+        return timePoints;
+    }
+
     function buildSelfChartOption(title, yName, xData, seriesData, color) {
         return {
             title: { text: title, left: 'center' },
@@ -700,18 +712,39 @@ function showPage(name) {
                     .filter(d => d.recordTime && d.recordTime.startsWith(date))
                     .sort((a, b) => a.recordTime.localeCompare(b.recordTime));
 
-                if (dataOfDay.length === 0) {
-                    alert('当天没有自研站点数据');
-                    return;
-                }
+                const timePoints = buildQuarterHourTimePoints();
+                const recordMap = new Map();
 
-                const timePoints = dataOfDay.map(d => d.recordTime.slice(11, 16));
-                selfTempChart.setOption(buildSelfChartOption('温度 (°C)', '温度(°C)', timePoints, dataOfDay.map(d => d.temperature), '#FF6B6B'));
-                selfHumidityChart.setOption(buildSelfChartOption('湿度 (%)', '湿度(%)', timePoints, dataOfDay.map(d => d.humidity), '#4ECDC4'));
-                selfWindChart.setOption(buildSelfChartOption('风速 (m/s)', '风速(m/s)', timePoints, dataOfDay.map(d => d.windSpeed), '#FFD93D'));
-                selfPressureChart.setOption(buildSelfChartOption('气压 (hPa)', '气压(hPa)', timePoints, dataOfDay.map(d => d.pressure), '#1D4ED8'));
-                selfRadiationChart.setOption(buildSelfChartOption('光照强度', '光照', timePoints, dataOfDay.map(d => d.radiation), '#F97316'));
-                selfSocChart.setOption(buildSelfChartOption('设备电量 (%)', '电量(%)', timePoints, dataOfDay.map(d => d.soc), '#16A34A'));
+                dataOfDay.forEach(record => {
+                    const time = record.recordTime.slice(11, 16);
+                    if (timePoints.includes(time)) {
+                        recordMap.set(time, record);
+                    }
+                });
+
+                const temperature = [];
+                const humidity = [];
+                const windSpeed = [];
+                const pressure = [];
+                const radiation = [];
+                const soc = [];
+
+                timePoints.forEach(time => {
+                    const record = recordMap.get(time);
+                    temperature.push(record ? record.temperature : null);
+                    humidity.push(record ? record.humidity : null);
+                    windSpeed.push(record ? record.windSpeed : null);
+                    pressure.push(record ? record.pressure : null);
+                    radiation.push(record ? record.radiation : null);
+                    soc.push(record ? record.soc : null);
+                });
+
+                selfTempChart.setOption(buildSelfChartOption('温度 (°C)', '温度(°C)', timePoints, temperature, '#FF6B6B'));
+                selfHumidityChart.setOption(buildSelfChartOption('湿度 (%)', '湿度(%)', timePoints, humidity, '#4ECDC4'));
+                selfWindChart.setOption(buildSelfChartOption('风速 (m/s)', '风速(m/s)', timePoints, windSpeed, '#FFD93D'));
+                selfPressureChart.setOption(buildSelfChartOption('气压 (hPa)', '气压(hPa)', timePoints, pressure, '#1D4ED8'));
+                selfRadiationChart.setOption(buildSelfChartOption('光照强度', '光照', timePoints, radiation, '#F97316'));
+                selfSocChart.setOption(buildSelfChartOption('设备电量 (%)', '电量(%)', timePoints, soc, '#16A34A'));
             })
             .catch(err => {
                 console.error(err);
