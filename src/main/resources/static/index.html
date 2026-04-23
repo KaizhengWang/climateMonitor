@@ -450,8 +450,8 @@ function showPage(name) {
                     title: { text: '温度 (℃)', left: 'center' },
                     tooltip: { trigger: 'axis' },
                     grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: timePoints },
-                    yAxis: { type: 'value', name: '温度(℃)' },
+                    xAxis: { type: 'category', boundaryGap: false, data: timePoints, position: 'bottom', axisLine: { onZero: false } },
+                    yAxis: buildDynamicYAxis(temperature, '温度(℃)', { minBound: 0 }),
                     series: [{ name: '温度', type: 'line', smooth: true, data: temperature, itemStyle: { color: '#FF6B6B' }}]
                 };
 
@@ -460,8 +460,8 @@ function showPage(name) {
                     title: { text: '湿度 (%)', left: 'center' },
                     tooltip: { trigger: 'axis' },
                     grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: timePoints },
-                    yAxis: { type: 'value', name: '湿度(%)' },
+                    xAxis: { type: 'category', boundaryGap: false, data: timePoints, position: 'bottom', axisLine: { onZero: false } },
+                    yAxis: buildDynamicYAxis(humidity, '湿度(%)', { minBound: 0, maxBound: 100 }),
                     series: [{ name: '湿度', type: 'line', smooth: true, data: humidity, itemStyle: { color: '#4ECDC4' }}]
                 };
 
@@ -470,8 +470,8 @@ function showPage(name) {
                     title: { text: '风速 (m/s)', left: 'center' },
                     tooltip: { trigger: 'axis' },
                     grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: timePoints },
-                    yAxis: { type: 'value', name: '风速(m/s)' },
+                    xAxis: { type: 'category', boundaryGap: false, data: timePoints, position: 'bottom', axisLine: { onZero: false } },
+                    yAxis: buildDynamicYAxis(windSpeed, '风速(m/s)', { minBound: 0 }),
                     series: [{ name: '风速', type: 'line', smooth: true, data: windSpeed, itemStyle: { color: '#FFD93D' }}]
                 };
 
@@ -480,8 +480,8 @@ function showPage(name) {
                     title: { text: '降雨量 (mm)', left: 'center' },
                     tooltip: { trigger: 'axis' },
                     grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: timePoints },
-                    yAxis: { type: 'value', name: '降雨量(mm)' },
+                    xAxis: { type: 'category', boundaryGap: false, data: timePoints, position: 'bottom', axisLine: { onZero: false } },
+                    yAxis: buildDynamicYAxis(rainHour, '降雨量(mm)', { minBound: 0 }),
                     series: [{ name: '降雨量', type: 'line', smooth: true, data: rainHour, itemStyle: { color: '#5A67F2' }}]
                 };
 
@@ -539,8 +539,8 @@ function showPage(name) {
                     title: { text: '温度日均 (°C)', left: 'center' },
                     tooltip: { trigger: 'axis' },
                     grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels },
-                    yAxis: { type: 'value', name: '温度(°C)' },
+                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels, position: 'bottom', axisLine: { onZero: false } },
+                    yAxis: buildDynamicYAxis(temperature, '温度(°C)', { minBound: 0 }),
                     series: [{ name: '温度', type: 'line', smooth: true, data: temperature, itemStyle: { color: '#FF6B6B' }}]
                 };
 
@@ -548,8 +548,8 @@ function showPage(name) {
                     title: { text: '湿度日均 (%)', left: 'center' },
                     tooltip: { trigger: 'axis' },
                     grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels },
-                    yAxis: { type: 'value', name: '湿度(%)' },
+                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels, position: 'bottom', axisLine: { onZero: false } },
+                    yAxis: buildDynamicYAxis(humidity, '湿度(%)', { minBound: 0, maxBound: 100 }),
                     series: [{ name: '湿度', type: 'line', smooth: true, data: humidity, itemStyle: { color: '#4ECDC4' }}]
                 };
 
@@ -557,8 +557,8 @@ function showPage(name) {
                     title: { text: '风速日均 (m/s)', left: 'center' },
                     tooltip: { trigger: 'axis' },
                     grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels },
-                    yAxis: { type: 'value', name: '风速(m/s)' },
+                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels, position: 'bottom', axisLine: { onZero: false } },
+                    yAxis: buildDynamicYAxis(windSpeed, '风速(m/s)', { minBound: 0 }),
                     series: [{ name: '风速', type: 'line', smooth: true, data: windSpeed, itemStyle: { color: '#FFD93D' }}]
                 };
 
@@ -566,8 +566,8 @@ function showPage(name) {
                     title: { text: '降雨量日均 (mm)', left: 'center' },
                     tooltip: { trigger: 'axis' },
                     grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels },
-                    yAxis: { type: 'value', name: '降雨量(mm)' },
+                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels, position: 'bottom', axisLine: { onZero: false } },
+                    yAxis: buildDynamicYAxis(rainHour, '降雨量(mm)', { minBound: 0 }),
                     series: [{ name: '降雨量', type: 'line', smooth: true, data: rainHour, itemStyle: { color: '#5A67F2' }}]
                 };
 
@@ -606,6 +606,79 @@ function showPage(name) {
         selfSocChart.resize();
     }
 
+    function roundDownToBase(value, base) {
+        return Math.floor(value / base) * base;
+    }
+
+    function roundUpToBase(value, base) {
+        return Math.ceil(value / base) * base;
+    }
+
+    function chooseNiceInterval(range, targetTickCount = 6) {
+        if (range <= 0) {
+            return 5;
+        }
+
+        const rough = range / targetTickCount;
+        const power = Math.pow(10, Math.floor(Math.log10(rough)));
+        const normalized = rough / power;
+
+        let factor;
+        if (normalized <= 1) {
+            factor = 1;
+        } else if (normalized <= 2) {
+            factor = 2;
+        } else if (normalized <= 5) {
+            factor = 5;
+        } else {
+            factor = 10;
+        }
+
+        const interval = factor * power;
+        return interval >= 5 ? roundUpToBase(interval, 5) : 5;
+    }
+
+    function buildDynamicYAxis(seriesData, yName, options = {}) {
+        const validData = seriesData
+            .map(value => Number(value))
+            .filter(value => Number.isFinite(value));
+
+        if (validData.length === 0) {
+            return { type: 'value', name: yName };
+        }
+
+        const minValue = Math.min(...validData);
+        const maxValue = Math.max(...validData);
+        const range = Math.max(maxValue - minValue, 1);
+        const minPadding = options.minPadding ?? Math.max(range * 0.2, 5);
+        const maxPadding = options.maxPadding ?? Math.max(range * 0.2, 5);
+
+        let axisMin = roundDownToBase(minValue - minPadding, 5);
+        let axisMax = roundUpToBase(maxValue + maxPadding, 5);
+
+        if (options.minBound !== undefined) {
+            axisMin = Math.max(axisMin, options.minBound);
+        }
+
+        if (options.maxBound !== undefined) {
+            axisMax = Math.min(axisMax, options.maxBound);
+        }
+
+        if (axisMin === axisMax) {
+            axisMax = axisMin + 5;
+        }
+
+        const interval = options.interval ?? chooseNiceInterval(axisMax - axisMin, options.targetTickCount ?? 6);
+
+        return {
+            type: 'value',
+            name: yName,
+            min: axisMin,
+            max: axisMax,
+            interval
+        };
+    }
+
     function buildQuarterHourTimePoints() {
         const timePoints = [];
         for (let h = 0; h < 24; h++) {
@@ -618,13 +691,13 @@ function showPage(name) {
         return timePoints;
     }
 
-    function buildSelfChartOption(title, yName, xData, seriesData, color) {
+    function buildSelfChartOption(title, yName, xData, seriesData, color, axisOptions = {}) {
         return {
             title: { text: title, left: 'center' },
             tooltip: { trigger: 'axis' },
             grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-            xAxis: { type: 'category', boundaryGap: false, data: xData },
-            yAxis: { type: 'value', name: yName },
+            xAxis: { type: 'category', boundaryGap: false, data: xData, position: 'bottom', axisLine: { onZero: false } },
+            yAxis: buildDynamicYAxis(seriesData, yName, axisOptions),
             series: [{ name: title, type: 'line', smooth: true, data: seriesData, itemStyle: { color } }]
         };
     }
@@ -739,12 +812,12 @@ function showPage(name) {
                     soc.push(record ? record.soc : null);
                 });
 
-                selfTempChart.setOption(buildSelfChartOption('温度 (°C)', '温度(°C)', timePoints, temperature, '#FF6B6B'));
-                selfHumidityChart.setOption(buildSelfChartOption('湿度 (%)', '湿度(%)', timePoints, humidity, '#4ECDC4'));
-                selfWindChart.setOption(buildSelfChartOption('风速 (m/s)', '风速(m/s)', timePoints, windSpeed, '#FFD93D'));
-                selfPressureChart.setOption(buildSelfChartOption('气压 (hPa)', '气压(hPa)', timePoints, pressure, '#1D4ED8'));
-                selfRadiationChart.setOption(buildSelfChartOption('光照强度', '光照', timePoints, radiation, '#F97316'));
-                selfSocChart.setOption(buildSelfChartOption('设备电量 (%)', '电量(%)', timePoints, soc, '#16A34A'));
+                selfTempChart.setOption(buildSelfChartOption('温度 (°C)', '温度(°C)', timePoints, temperature, '#FF6B6B', { minBound: 0 }));
+                selfHumidityChart.setOption(buildSelfChartOption('湿度 (%)', '湿度(%)', timePoints, humidity, '#4ECDC4', { minBound: 0, maxBound: 100 }));
+                selfWindChart.setOption(buildSelfChartOption('风速 (m/s)', '风速(m/s)', timePoints, windSpeed, '#FFD93D', { minBound: 0 }));
+                selfPressureChart.setOption(buildSelfChartOption('气压 (hPa)', '气压(hPa)', timePoints, pressure, '#1D4ED8', { minBound: 0 }));
+                selfRadiationChart.setOption(buildSelfChartOption('光照强度', '光照', timePoints, radiation, '#F97316', { minBound: 0 }));
+                selfSocChart.setOption(buildSelfChartOption('设备电量 (%)', '电量(%)', timePoints, soc, '#16A34A', { minBound: 0, maxBound: 120 }));
             })
             .catch(err => {
                 console.error(err);
@@ -796,12 +869,12 @@ function showPage(name) {
                     }
                 }
 
-                selfTempChart.setOption(buildSelfChartOption('温度日均 (°C)', '温度(°C)', dayLabels, temperature, '#FF6B6B'));
-                selfHumidityChart.setOption(buildSelfChartOption('湿度日均 (%)', '湿度(%)', dayLabels, humidity, '#4ECDC4'));
-                selfWindChart.setOption(buildSelfChartOption('风速日均 (m/s)', '风速(m/s)', dayLabels, windSpeed, '#FFD93D'));
-                selfPressureChart.setOption(buildSelfChartOption('气压日均 (hPa)', '气压(hPa)', dayLabels, pressure, '#1D4ED8'));
-                selfRadiationChart.setOption(buildSelfChartOption('光照日均', '光照', dayLabels, radiation, '#F97316'));
-                selfSocChart.setOption(buildSelfChartOption('电量日均 (%)', '电量(%)', dayLabels, soc, '#16A34A'));
+                selfTempChart.setOption(buildSelfChartOption('温度日均 (°C)', '温度(°C)', dayLabels, temperature, '#FF6B6B', { minBound: 0 }));
+                selfHumidityChart.setOption(buildSelfChartOption('湿度日均 (%)', '湿度(%)', dayLabels, humidity, '#4ECDC4', { minBound: 0, maxBound: 100 }));
+                selfWindChart.setOption(buildSelfChartOption('风速日均 (m/s)', '风速(m/s)', dayLabels, windSpeed, '#FFD93D', { minBound: 0 }));
+                selfPressureChart.setOption(buildSelfChartOption('气压日均 (hPa)', '气压(hPa)', dayLabels, pressure, '#1D4ED8', { minBound: 0 }));
+                selfRadiationChart.setOption(buildSelfChartOption('光照日均', '光照', dayLabels, radiation, '#F97316', { minBound: 0 }));
+                selfSocChart.setOption(buildSelfChartOption('电量日均 (%)', '电量(%)', dayLabels, soc, '#16A34A', { minBound: 0, maxBound: 120 }));
             })
             .catch(err => {
                 console.error(err);
