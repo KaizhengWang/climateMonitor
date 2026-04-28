@@ -20,6 +20,11 @@ public class SelfWeatherRecordController {
         this.repository = repository;
     }
 
+    @GetMapping
+    public List<String> devicesCompat() {
+        return repository.findDistinctDeviceIds();
+    }
+
     @GetMapping("/devices")
     public List<String> devices() {
         return repository.findDistinctDeviceIds();
