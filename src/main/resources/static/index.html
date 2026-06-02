@@ -65,6 +65,27 @@
         .self-charts { padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 16px; }
         .self-charts .chart-box { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
         .self-charts .chart-inner { width: 100%; height: 300px; }
+
+        /* ====== 极端值页面 ====== */
+        #extremesPage { background: #f0f2f5; overflow-y: auto; flex-direction: column; }
+        .extr-header { background: #fff; padding: 16px 24px; margin: 16px 24px 0; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .extr-header h2 { margin: 0 20px 0 0; font-size: 20px; }
+        .extr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 24px 24px; }
+        @media (max-width: 900px) { .extr-grid { grid-template-columns: 1fr; } }
+        .extr-section { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow: hidden; }
+        .extr-section .sec-title { padding: 12px 18px; font-size: 15px; font-weight: 600; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 8px; }
+        .extr-section .sec-title .icon { font-size: 20px; }
+        .extr-rank { padding: 8px 0; }
+        .extr-rank .rank-row { display: flex; align-items: center; padding: 8px 18px; gap: 12px; cursor: pointer; transition: background 0.15s; }
+        .extr-rank .rank-row:hover { background: #f7fafc; }
+        .extr-rank .rank-row.sel { background: #e0f7f5; }
+        .extr-rank .rank-num { width: 24px; height: 24px; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
+        .extr-rank .rank-date { font-weight: 500; min-width: 80px; }
+        .extr-rank .rank-val { font-weight: 600; color: #333; }
+        .extr-rank .rank-sub { font-size: 12px; color: #999; margin-left: auto; }
+        .extr-detail { margin: 16px 24px 24px; background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: none; }
+        .extr-detail .detail-header { padding: 12px 18px; font-size: 15px; font-weight: 500; border-bottom: 1px solid #f0f0f0; }
+        .extr-detail .chart-inner { width: 100%; height: 350px; }
     </style>
 </head>
 <body>
@@ -76,6 +97,7 @@
     <button id="btnMonitor">监控</button>
     <button id="btnData">数据记录</button>
     <button id="btnSelfStation">自研站点</button>
+    <button id="btnExtremes">特殊统计</button>
 </div>
 
 <div id="content">
@@ -179,6 +201,44 @@
             <div class="chart-box"><div class="chart-title">电量 (%)</div><div class="chart-inner" id="selfSocChart"></div></div>
         </div>
     </div>
+
+    <!-- ===== 极端值 ===== -->
+    <div id="extremesPage">
+        <div class="extr-header">
+            <h2>年度极端值</h2>
+            <span style="color:#666;font-size:13px;">站点</span>
+            <select id="extrStation"></select>
+            <span style="color:#666;font-size:13px;">年份</span>
+            <select id="extrYear"><option value="2026">2026</option></select>
+            <button class="btn-query" id="btnExtrQuery">查询</button>
+        </div>
+
+        <div class="extr-grid">
+            <div class="extr-section" id="extrCold">
+                <div class="sec-title"><span class="icon">❄️</span> 最冷 5 天</div>
+                <div class="extr-rank" id="coldRank"></div>
+            </div>
+            <div class="extr-section" id="extrHot">
+                <div class="sec-title"><span class="icon">🔥</span> 最热 5 天</div>
+                <div class="extr-rank" id="hotRank"></div>
+            </div>
+            <div class="extr-section" id="extrWind">
+                <div class="sec-title"><span class="icon">💨</span> 最大风 5 天</div>
+                <div class="extr-rank" id="windRank"></div>
+            </div>
+            <div class="extr-section" id="extrRain">
+                <div class="sec-title"><span class="icon">🌧️</span> 最多雨 5 天</div>
+                <div class="extr-rank" id="rainRank"></div>
+            </div>
+        </div>
+
+        <div class="extr-detail" id="extrDetail">
+            <div class="detail-header" id="detailTitle"></div>
+            <div class="chart-box" style="margin-bottom:14px;"><div class="chart-title">气温 / 体感温度 (°C)</div><div class="chart-inner" id="extrChartTemp" style="height:300px;"></div></div>
+            <div class="chart-box" style="margin-bottom:14px;"><div class="chart-title">相对湿度 / 露点 (%)</div><div class="chart-inner" id="extrChartHum" style="height:300px;"></div></div>
+            <div class="chart-box"><div class="chart-title">风速 / 阵风 (km/h) + 1h雨量 (mm)</div><div class="chart-inner" id="extrChartWind" style="height:300px;"></div></div>
+        </div>
+    </div>
 </div>
 
 <script src="js/stations.js"></script>
@@ -190,19 +250,21 @@ const pages = {
     home: document.getElementById('homePage'),
     monitor: document.getElementById('monitorPage'),
     data: document.getElementById('dataPage'),
-    selfStation: document.getElementById('selfStationPage')
+    selfStation: document.getElementById('selfStationPage'),
+    extremes: document.getElementById('extremesPage')
 };
 const btns = {
     home: document.getElementById('btnHome'),
     monitor: document.getElementById('btnMonitor'),
     data: document.getElementById('btnData'),
-    selfStation: document.getElementById('btnSelfStation')
+    selfStation: document.getElementById('btnSelfStation'),
+    extremes: document.getElementById('btnExtremes')
 };
 
 function showPage(name) {
     for (const p in pages) pages[p].style.display = 'none';
     for (const b in btns) btns[b].classList.remove('active');
-    const display = (name === 'data' || name === 'selfStation') ? 'flex' : 'block';
+    const display = (name === 'data' || name === 'selfStation' || name === 'extremes') ? 'flex' : 'block';
     pages[name].style.display = display;
     btns[name].classList.add('active');
 
@@ -212,11 +274,15 @@ function showPage(name) {
     if (name === 'selfStation') {
         setTimeout(() => { resizeSelfCharts(); }, 100);
     }
+    if (name === 'extremes') {
+        setTimeout(() => { resizeExtrCharts(); }, 100);
+    }
 }
 btns.home.addEventListener('click', () => showPage('home'));
 btns.monitor.addEventListener('click', () => showPage('monitor'));
 btns.data.addEventListener('click', () => showPage('data'));
 btns.selfStation.addEventListener('click', () => showPage('selfStation'));
+btns.extremes.addEventListener('click', () => showPage('extremes'));
 
 // ==================== 监控 ====================
 const video = document.getElementById('cameraVideo');
@@ -541,7 +607,122 @@ document.getElementById('loadSelfDataBtn').addEventListener('click', () => {
 window.addEventListener('resize', () => {
     resizeDataCharts();
     resizeSelfCharts();
+    resizeExtrCharts();
 });
+
+// ==================== 极端值页面 ====================
+const extrChartTemp = echarts.init(document.getElementById('extrChartTemp'));
+const extrChartHum = echarts.init(document.getElementById('extrChartHum'));
+const extrChartWind = echarts.init(document.getElementById('extrChartWind'));
+let extrDataCache = null;
+
+function resizeExtrCharts() { extrChartTemp.resize(); extrChartHum.resize(); extrChartWind.resize(); }
+
+// init station dropdown
+stations.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id; opt.textContent = s.name;
+    document.getElementById('extrStation').appendChild(opt.cloneNode(true));
+});
+document.getElementById('extrStation').value = 'um';
+
+document.getElementById('btnExtrQuery').addEventListener('click', loadExtremes);
+
+function loadExtremes() {
+    const stationId = document.getElementById('extrStation').value;
+    const year = document.getElementById('extrYear').value;
+    if (!stationId) return;
+
+    axios.get(`/api/weather/extremes?stationId=${stationId}&year=${year}`).then(res => {
+        extrDataCache = res.data;
+        renderExtremeRank('coldRank', extrDataCache.coldestDetail, 'minTemp', '最低气温', '°C', '#4ECDC4', '❄️');
+        renderExtremeRank('hotRank', extrDataCache.hottestDetail, 'maxTemp', '最高气温', '°C', '#FF6B6B', '🔥');
+        renderExtremeRank('windRank', extrDataCache.windiestDetail, 'maxGust', '最大阵风', 'km/h', '#FFD93D', '💨');
+        renderExtremeRank('rainRank', extrDataCache.rainiestDetail, 'totalRain', '日雨量', 'mm', '#5A67F2', '🌧️');
+    }).catch(err => console.error(err));
+}
+
+function renderExtremeRank(containerId, days, key, label, unit, color, icon) {
+    const container = document.getElementById(containerId);
+    if (!days || !days.length) { container.innerHTML = '<div style="padding:16px;color:#999;">暂无数据</div>'; return; }
+
+    const colors = ['#E74C3C','#E67E22','#F1C40F','#2ECC71','#3498DB'];
+    container.innerHTML = days.map((d, i) => `
+        <div class="rank-row" data-idx="${i}" data-key="${containerId}">
+            <span class="rank-num" style="background:${colors[i]}">${i+1}</span>
+            <span class="rank-date">${d.date}</span>
+            <span class="rank-val">${d[key] != null ? d[key] + ' ' + unit : '--'}</span>
+            <span class="rank-sub">${label}</span>
+        </div>
+    `).join('');
+
+    container.querySelectorAll('.rank-row').forEach(row => {
+        row.addEventListener('click', () => {
+            container.querySelectorAll('.rank-row').forEach(r => r.classList.remove('sel'));
+            row.classList.add('sel');
+            const idx = parseInt(row.dataset.idx);
+            const detailList = extrDataCache[containerId === 'coldRank' ? 'coldestDetail' :
+                containerId === 'hotRank' ? 'hottestDetail' :
+                containerId === 'windRank' ? 'windiestDetail' : 'rainiestDetail'];
+            showDayDetail(detailList[idx], label + ' ' + unit);
+        });
+    });
+}
+
+function showDayDetail(dayData, label) {
+    if (!dayData || !dayData.records) return;
+    const detail = document.getElementById('extrDetail');
+    const title = document.getElementById('detailTitle');
+    detail.style.display = 'block';
+    title.textContent = `${dayData.date}  ${label}  |  点击行查看 30 分钟详情`;
+    detail.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    const recs = dayData.records;
+    const xData = recs.map(r => r.recordTime ? r.recordTime.substring(11, 16) : '');
+    const temp = recs.map(r => r.temperature);
+    const feels = recs.map(r => r.feelsLike);
+    const hum = recs.map(r => r.humidity);
+    const dew = recs.map(r => r.dewPoint);
+    const wind = recs.map(r => r.windSpeed10min);
+    const gust = recs.map(r => r.windGust);
+    const rain = recs.map(r => r.rain1hour);
+
+    const grid = { left: '8%', right: '6%', bottom: '12%', top: '15%', containLabel: true };
+    const xOpt = { type: 'category', data: xData, axisLabel: { rotate: 45, fontSize: 10 } };
+
+    extrChartTemp.setOption({
+        grid, tooltip: { trigger: 'axis' },
+        xAxis: xOpt, yAxis: { type: 'value', name: '°C' },
+        series: [
+            { name: '气温', type: 'line', smooth: true, data: temp, color: '#FF6B6B', symbol: 'none' },
+            { name: '体感温度', type: 'line', smooth: true, data: feels, color: '#FFA07A', symbol: 'none', lineStyle: { type: 'dashed' } }
+        ]
+    });
+
+    extrChartHum.setOption({
+        grid, tooltip: { trigger: 'axis' },
+        xAxis: xOpt, yAxis: { type: 'value', name: '% / °C' },
+        series: [
+            { name: '湿度', type: 'line', smooth: true, data: hum, color: '#4ECDC4', symbol: 'none' },
+            { name: '露点', type: 'line', smooth: true, data: dew, color: '#87CEEB', symbol: 'none', lineStyle: { type: 'dashed' } }
+        ]
+    });
+
+    extrChartWind.setOption({
+        grid, tooltip: { trigger: 'axis' },
+        xAxis: xOpt, yAxis: { type: 'value', name: 'km/h / mm' },
+        series: [
+            { name: '10min风速', type: 'line', smooth: true, data: wind, color: '#FFD93D', symbol: 'none' },
+            { name: '阵风', type: 'line', smooth: true, data: gust, color: '#FF8C00', symbol: 'none', lineStyle: { type: 'dashed' } },
+            { name: '1h雨量', type: 'bar', data: rain, color: '#5A67F2', barMaxWidth: 4 }
+        ]
+    });
+
+    extrChartTemp.resize(); extrChartHum.resize(); extrChartWind.resize();
+}
+
+// load on first visit
+// default loaded when user clicks the button
 
 // ==================== 初始化 ====================
 loadSelfStationDevices();
