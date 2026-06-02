@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
@@ -6,172 +6,71 @@
     <link href="https://cdn.jsdelivr.net/npm/cesium@1.110/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/cesium@1.110/Build/Cesium/Cesium.js"></script>
     <style>
-        html, body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: 'Microsoft YaHei', sans-serif;
-        }
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; font-family: 'Microsoft YaHei', sans-serif; }
+        #navbar { height: 50px; background: #111; display: flex; align-items: center; padding: 0 10px; color: #fff; }
+        #navbar button { margin-right: 10px; padding: 8px 15px; background: #222; border: none; color: #fff; cursor: pointer; border-radius: 3px; }
+        #navbar button.active { background: #4ECDC4; color: #000; }
+        #content { position: absolute; top: 50px; bottom: 0; left: 0; right: 0; }
+        #homePage, #monitorPage, #dataPage, #selfStationPage { width: 100%; height: 100%; display: none; }
+        #cesiumContainer { width: 100%; height: 100%; }
 
-        /* 顶部导航 */
-        #navbar {
-            height: 50px;
-            background: #111;
-            display: flex;
-            align-items: center;
-            padding: 0 10px;
-            color: #fff;
-        }
-        #navbar button {
-            margin-right: 10px;
-            padding: 8px 15px;
-            background: #222;
-            border: none;
-            color: #fff;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-        #navbar button.active {
-            background: #4ECDC4;
-            color: black;
-        }
+        .info-panel { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.8); color: #fff; padding: 20px; border-radius: 10px; width: 300px; z-index: 1000; display: none; }
+        .info-panel .title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #4ECDC4; border-bottom: 2px solid #4ECDC4; padding-bottom: 5px; }
+        .info-panel .row { margin: 8px 0; display: flex; justify-content: space-between; }
+        .info-panel .label { color: #ccc; }
+        .info-panel .value { color: #fff; font-weight: bold; }
+        .hint { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.7); color: #fff; padding: 10px 15px; border-radius: 5px; font-size: 14px; }
 
-        /* 页面容器 */
-        #content {
-            position: absolute;
-            top: 50px; /* 导航栏高度 */
-            bottom: 0;
-            left: 0;
-            right: 0;
-        }
+        #monitorPage { display: flex; }
+        #cameraList { width: 200px; background: #222; color: #fff; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; }
+        #cameraList button { width: 100%; margin-bottom: 8px; padding: 8px; background: #333; color: #fff; border: none; cursor: pointer; border-radius: 3px; }
+        #cameraList button.active { background: #4ECDC4; color: #000; }
+        #videoPlayer { flex: 1; background: #000; display: flex; align-items: center; justify-content: center; }
+        #videoPlayer video { width: 95%; height: 95%; object-fit: contain; background: #000; }
 
-        /* 首页 */
-        #homePage, #monitorPage, #dataPage, #selfStationPage {
-            width: 100%;
-            height: 100%;
-            display: none; /* 默认隐藏 */
-        }
+        /* ====== 数据记录页面 ====== */
+        #dataPage { background: #f0f2f5; overflow-y: auto; flex-direction: column; }
+        .data-header { background: #fff; padding: 16px 24px; margin: 16px 24px 0; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .data-header h2 { margin: 0 20px 0 0; font-size: 20px; white-space: nowrap; }
+        .data-header select, .data-header input { padding: 7px 10px; border: 1px solid #d0d5dd; border-radius: 6px; font-size: 13px; background: #fff; }
+        .data-header select { min-width: 160px; }
+        .data-header input[type="date"] { min-width: 130px; }
+        .btn-query { padding: 7px 20px; background: #4ECDC4; color: #fff; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500; }
+        .btn-query:hover { background: #3dbdb5; }
+        .btn-preset { padding: 5px 12px; background: #f0f2f5; border: 1px solid #d0d5dd; border-radius: 14px; font-size: 12px; cursor: pointer; }
+        .btn-preset:hover, .btn-preset.on { background: #e0f7f5; border-color: #4ECDC4; color: #2aa198; }
 
-        /* 首页 Cesium 地图 */
-        #cesiumContainer {
-            width: 100%;
-            height: 100%;
-        }
+        .data-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; padding: 16px 24px 0; }
+        .data-card { background: #fff; border-radius: 10px; padding: 14px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .data-card .card-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+        .data-card .card-value { font-size: 22px; font-weight: 600; color: #222; }
+        .data-card .card-sub { font-size: 12px; color: #aaa; }
 
-        /* 信息面板 */
-        .info-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            width: 300px;
-            z-index: 1000;
-            display: none;
-        }
-        .info-title { font-size:18px;font-weight:bold;margin-bottom:15px;color:#4ECDC4;border-bottom:2px solid #4ECDC4;padding-bottom:5px;}
-        .info-item { margin:8px 0; display:flex; justify-content:space-between;}
-        .info-label {color:#CCC;}
-        .info-value {color:white;font-weight:bold;}
-        .close-btn { position:absolute; top:10px; right:10px; background:#FF6B6B; color:white; border:none; width:24px; height:24px; border-radius:50%; cursor:pointer; font-size:14px; line-height:1;}
-        .hint {position:absolute; bottom:20px; left:20px; background:rgba(0,0,0,0.7); color:white; padding:10px 15px; border-radius:5px; font-size:14px;}
+        .data-charts { padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 16px; }
+        .data-charts .chart-box { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .chart-box .chart-title { padding: 12px 18px 0; font-size: 14px; font-weight: 500; color: #444; }
+        .chart-inner { width: 100%; height: 350px; }
 
-        /* 监控页面 */
-<!--        #monitorPage {-->
-<!--            display: flex;-->
-<!--            height: 100%;-->
-<!--        }-->
+        .loading-overlay { display: none; text-align: center; padding: 40px; color: #999; }
 
-        #cameraList {
-            width: 200px;
-            background: #222;
-            color: #fff;
-            padding: 10px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-        }
-        #cameraList button {
-            width: 100%;
-            margin-bottom: 8px;
-            padding: 8px;
-            background: #333;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-        #cameraList button.active { background: #4ECDC4; color: black; }
-
-        #videoPlayer {
-            flex: 1;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #videoPlayer video {
-            width: 95%;
-            height: 95%;
-            object-fit: contain;
-            background: #000;
-        }
-
-        /* 数据记录页面示例 */
-        #dataPage, #selfStationPage {
-            padding: 20px 0;
-            background: #f5f5f5;
-            overflow: auto;
-            width: 100%;        /* 添加这一行 */
-            box-sizing: border-box; /* 添加这一行，确保padding不影响总宽度 */
-        }
-        #dataPage > div:last-child, #selfStationPage > div:last-child {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0 20px; /* 添加左右内边距，让图表不要贴边 */
-}
-.self-station-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-    padding: 0 20px;
-    box-sizing: border-box;
-}
-.self-station-card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    padding: 16px 18px;
-}
-.self-station-card .label {
-    color: #666;
-    font-size: 13px;
-    margin-bottom: 8px;
-}
-.self-station-card .value {
-    color: #222;
-    font-size: 24px;
-    font-weight: 600;
-}
-.self-station-meta {
-    margin: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    padding: 14px 20px;
-    color: #555;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-}
+        /* ====== 自研站点 ====== */
+        #selfStationPage { background: #f0f2f5; overflow-y: auto; flex-direction: column; }
+        .self-header { background: #fff; padding: 16px 24px; margin: 16px 24px 0; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .self-header h2 { margin: 0 20px 0 0; font-size: 20px; }
+        .self-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; padding: 16px 24px 0; }
+        .self-card { background: #fff; border-radius: 10px; padding: 14px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .self-card .label { color: #888; font-size: 12px; margin-bottom: 4px; }
+        .self-card .value { color: #222; font-size: 22px; font-weight: 600; }
+        .self-meta { margin: 16px 24px 0; background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); padding: 12px 20px; color: #555; display: flex; flex-wrap: wrap; gap: 18px; font-size: 13px; }
+        .self-charts { padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 16px; }
+        .self-charts .chart-box { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .self-charts .chart-inner { width: 100%; height: 300px; }
     </style>
 </head>
 <body>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 <div id="navbar">
     <button id="btnHome" class="active">首页</button>
     <button id="btnMonitor">监控</button>
@@ -180,20 +79,21 @@
 </div>
 
 <div id="content">
-    <!-- 首页 -->
+    <!-- ===== 首页 ===== -->
     <div id="homePage">
         <div id="cesiumContainer"></div>
         <div id="infoPanel" class="info-panel">
-            <div class="info-title" id="stationName"></div>
-            <div>温度：<span id="tempValue"></span> °C</div>
-            <div>湿度：<span id="humidityValue"></span> %</div>
-            <div>风速：<span id="windSpeedValue"></span> km/h</div>
-            <div>风向：<span id="windDirValue"></span></div>
-            <div>一小时雨量：<span id="rainHourValue"></span> mm</div>
+            <div class="title" id="stationName"></div>
+            <div class="row"><span class="label">温度</span><span class="value" id="tempValue"></span></div>
+            <div class="row"><span class="label">湿度</span><span class="value" id="humidityValue"></span></div>
+            <div class="row"><span class="label">风速 (10min)</span><span class="value" id="windSpeedValue"></span></div>
+            <div class="row"><span class="label">风向</span><span class="value" id="windDirValue"></span></div>
+            <div class="row"><span class="label">1小时雨量</span><span class="value" id="rainHourValue"></span></div>
         </div>
+        <div class="hint">点击地图上的红点查看气象数据</div>
     </div>
 
-    <!-- 监控页面 -->
+    <!-- ===== 监控 ===== -->
     <div id="monitorPage">
         <div id="cameraList">
             <button class="active" data-src="video/demo.mp4">摄像头1</button>
@@ -205,844 +105,453 @@
         </div>
     </div>
 
-    <!-- 数据记录页面 -->
+    <!-- ===== 数据记录 ===== -->
     <div id="dataPage">
-        <!-- 优化后的头部区域 -->
-        <!-- 优化后的头部区域 -->
-        <div style="background: white; padding: 20px; margin: 0 20px 20px 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; flex-wrap: wrap; gap: 20px;">
-            <h2 style="margin: 0; color: #333; font-size: 24px; font-weight: 500; min-width: fit-content;">📊 数据记录</h2>
-
-            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; flex: 1;">
-                <!-- 站点选择器 -->
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="color: #666; font-size: 14px; white-space: nowrap;">📍 站点</span>
-                    <select id="stationSelect" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; min-width: 180px; background: white;">
-                        onmouseover="this.style.borderColor='#4ECDC4'"
-                        onmouseout="this.style.borderColor='#ddd'">
-                        <option value="">选择站点</option>
-                        <option>紀念孫中山市政公園</option>
-                        <option>外港</option>
-                        <option>大炮台</option>
-                        <option>大潭山</option>
-                        <option>路環市區</option>
-                        <option>黑沙環</option>
-                        <option>東亞運大馬路</option>
-                        <option>澳門大學</option>
-                        <option>媽閣</option>
-                        <option>九澳</option>
-                    </select>
-                </div>
-
-                <!-- 日期选择器 -->
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="color: #666; font-size: 14px; white-space: nowrap;">📅 日期</span>
-                    <input type="date" id="dateInput" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white;">
-                </div>
-
-                <!-- 月份选择器 -->
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="color: #666; font-size: 14px; white-space: nowrap;">📅 月份</span>
-                    <input type="month" id="monthInput" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white;">
-                </div>
-
-                <!-- 查询按钮 -->
-                <button id="loadDataBtn" style="padding: 8px 24px; background: #4ECDC4; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; white-space: nowrap;">
-                    🔍 查询数据
-                </button>
-            </div>
+        <div class="data-header">
+            <h2>气象数据记录</h2>
+            <span style="color:#666;font-size:13px;">站点</span>
+            <select id="dataStation"></select>
+            <span style="color:#666;font-size:13px;">开始</span>
+            <input type="date" id="dataStart" value="2026-01-01">
+            <span style="color:#666;font-size:13px;">结束</span>
+            <input type="date" id="dataEnd" value="2026-04-30">
+            <button class="btn-query" id="btnDataQuery">查询</button>
+            <span style="margin-left:8px;"></span>
+            <button class="btn-preset" data-range="2026-01-01,2026-01-31">1月</button>
+            <button class="btn-preset" data-range="2026-02-01,2026-02-28">2月</button>
+            <button class="btn-preset" data-range="2026-03-01,2026-03-31">3月</button>
+            <button class="btn-preset" data-range="2026-04-01,2026-04-30">4月</button>
+            <button class="btn-preset on" data-range="2026-01-01,2026-04-30">全部</button>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 20px;">
-            <div id="tempChart" style="width:100%;height:400px;"></div>
-            <div id="humidityChart" style="width:100%;height:400px;"></div>
-            <div id="windChart" style="width:100%;height:400px;"></div>
-            <div id="rainChart" style="width:100%;height:400px;"></div>
+        <div class="data-cards" id="dataCards">
+            <div class="data-card"><div class="card-label">最新气温</div><div class="card-value" id="cardTemp">--</div><div class="card-sub" id="cardTempRange"></div></div>
+            <div class="data-card"><div class="card-label">最新湿度</div><div class="card-value" id="cardHum">--</div><div class="card-sub" id="cardHumRange"></div></div>
+            <div class="data-card"><div class="card-label">最新风速 (10min)</div><div class="card-value" id="cardWind">--</div><div class="card-sub" id="cardWindRange"></div></div>
+            <div class="data-card"><div class="card-label">累计雨量 (1h)</div><div class="card-value" id="cardRain">--</div><div class="card-sub" id="cardRainRange"></div></div>
+        </div>
+
+        <div class="loading-overlay" id="dataLoading">加载中...</div>
+
+        <div class="data-charts" id="dataCharts">
+            <div class="chart-box"><div class="chart-title">气温 / 体感温度 (°C)</div><div class="chart-inner" id="chartTemp"></div></div>
+            <div class="chart-box"><div class="chart-title">相对湿度 / 露点温度 (%)</div><div class="chart-inner" id="chartHum"></div></div>
+            <div class="chart-box"><div class="chart-title">10分钟风速 / 阵风 (km/h)</div><div class="chart-inner" id="chartWind"></div></div>
+            <div class="chart-box"><div class="chart-title">1小时雨量 / 日雨量 (mm)</div><div class="chart-inner" id="chartRain"></div></div>
         </div>
     </div>
 
+    <!-- ===== 自研站点 ===== -->
     <div id="selfStationPage">
-        <div style="background: white; padding: 20px; margin: 0 20px 20px 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; flex-wrap: wrap; gap: 20px;">
-            <h2 style="margin: 0; color: #333; font-size: 24px; font-weight: 500; min-width: fit-content;">🛰️ 自研站点</h2>
-
-            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; flex: 1;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="color: #666; font-size: 14px; white-space: nowrap;">📍 设备</span>
-                    <select id="selfStationSelect" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; min-width: 220px; background: white;">
-                        <option value="">选择设备</option>
-                    </select>
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="color: #666; font-size: 14px; white-space: nowrap;">📅 日期</span>
-                    <input type="date" id="selfDateInput" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white;">
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="color: #666; font-size: 14px; white-space: nowrap;">📅 月份</span>
-                    <input type="month" id="selfMonthInput" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white;">
-                </div>
-
-                <button id="loadSelfDataBtn" style="padding: 8px 24px; background: #1A936F; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; white-space: nowrap;">
-                    🔍 查询数据
-                </button>
-            </div>
+        <div class="self-header">
+            <h2>自研站点</h2>
+            <span style="color:#666;font-size:13px;">设备</span>
+            <select id="selfStationSelect" style="min-width:220px;"><option value="">选择设备</option></select>
+            <span style="color:#666;font-size:13px;">日期</span>
+            <input type="date" id="selfDateInput" style="min-width:130px;">
+            <span style="color:#666;font-size:13px;">月份</span>
+            <input type="month" id="selfMonthInput" style="min-width:130px;">
+            <button class="btn-query" id="loadSelfDataBtn" style="background:#1A936F;">查询</button>
         </div>
-
-        <div class="self-station-cards">
-            <div class="self-station-card"><div class="label">温度</div><div class="value" id="selfTempValue">--</div></div>
-            <div class="self-station-card"><div class="label">湿度</div><div class="value" id="selfHumidityValue">--</div></div>
-            <div class="self-station-card"><div class="label">风速</div><div class="value" id="selfWindValue">--</div></div>
-            <div class="self-station-card"><div class="label">风向</div><div class="value" id="selfWindDirValue">--</div></div>
-            <div class="self-station-card"><div class="label">气压</div><div class="value" id="selfPressureValue">--</div></div>
-            <div class="self-station-card"><div class="label">光照</div><div class="value" id="selfRadiationValue">--</div></div>
-            <div class="self-station-card"><div class="label">电量</div><div class="value" id="selfSocValue">--</div></div>
-            <div class="self-station-card"><div class="label">最近时间</div><div class="value" id="selfTimeValue" style="font-size: 18px;">--</div></div>
+        <div class="self-cards">
+            <div class="self-card"><div class="label">温度</div><div class="value" id="selfTempValue">--</div></div>
+            <div class="self-card"><div class="label">湿度</div><div class="value" id="selfHumidityValue">--</div></div>
+            <div class="self-card"><div class="label">风速</div><div class="value" id="selfWindValue">--</div></div>
+            <div class="self-card"><div class="label">风向</div><div class="value" id="selfWindDirValue">--</div></div>
+            <div class="self-card"><div class="label">气压</div><div class="value" id="selfPressureValue">--</div></div>
+            <div class="self-card"><div class="label">光照</div><div class="value" id="selfRadiationValue">--</div></div>
+            <div class="self-card"><div class="label">电量</div><div class="value" id="selfSocValue">--</div></div>
+            <div class="self-card"><div class="label">最近时间</div><div class="value" id="selfTimeValue" style="font-size:18px;">--</div></div>
         </div>
-
-        <div class="self-station-meta">
+        <div class="self-meta">
             <span>GPS: <strong id="selfGpsValue">--</strong></span>
             <span>电池告警: <strong id="selfBatteryAlarm">--</strong></span>
             <span>网络告警: <strong id="selfNetworkAlarm">--</strong></span>
             <span>存储告警: <strong id="selfStorageAlarm">--</strong></span>
             <span>看门狗告警: <strong id="selfWatchdogAlarm">--</strong></span>
         </div>
-
-        <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 20px;">
-            <div id="selfTempChart" style="width:100%;height:400px;"></div>
-            <div id="selfHumidityChart" style="width:100%;height:400px;"></div>
-            <div id="selfWindChart" style="width:100%;height:400px;"></div>
-            <div id="selfPressureChart" style="width:100%;height:400px;"></div>
-            <div id="selfRadiationChart" style="width:100%;height:400px;"></div>
-            <div id="selfSocChart" style="width:100%;height:400px;"></div>
+        <div class="self-charts">
+            <div class="chart-box"><div class="chart-title">温度 (°C)</div><div class="chart-inner" id="selfTempChart"></div></div>
+            <div class="chart-box"><div class="chart-title">湿度 (%)</div><div class="chart-inner" id="selfHumidityChart"></div></div>
+            <div class="chart-box"><div class="chart-title">风速 (m/s)</div><div class="chart-inner" id="selfWindChart"></div></div>
+            <div class="chart-box"><div class="chart-title">气压 (hPa)</div><div class="chart-inner" id="selfPressureChart"></div></div>
+            <div class="chart-box"><div class="chart-title">光照</div><div class="chart-inner" id="selfRadiationChart"></div></div>
+            <div class="chart-box"><div class="chart-title">电量 (%)</div><div class="chart-inner" id="selfSocChart"></div></div>
         </div>
     </div>
+</div>
+
 <script src="js/stations.js"></script>
 <script src="js/cesium-init.js"></script>
 <script src="js/ui.js"></script>
 <script>
-    const pages = {
-        home: document.getElementById('homePage'),
-        monitor: document.getElementById('monitorPage'),
-        data: document.getElementById('dataPage'),
-        selfStation: document.getElementById('selfStationPage')
-    };
-    const btns = {
-        home: document.getElementById('btnHome'),
-        monitor: document.getElementById('btnMonitor'),
-        data: document.getElementById('btnData'),
-        selfStation: document.getElementById('btnSelfStation')
-    };
+// ==================== 页面切换 ====================
+const pages = {
+    home: document.getElementById('homePage'),
+    monitor: document.getElementById('monitorPage'),
+    data: document.getElementById('dataPage'),
+    selfStation: document.getElementById('selfStationPage')
+};
+const btns = {
+    home: document.getElementById('btnHome'),
+    monitor: document.getElementById('btnMonitor'),
+    data: document.getElementById('btnData'),
+    selfStation: document.getElementById('btnSelfStation')
+};
 
 function showPage(name) {
     for (const p in pages) pages[p].style.display = 'none';
     for (const b in btns) btns[b].classList.remove('active');
-    pages[name].style.display = 'flex';
-    if(name==='home') pages[name].style.display='block'; // 首页不flex
+    const display = (name === 'data' || name === 'selfStation') ? 'flex' : 'block';
+    pages[name].style.display = display;
     btns[name].classList.add('active');
 
-    // 如果是数据页面，延迟一下重新设置图表
     if (name === 'data') {
-        setTimeout(() => {
-            // 如果已经有数据，重新设置选项
-            const station = document.getElementById('stationSelect').value;
-            const date = document.getElementById('dateInput').value;
-            const month = document.getElementById('monthInput').value;
-            if (station && month && !date) {
-                renderMonthlyChart(station, month);
-            } else if (station && date) {
-                renderChart(station, date);
-            } else {
-                // 如果没有数据，至少调整大小
-                tempChart.resize();
-                humidityChart.resize();
-                windChart.resize();
-                rainChart.resize();
-            }
-        }, 100); // 稍微延迟确保DOM完全显示
+        setTimeout(() => { resizeDataCharts(); }, 100);
     }
-
     if (name === 'selfStation') {
-        setTimeout(() => {
-            const station = document.getElementById('selfStationSelect').value;
-            const date = document.getElementById('selfDateInput').value;
-            const month = document.getElementById('selfMonthInput').value;
-
-            if (station) {
-                loadSelfStationLatest(station);
-                if (month && !date) {
-                    renderSelfStationMonthlyChart(station, month);
-                } else if (date) {
-                    renderSelfStationChart(station, date);
-                } else {
-                    resizeSelfStationCharts();
-                }
-            } else {
-                resizeSelfStationCharts();
-            }
-        }, 100);
+        setTimeout(() => { resizeSelfCharts(); }, 100);
     }
 }
-    btns.home.addEventListener('click', ()=>showPage('home'));
-    btns.monitor.addEventListener('click', ()=>showPage('monitor'));
-    btns.data.addEventListener('click', ()=>showPage('data'));
-    btns.selfStation.addEventListener('click', ()=>showPage('selfStation'));
+btns.home.addEventListener('click', () => showPage('home'));
+btns.monitor.addEventListener('click', () => showPage('monitor'));
+btns.data.addEventListener('click', () => showPage('data'));
+btns.selfStation.addEventListener('click', () => showPage('selfStation'));
 
-    // 监控页面视频切换
-    const video = document.getElementById('cameraVideo');
-    document.querySelectorAll('#cameraList button').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-            document.querySelectorAll('#cameraList button').forEach(b=>b.classList.remove('active'));
-            btn.classList.add('active');
-            video.src = btn.dataset.src;
-            video.play();
-        });
+// ==================== 监控 ====================
+const video = document.getElementById('cameraVideo');
+document.querySelectorAll('#cameraList button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('#cameraList button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        video.src = btn.dataset.src;
+        video.play();
+    });
+});
+
+// ==================== 数据记录页面 ====================
+const selStation = document.getElementById('dataStation');
+const inpStart = document.getElementById('dataStart');
+const inpEnd = document.getElementById('dataEnd');
+
+// 初始化站点下拉
+stations.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.name;
+    selStation.appendChild(opt);
+});
+selStation.value = 'um';
+
+// ECharts 实例
+const cTemp = echarts.init(document.getElementById('chartTemp'));
+const cHum = echarts.init(document.getElementById('chartHum'));
+const cWind = echarts.init(document.getElementById('chartWind'));
+const cRain = echarts.init(document.getElementById('chartRain'));
+
+// 预设按钮
+document.querySelectorAll('.btn-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        const [s, e] = btn.dataset.range.split(',');
+        inpStart.value = s;
+        inpEnd.value = e;
+        loadData();
+    });
+});
+
+document.getElementById('btnDataQuery').addEventListener('click', loadData);
+
+function loadData() {
+    const stationId = selStation.value;
+    const start = inpStart.value;
+    const end = inpEnd.value;
+    if (!stationId || !start || !end) return;
+
+    document.getElementById('dataLoading').style.display = 'block';
+    const url = `/api/weather/query?stationId=${stationId}&start=${start}T00:00:00&end=${end}T23:59:59`;
+
+    axios.get(url).then(res => {
+        document.getElementById('dataLoading').style.display = 'none';
+        const records = res.data || [];
+        if (!records.length) { clearCharts(); return; }
+        renderCharts(records);
+        updateCards(records);
+    }).catch(err => {
+        document.getElementById('dataLoading').style.display = 'none';
+        console.error(err);
+    });
+}
+
+function updateCards(records) {
+    const last = records[records.length - 1];
+    const temps = records.map(r => r.temperature).filter(v => v != null);
+    const hums = records.map(r => r.humidity).filter(v => v != null);
+    const winds = records.map(r => r.windSpeed10min).filter(v => v != null);
+    const rains = records.map(r => r.rain1hour).filter(v => v != null);
+
+    document.getElementById('cardTemp').textContent = last.temperature != null ? last.temperature + ' °C' : '--';
+    document.getElementById('cardTempRange').textContent = temps.length ? `${min(temps)} ~ ${max(temps)} °C` : '';
+    document.getElementById('cardHum').textContent = last.humidity != null ? last.humidity + ' %' : '--';
+    document.getElementById('cardHumRange').textContent = hums.length ? `${min(hums)} ~ ${max(hums)} %` : '';
+    document.getElementById('cardWind').textContent = last.windSpeed10min != null ? last.windSpeed10min + ' km/h' : '--';
+    document.getElementById('cardWindRange').textContent = winds.length ? `${min(winds)} ~ ${max(winds)} km/h` : '';
+    const rainTotal = rains.reduce((a, b) => a + b, 0);
+    document.getElementById('cardRain').textContent = rainTotal.toFixed(1) + ' mm';
+    document.getElementById('cardRainRange').textContent = rains.length ? `最大 ${max(rains)} mm` : '';
+}
+
+function renderCharts(records) {
+    const days = daysBetween(inpStart.value, inpEnd.value);
+    const useDaily = days > 7;
+
+    let xData, tempData, feelsData, humData, dewData, windData, gustData, rain1hData, rainDayData;
+    if (useDaily) {
+        ({ xData, tempData, feelsData, humData, dewData, windData, gustData, rain1hData, rainDayData } = aggregateDaily(records));
+    } else {
+        ({ xData, tempData, feelsData, humData, dewData, windData, gustData, rain1hData, rainDayData } = raw30min(records));
+    }
+
+    const grid = { left: '8%', right: '8%', bottom: '12%', top: '15%', containLabel: true };
+
+    cTemp.setOption({
+        grid, tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: xData, axisLabel: { rotate: useDaily ? 0 : 45, fontSize: 10 } },
+        yAxis: { type: 'value', name: '°C' },
+        series: [
+            { name: '气温', type: 'line', smooth: true, data: tempData, color: '#FF6B6B', symbol: 'none' },
+            { name: '体感温度', type: 'line', smooth: true, data: feelsData, color: '#FFA07A', symbol: 'none', lineStyle: { type: 'dashed' } }
+        ]
     });
 
-    // --- 数据记录页面 ECharts ---
- // 创建四个独立的图表实例
-    const tempChart = echarts.init(document.getElementById('tempChart'));
-    const humidityChart = echarts.init(document.getElementById('humidityChart'));
-    const windChart = echarts.init(document.getElementById('windChart'));
-    const rainChart = echarts.init(document.getElementById('rainChart'));
-    const selfTempChart = echarts.init(document.getElementById('selfTempChart'));
-    const selfHumidityChart = echarts.init(document.getElementById('selfHumidityChart'));
-    const selfWindChart = echarts.init(document.getElementById('selfWindChart'));
-    const selfPressureChart = echarts.init(document.getElementById('selfPressureChart'));
-    const selfRadiationChart = echarts.init(document.getElementById('selfRadiationChart'));
-    const selfSocChart = echarts.init(document.getElementById('selfSocChart'));
+    cHum.setOption({
+        grid, tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: xData, axisLabel: { rotate: useDaily ? 0 : 45, fontSize: 10 } },
+        yAxis: { type: 'value', name: '% / °C' },
+        series: [
+            { name: '湿度', type: 'line', smooth: true, data: humData, color: '#4ECDC4', symbol: 'none' },
+            { name: '露点', type: 'line', smooth: true, data: dewData, color: '#87CEEB', symbol: 'none', lineStyle: { type: 'dashed' } }
+        ]
+    });
 
-    function renderChart(station, date) {
-        axios.get(`/api/history/${encodeURIComponent(station)}`)
-            .then(res => {
-                const allData = res.data;
-                const dataOfDay = allData.filter(d => d.recordTime.startsWith(date));
+    cWind.setOption({
+        grid, tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: xData, axisLabel: { rotate: useDaily ? 0 : 45, fontSize: 10 } },
+        yAxis: { type: 'value', name: 'km/h' },
+        series: [
+            { name: '10min风速', type: 'line', smooth: true, data: windData, color: '#FFD93D', symbol: 'none' },
+            { name: '阵风', type: 'line', smooth: true, data: gustData, color: '#FF8C00', symbol: 'none', lineStyle: { type: 'dashed' } }
+        ]
+    });
 
-                const timePoints = [];
-                const temperature = [];
-                const humidity = [];
-                const windSpeed = [];
-                const rainHour = [];
+    cRain.setOption({
+        grid, tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: xData, axisLabel: { rotate: useDaily ? 0 : 45, fontSize: 10 } },
+        yAxis: { type: 'value', name: 'mm' },
+        series: [
+            { name: '1h雨量', type: 'bar', data: rain1hData, color: '#5A67F2', barMaxWidth: useDaily ? 16 : 4 },
+            { name: '日雨量', type: 'line', smooth: true, data: rainDayData, color: '#1E3A5F', symbol: 'none' }
+        ]
+    });
+}
 
-                for (let h = 0; h < 24; h++) {
-                    for (let m = 0; m < 60; m += 15) { // 每15分钟
-                        const hh = h.toString().padStart(2,'0');
-                        const mm = m.toString().padStart(2,'0');
-                        const t = `${hh}:${mm}`;
-                        timePoints.push(t);
+function raw30min(records) {
+    const xData = records.map(r => r.recordTime ? r.recordTime.substring(5, 16).replace('T', ' ') : '');
+    return {
+        xData,
+        tempData: records.map(r => r.temperature),
+        feelsData: records.map(r => r.feelsLike),
+        humData: records.map(r => r.humidity),
+        dewData: records.map(r => r.dewPoint),
+        windData: records.map(r => r.windSpeed10min),
+        gustData: records.map(r => r.windGust),
+        rain1hData: records.map(r => r.rain1hour),
+        rainDayData: records.map(r => r.rainDaily)
+    };
+}
 
-                        const record = dataOfDay.find(d => d.recordTime.includes(`${hh}:${mm}:`));
-                        if(record){
-                            temperature.push(record.temperature);
-                            humidity.push(record.humidity);
-                            windSpeed.push(record.windSpeed);
-                            rainHour.push(record.rainHour);
-                        } else {
-                            temperature.push(null);
-                            humidity.push(null);
-                            windSpeed.push(null);
-                            rainHour.push(null);
-                        }
-                    }
-                }
+function aggregateDaily(records) {
+    const map = {};
+    records.forEach(r => {
+        if (!r.recordTime) return;
+        const day = r.recordTime.substring(0, 10);
+        if (!map[day]) map[day] = [];
+        map[day].push(r);
+    });
 
-                // 温度图表
-                const tempOption = {
-                    title: { text: '温度 (℃)', left: 'center' },
-                    tooltip: { trigger: 'axis' },
-                    grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: timePoints, position: 'bottom', axisLine: { onZero: false } },
-                    yAxis: buildDynamicYAxis(temperature, '温度(℃)', { minBound: 0 }),
-                    series: [{ name: '温度', type: 'line', smooth: true, data: temperature, itemStyle: { color: '#FF6B6B' }}]
-                };
-
-                // 湿度图表
-                const humidityOption = {
-                    title: { text: '湿度 (%)', left: 'center' },
-                    tooltip: { trigger: 'axis' },
-                    grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: timePoints, position: 'bottom', axisLine: { onZero: false } },
-                    yAxis: buildDynamicYAxis(humidity, '湿度(%)', { minBound: 0, maxBound: 100 }),
-                    series: [{ name: '湿度', type: 'line', smooth: true, data: humidity, itemStyle: { color: '#4ECDC4' }}]
-                };
-
-                // 风速图表
-                const windOption = {
-                    title: { text: '风速 (m/s)', left: 'center' },
-                    tooltip: { trigger: 'axis' },
-                    grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: timePoints, position: 'bottom', axisLine: { onZero: false } },
-                    yAxis: buildDynamicYAxis(windSpeed, '风速(m/s)', { minBound: 0 }),
-                    series: [{ name: '风速', type: 'line', smooth: true, data: windSpeed, itemStyle: { color: '#FFD93D' }}]
-                };
-
-                // 降雨量图表
-                const rainOption = {
-                    title: { text: '降雨量 (mm)', left: 'center' },
-                    tooltip: { trigger: 'axis' },
-                    grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: timePoints, position: 'bottom', axisLine: { onZero: false } },
-                    yAxis: buildDynamicYAxis(rainHour, '降雨量(mm)', { minBound: 0 }),
-                    series: [{ name: '降雨量', type: 'line', smooth: true, data: rainHour, itemStyle: { color: '#5A67F2' }}]
-                };
-
-                // 渲染四个图表
-                tempChart.setOption(tempOption);
-                humidityChart.setOption(humidityOption);
-                windChart.setOption(windOption);
-                rainChart.setOption(rainOption);
-            })
-            .catch(err => {
-                console.error(err);
-                alert("加载数据失败");
-            });
+    const xData = [], tempData = [], feelsData = [], humData = [], dewData = [], windData = [], gustData = [], rain1hData = [], rainDayData = [];
+    for (const [day, recs] of Object.entries(map)) {
+        xData.push(day.substring(5));
+        tempData.push(avg(recs, 'temperature'));
+        feelsData.push(avg(recs, 'feelsLike'));
+        humData.push(avg(recs, 'humidity'));
+        dewData.push(avg(recs, 'dewPoint'));
+        windData.push(avg(recs, 'windSpeed10min'));
+        gustData.push(maxOf(recs, 'windGust'));
+        rain1hData.push(sum(recs, 'rain1hour'));
+        rainDayData.push(avg(recs, 'rainDaily'));
     }
+    return { xData, tempData, feelsData, humData, dewData, windData, gustData, rain1hData, rainDayData };
+}
 
-    function renderMonthlyChart(station, month) {
-        axios.get(`/api/history/${encodeURIComponent(station)}`)
-            .then(res => {
-                const allData = res.data;
-                const monthPrefix = `${month}-`; // yyyy-MM-
-                const dataOfMonth = allData.filter(d => d.recordTime.startsWith(monthPrefix));
+function avg(recs, key) { const vals = recs.map(r => r[key]).filter(v => v != null); return vals.length ? +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : null; }
+function sum(recs, key) { const vals = recs.map(r => r[key]).filter(v => v != null); return vals.length ? +vals.reduce((a,b)=>a+b,0).toFixed(1) : null; }
+function maxOf(recs, key) { const vals = recs.map(r => r[key]).filter(v => v != null); return vals.length ? Math.max(...vals) : null; }
+function min(arr) { return Math.min(...arr); }
+function max(arr) { return Math.max(...arr); }
+function daysBetween(s, e) { return (new Date(e) - new Date(s)) / 86400000; }
 
-                const [yearStr, monthStr] = month.split('-');
-                const year = parseInt(yearStr, 10);
-                const monthIndex = parseInt(monthStr, 10) - 1;
-                const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+function clearCharts() {
+    [cTemp, cHum, cWind, cRain].forEach(c => c.setOption({ series: [] }));
+    ['cardTemp','cardHum','cardWind','cardRain'].forEach(id => document.getElementById(id).textContent = '--');
+    ['cardTempRange','cardHumRange','cardWindRange','cardRainRange'].forEach(id => document.getElementById(id).textContent = '');
+}
 
-                const dayLabels = [];
-                const temperature = [];
-                const humidity = [];
-                const windSpeed = [];
-                const rainHour = [];
+function resizeDataCharts() { cTemp.resize(); cHum.resize(); cWind.resize(); cRain.resize(); }
 
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const dayStr = day.toString().padStart(2, '0');
-                    const dateStr = `${yearStr}-${monthStr}-${dayStr}`;
-                    dayLabels.push(dayStr);
+// ==================== 自研站点 ====================
+const selfTempChart = echarts.init(document.getElementById('selfTempChart'));
+const selfHumidityChart = echarts.init(document.getElementById('selfHumidityChart'));
+const selfWindChart = echarts.init(document.getElementById('selfWindChart'));
+const selfPressureChart = echarts.init(document.getElementById('selfPressureChart'));
+const selfRadiationChart = echarts.init(document.getElementById('selfRadiationChart'));
+const selfSocChart = echarts.init(document.getElementById('selfSocChart'));
 
-                    const records = dataOfMonth.filter(d => d.recordTime.startsWith(dateStr));
-                    if (records.length > 0) {
-                        const sum = (key) => records.reduce((acc, r) => acc + (Number(r[key]) || 0), 0);
-                        temperature.push(Number((sum('temperature') / records.length).toFixed(2)));
-                        humidity.push(Number((sum('humidity') / records.length).toFixed(2)));
-                        windSpeed.push(Number((sum('windSpeed') / records.length).toFixed(2)));
-                        rainHour.push(Number((sum('rainHour') / records.length).toFixed(2)));
-                    } else {
-                        temperature.push(null);
-                        humidity.push(null);
-                        windSpeed.push(null);
-                        rainHour.push(null);
-                    }
-                }
+function resizeSelfCharts() {
+    [selfTempChart, selfHumidityChart, selfWindChart, selfPressureChart, selfRadiationChart, selfSocChart].forEach(c => c.resize());
+}
 
-                const tempOption = {
-                    title: { text: '温度日均 (°C)', left: 'center' },
-                    tooltip: { trigger: 'axis' },
-                    grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels, position: 'bottom', axisLine: { onZero: false } },
-                    yAxis: buildDynamicYAxis(temperature, '温度(°C)', { minBound: 0 }),
-                    series: [{ name: '温度', type: 'line', smooth: true, data: temperature, itemStyle: { color: '#FF6B6B' }}]
-                };
+function setText(id, value, suffix = '') {
+    document.getElementById(id).textContent = (value == null || value === '') ? '--' : value + suffix;
+}
+function setFixedText(id, value, digits, suffix = '') {
+    document.getElementById(id).textContent = (value == null || value === '') ? '--' : Number(value).toFixed(digits) + suffix;
+}
+function setAlarmText(id, value) {
+    document.getElementById(id).textContent = value == null ? '--' : (value ? '异常' : '正常');
+}
 
-                const humidityOption = {
-                    title: { text: '湿度日均 (%)', left: 'center' },
-                    tooltip: { trigger: 'axis' },
-                    grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels, position: 'bottom', axisLine: { onZero: false } },
-                    yAxis: buildDynamicYAxis(humidity, '湿度(%)', { minBound: 0, maxBound: 100 }),
-                    series: [{ name: '湿度', type: 'line', smooth: true, data: humidity, itemStyle: { color: '#4ECDC4' }}]
-                };
-
-                const windOption = {
-                    title: { text: '风速日均 (m/s)', left: 'center' },
-                    tooltip: { trigger: 'axis' },
-                    grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels, position: 'bottom', axisLine: { onZero: false } },
-                    yAxis: buildDynamicYAxis(windSpeed, '风速(m/s)', { minBound: 0 }),
-                    series: [{ name: '风速', type: 'line', smooth: true, data: windSpeed, itemStyle: { color: '#FFD93D' }}]
-                };
-
-                const rainOption = {
-                    title: { text: '降雨量日均 (mm)', left: 'center' },
-                    tooltip: { trigger: 'axis' },
-                    grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-                    xAxis: { type: 'category', boundaryGap: false, data: dayLabels, position: 'bottom', axisLine: { onZero: false } },
-                    yAxis: buildDynamicYAxis(rainHour, '降雨量(mm)', { minBound: 0 }),
-                    series: [{ name: '降雨量', type: 'line', smooth: true, data: rainHour, itemStyle: { color: '#5A67F2' }}]
-                };
-
-                tempChart.setOption(tempOption);
-                humidityChart.setOption(humidityOption);
-                windChart.setOption(windOption);
-                rainChart.setOption(rainOption);
-            })
-            .catch(err => {
-                console.error(err);
-                alert("加载数据失败");
-            });
+function updateSelfStationSummary(record) {
+    if (!record) {
+        ['selfTempValue','selfHumidityValue','selfWindValue','selfWindDirValue','selfPressureValue','selfRadiationValue','selfSocValue','selfTimeValue','selfGpsValue'].forEach(id => setText(id, null));
+        ['selfBatteryAlarm','selfNetworkAlarm','selfStorageAlarm','selfWatchdogAlarm'].forEach(id => setAlarmText(id, null));
+        return;
     }
+    setText('selfTempValue', record.temperature, ' °C');
+    setText('selfHumidityValue', record.humidity, ' %');
+    setText('selfWindValue', record.windSpeed, ' m/s');
+    setText('selfWindDirValue', record.windDirection);
+    setText('selfPressureValue', record.pressure, ' hPa');
+    setText('selfRadiationValue', record.radiation, ' lx');
+    setFixedText('selfSocValue', record.soc, 1, ' %');
+    const t = record.recordTime;
+    setText('selfTimeValue', t ? (typeof t === 'string' ? t.replace('T', ' ') : t) : null);
+    setText('selfGpsValue', record.gps);
+    setAlarmText('selfBatteryAlarm', record.batteryAlarm);
+    setAlarmText('selfNetworkAlarm', record.networkAlarm);
+    setAlarmText('selfStorageAlarm', record.storageAlarm);
+    setAlarmText('selfWatchdogAlarm', record.watchdogAlarm);
+}
 
-    function setText(id, value, suffix = '') {
-        document.getElementById(id).textContent = value === null || value === undefined || value === '' ? '--' : `${value}${suffix}`;
-    }
-
-    function setFixedText(id, value, digits, suffix = '') {
-        document.getElementById(id).textContent =
-            value === null || value === undefined || value === ''
-                ? '--'
-                : `${Number(value).toFixed(digits)}${suffix}`;
-    }
-
-    function setAlarmText(id, value) {
-        document.getElementById(id).textContent = value === null || value === undefined ? '--' : (value ? '异常' : '正常');
-    }
-
-    function resizeSelfStationCharts() {
-        selfTempChart.resize();
-        selfHumidityChart.resize();
-        selfWindChart.resize();
-        selfPressureChart.resize();
-        selfRadiationChart.resize();
-        selfSocChart.resize();
-    }
-
-    function roundDownToBase(value, base) {
-        return Math.floor(value / base) * base;
-    }
-
-    function roundUpToBase(value, base) {
-        return Math.ceil(value / base) * base;
-    }
-
-    function chooseNiceInterval(range, targetTickCount = 6) {
-        if (range <= 0) {
-            return 5;
-        }
-
-        const rough = range / targetTickCount;
-        const power = Math.pow(10, Math.floor(Math.log10(rough)));
-        const normalized = rough / power;
-
-        let factor;
-        if (normalized <= 1) {
-            factor = 1;
-        } else if (normalized <= 2) {
-            factor = 2;
-        } else if (normalized <= 5) {
-            factor = 5;
-        } else {
-            factor = 10;
-        }
-
-        const interval = factor * power;
-        return interval >= 5 ? roundUpToBase(interval, 5) : 5;
-    }
-
-    function buildDynamicYAxis(seriesData, yName, options = {}) {
-        const validData = seriesData
-            .map(value => Number(value))
-            .filter(value => Number.isFinite(value));
-
-        if (validData.length === 0) {
-            return { type: 'value', name: yName };
-        }
-
-        const minValue = Math.min(...validData);
-        const maxValue = Math.max(...validData);
-        const range = Math.max(maxValue - minValue, 1);
-        const minPadding = options.minPadding ?? Math.max(range * 0.2, 5);
-        const maxPadding = options.maxPadding ?? Math.max(range * 0.2, 5);
-
-        let axisMin = roundDownToBase(minValue - minPadding, 5);
-        let axisMax = roundUpToBase(maxValue + maxPadding, 5);
-
-        if (options.minBound !== undefined) {
-            axisMin = Math.max(axisMin, options.minBound);
-        }
-
-        if (options.maxBound !== undefined) {
-            axisMax = Math.min(axisMax, options.maxBound);
-        }
-
-        if (axisMin === axisMax) {
-            axisMax = axisMin + 5;
-        }
-
-        const interval = options.interval ?? chooseNiceInterval(axisMax - axisMin, options.targetTickCount ?? 6);
-
-        return {
-            type: 'value',
-            name: yName,
-            min: axisMin,
-            max: axisMax,
-            interval
-        };
-    }
-
-    function buildQuarterHourTimePoints() {
-        const timePoints = [];
-        for (let h = 0; h < 24; h++) {
-            for (let m = 0; m < 60; m += 15) {
-                const hh = h.toString().padStart(2, '0');
-                const mm = m.toString().padStart(2, '0');
-                timePoints.push(`${hh}:${mm}`);
-            }
-        }
-        return timePoints;
-    }
-
-    function toQuarterHourKey(isoDateTime) {
-        if (!isoDateTime || typeof isoDateTime !== 'string' || isoDateTime.length < 16) {
-            return null;
-        }
-
-        const hour = Number(isoDateTime.slice(11, 13));
-        const minute = Number(isoDateTime.slice(14, 16));
-        if (!Number.isFinite(hour) || !Number.isFinite(minute)) {
-            return null;
-        }
-
-        const bucketMinute = Math.floor(minute / 15) * 15;
-        return `${padTimePart(hour)}:${padTimePart(bucketMinute)}`;
-    }
-
-    function padTimePart(value) {
-        return String(value).padStart(2, '0');
-    }
-
-    function formatDateToIsoLocal(date) {
-        if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
-            return '';
-        }
-
-        const year = date.getFullYear();
-        const month = padTimePart(date.getMonth() + 1);
-        const day = padTimePart(date.getDate());
-        const hour = padTimePart(date.getHours());
-        const minute = padTimePart(date.getMinutes());
-        const second = padTimePart(date.getSeconds());
-        return `${year}-${month}-${day}T${hour}:${minute}:${second}`;
-    }
-
-    function parseFlexibleDate(value) {
-        if (value === null || value === undefined || value === '') {
-            return null;
-        }
-
-        if (value instanceof Date) {
-            return Number.isNaN(value.getTime()) ? null : value;
-        }
-
-        if (Array.isArray(value)) {
-            if (value.length < 3) {
-                return null;
-            }
-            const [
-                year,
-                month = 1,
-                day = 1,
-                hour = 0,
-                minute = 0,
-                second = 0,
-                nano = 0
-            ] = value;
-            const ms = Math.floor(Number(nano || 0) / 1000000);
-            const date = new Date(
-                Number(year),
-                Number(month) - 1,
-                Number(day),
-                Number(hour),
-                Number(minute),
-                Number(second),
-                ms
-            );
-            return Number.isNaN(date.getTime()) ? null : date;
-        }
-
-        if (typeof value === 'number') {
-            const date = new Date(value);
-            return Number.isNaN(date.getTime()) ? null : date;
-        }
-
-        if (typeof value === 'string') {
-            const trimmed = value.trim();
-            if (!trimmed) {
-                return null;
-            }
-
-            if (/^\d{10,13}$/.test(trimmed)) {
-                const epoch = trimmed.length === 10 ? Number(trimmed) * 1000 : Number(trimmed);
-                const date = new Date(epoch);
-                return Number.isNaN(date.getTime()) ? null : date;
-            }
-
-            const normalized = trimmed.includes('T') ? trimmed : trimmed.replace(' ', 'T');
-            const parsed = new Date(normalized);
-            if (!Number.isNaN(parsed.getTime())) {
-                return parsed;
-            }
-        }
-
-        return null;
-    }
-
-    function normalizeRecordTime(recordTime) {
-        const date = parseFlexibleDate(recordTime);
-        return formatDateToIsoLocal(date);
-    }
-
-    function normalizeRecords(records) {
-        return (records || []).map(record => {
-            const normalizedRecordTime = normalizeRecordTime(record.recordTime);
-            return {
-                ...record,
-                recordTime: normalizedRecordTime
-            };
-        });
-    }
-
-    function buildSelfChartOption(title, yName, xData, seriesData, color, axisOptions = {}) {
-        return {
-            title: { text: title, left: 'center' },
-            tooltip: { trigger: 'axis' },
-            grid: { left: '10%', right: '10%', bottom: '15%', top: '20%', containLabel: true },
-            xAxis: { type: 'category', boundaryGap: false, data: xData, position: 'bottom', axisLine: { onZero: false } },
-            yAxis: buildDynamicYAxis(seriesData, yName, axisOptions),
-            series: [{ name: title, type: 'line', smooth: true, data: seriesData, itemStyle: { color } }]
-        };
-    }
-
-    function updateSelfStationSummary(record) {
-        if (!record) {
-            ['selfTempValue','selfHumidityValue','selfWindValue','selfWindDirValue','selfPressureValue','selfRadiationValue','selfSocValue','selfTimeValue','selfGpsValue'].forEach(id => {
-                document.getElementById(id).textContent = '--';
-            });
-            ['selfBatteryAlarm','selfNetworkAlarm','selfStorageAlarm','selfWatchdogAlarm'].forEach(id => setAlarmText(id, null));
-            return;
-        }
-
-        setText('selfTempValue', record.temperature, ' °C');
-        setText('selfHumidityValue', record.humidity, ' %');
-        setText('selfWindValue', record.windSpeed, ' m/s');
-        setText('selfWindDirValue', record.windDirection);
-        setText('selfPressureValue', record.pressure, ' hPa');
-        setText('selfRadiationValue', record.radiation, ' lx');
-        setFixedText('selfSocValue', record.soc, 1, ' %');
-        const normalizedRecordTime = normalizeRecordTime(record.recordTime);
-        setText('selfTimeValue', normalizedRecordTime ? normalizedRecordTime.replace('T', ' ') : '--');
-        setText('selfGpsValue', record.gps);
-        setAlarmText('selfBatteryAlarm', record.batteryAlarm);
-        setAlarmText('selfNetworkAlarm', record.networkAlarm);
-        setAlarmText('selfStorageAlarm', record.storageAlarm);
-        setAlarmText('selfWatchdogAlarm', record.watchdogAlarm);
-    }
-
-    function loadSelfStationDevices() {
-        axios.get('/api/self-stations/devices')
-            .then(res => {
-                const select = document.getElementById('selfStationSelect');
-                const currentValue = select.value;
-                select.innerHTML = '';
-
-                if (!res.data || res.data.length === 0) {
-                    const emptyOption = document.createElement('option');
-                    emptyOption.value = '';
-                    emptyOption.textContent = '暂无设备数据，请等待 MQTT 上报';
-                    select.appendChild(emptyOption);
-                    updateSelfStationSummary(null);
-                    return;
-                }
-
-                const defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.textContent = '选择设备';
-                select.appendChild(defaultOption);
-
-                res.data.forEach(deviceId => {
-                    const option = document.createElement('option');
-                    option.value = deviceId;
-                    option.textContent = deviceId;
-                    select.appendChild(option);
-                });
-
-                if (currentValue && res.data.includes(currentValue)) {
-                    select.value = currentValue;
-                } else if (!currentValue && res.data.length > 0) {
-                    select.value = res.data[0];
-                    loadSelfStationLatest(select.value);
-                }
-            })
-            .catch(err => console.error('加载自研站点列表失败', err));
-    }
-
-    function loadSelfStationLatest(deviceId) {
-        if (!deviceId) {
+function loadSelfStationDevices() {
+    axios.get('/api/self-stations/devices').then(res => {
+        const select = document.getElementById('selfStationSelect');
+        const current = select.value;
+        select.innerHTML = '';
+        if (!res.data || !res.data.length) {
+            select.innerHTML = '<option value="">暂无设备</option>';
             updateSelfStationSummary(null);
             return;
         }
+        select.innerHTML = '<option value="">选择设备</option>';
+        res.data.forEach(id => { const o = document.createElement('option'); o.value = id; o.textContent = id; select.appendChild(o); });
+        if (current && res.data.includes(current)) select.value = current;
+        else if (res.data.length > 0) { select.value = res.data[0]; loadSelfStationLatest(select.value); }
+    }).catch(err => console.error('加载设备列表失败', err));
+}
 
-        axios.get(`/api/self-stations/latest/${encodeURIComponent(deviceId)}`)
-            .then(res => updateSelfStationSummary(res.data))
-            .catch(err => {
-                console.error(err);
-                updateSelfStationSummary(null);
-            });
-    }
+function loadSelfStationLatest(deviceId) {
+    if (!deviceId) { updateSelfStationSummary(null); return; }
+    axios.get(`/api/self-stations/latest/${encodeURIComponent(deviceId)}`).then(res => updateSelfStationSummary(res.data)).catch(() => updateSelfStationSummary(null));
+}
 
-    function renderSelfStationChart(deviceId, date) {
-        axios.get(`/api/self-stations/history/${encodeURIComponent(deviceId)}`)
-            .then(res => {
-                const allData = normalizeRecords(res.data || []);
-                const dataOfDay = allData
-                    .filter(d => d.recordTime && d.recordTime.startsWith(date))
-                    .sort((a, b) => a.recordTime.localeCompare(b.recordTime));
+function buildSelfChartOption(title, yName, xData, seriesData, color, axisOpts = {}) {
+    const valid = seriesData.filter(v => v != null);
+    const grid = { left: '8%', right: '8%', bottom: '12%', top: '15%', containLabel: true };
+    return {
+        grid, tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: xData, axisLabel: { rotate: 30, fontSize: 10 } },
+        yAxis: { type: 'value', name: yName, ...(axisOpts.min != null ? { min: axisOpts.min } : {}), ...(axisOpts.max != null ? { max: axisOpts.max } : {}) },
+        series: [{ name: title, type: 'line', smooth: true, data: seriesData, color, symbol: 'none' }]
+    };
+}
 
-                const timePoints = buildQuarterHourTimePoints();
-                const recordMap = new Map();
+function renderSelfStationChart(deviceId, date) {
+    axios.get(`/api/self-stations/history/${encodeURIComponent(deviceId)}`).then(res => {
+        const data = (res.data || []).filter(d => d.recordTime && d.recordTime.startsWith(date)).sort((a, b) => (a.recordTime||'').localeCompare(b.recordTime||''));
+        const xData = data.map(d => { const t = d.recordTime; return t ? t.substring(11, 16) : ''; });
+        selfTempChart.setOption(buildSelfChartOption('温度 (°C)', '°C', xData, data.map(d=>d.temperature), '#FF6B6B', {min:0}));
+        selfHumidityChart.setOption(buildSelfChartOption('湿度 (%)', '%', xData, data.map(d=>d.humidity), '#4ECDC4', {min:0,max:100}));
+        selfWindChart.setOption(buildSelfChartOption('风速 (m/s)', 'm/s', xData, data.map(d=>d.windSpeed), '#FFD93D', {min:0}));
+        selfPressureChart.setOption(buildSelfChartOption('气压 (hPa)', 'hPa', xData, data.map(d=>d.pressure), '#1D4ED8', {min:0}));
+        selfRadiationChart.setOption(buildSelfChartOption('光照', 'lx', xData, data.map(d=>d.radiation), '#F97316', {min:0}));
+        selfSocChart.setOption(buildSelfChartOption('电量 (%)', '%', xData, data.map(d=>d.soc), '#16A34A', {min:0,max:120}));
+    }).catch(err => console.error(err));
+}
 
-                dataOfDay.forEach(record => {
-                    const quarterKey = toQuarterHourKey(record.recordTime);
-                    if (quarterKey && timePoints.includes(quarterKey)) {
-                        recordMap.set(quarterKey, record);
-                    }
-                });
-
-                const temperature = [];
-                const humidity = [];
-                const windSpeed = [];
-                const pressure = [];
-                const radiation = [];
-                const soc = [];
-
-                timePoints.forEach(time => {
-                    const record = recordMap.get(time);
-                    temperature.push(record ? record.temperature : null);
-                    humidity.push(record ? record.humidity : null);
-                    windSpeed.push(record ? record.windSpeed : null);
-                    pressure.push(record ? record.pressure : null);
-                    radiation.push(record ? record.radiation : null);
-                    soc.push(record ? record.soc : null);
-                });
-
-                selfTempChart.setOption(buildSelfChartOption('温度 (°C)', '温度(°C)', timePoints, temperature, '#FF6B6B', { minBound: 0 }));
-                selfHumidityChart.setOption(buildSelfChartOption('湿度 (%)', '湿度(%)', timePoints, humidity, '#4ECDC4', { minBound: 0, maxBound: 100 }));
-                selfWindChart.setOption(buildSelfChartOption('风速 (m/s)', '风速(m/s)', timePoints, windSpeed, '#FFD93D', { minBound: 0 }));
-                selfPressureChart.setOption(buildSelfChartOption('气压 (hPa)', '气压(hPa)', timePoints, pressure, '#1D4ED8', { minBound: 0 }));
-                selfRadiationChart.setOption(buildSelfChartOption('光照强度', '光照', timePoints, radiation, '#F97316', { minBound: 0 }));
-                selfSocChart.setOption(buildSelfChartOption('设备电量 (%)', '电量(%)', timePoints, soc, '#16A34A', { minBound: 0, maxBound: 120 }));
-            })
-            .catch(err => {
-                console.error(err);
-                alert('加载自研站点数据失败');
-            });
-    }
-
-    function renderSelfStationMonthlyChart(deviceId, month) {
-        axios.get(`/api/self-stations/history/${encodeURIComponent(deviceId)}`)
-            .then(res => {
-                const allData = normalizeRecords(res.data || []);
-                const monthPrefix = `${month}-`;
-                const dataOfMonth = allData.filter(d => d.recordTime && d.recordTime.startsWith(monthPrefix));
-
-                const [yearStr, monthStr] = month.split('-');
-                const year = parseInt(yearStr, 10);
-                const monthIndex = parseInt(monthStr, 10) - 1;
-                const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-
-                const dayLabels = [];
-                const temperature = [];
-                const humidity = [];
-                const windSpeed = [];
-                const pressure = [];
-                const radiation = [];
-                const soc = [];
-
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const dayStr = day.toString().padStart(2, '0');
-                    const dateStr = `${yearStr}-${monthStr}-${dayStr}`;
-                    dayLabels.push(dayStr);
-
-                    const records = dataOfMonth.filter(d => d.recordTime.startsWith(dateStr));
-                    if (records.length > 0) {
-                        const average = key => Number((records.reduce((acc, r) => acc + (Number(r[key]) || 0), 0) / records.length).toFixed(2));
-                        temperature.push(average('temperature'));
-                        humidity.push(average('humidity'));
-                        windSpeed.push(average('windSpeed'));
-                        pressure.push(average('pressure'));
-                        radiation.push(average('radiation'));
-                        soc.push(average('soc'));
-                    } else {
-                        temperature.push(null);
-                        humidity.push(null);
-                        windSpeed.push(null);
-                        pressure.push(null);
-                        radiation.push(null);
-                        soc.push(null);
-                    }
-                }
-
-                selfTempChart.setOption(buildSelfChartOption('温度日均 (°C)', '温度(°C)', dayLabels, temperature, '#FF6B6B', { minBound: 0 }));
-                selfHumidityChart.setOption(buildSelfChartOption('湿度日均 (%)', '湿度(%)', dayLabels, humidity, '#4ECDC4', { minBound: 0, maxBound: 100 }));
-                selfWindChart.setOption(buildSelfChartOption('风速日均 (m/s)', '风速(m/s)', dayLabels, windSpeed, '#FFD93D', { minBound: 0 }));
-                selfPressureChart.setOption(buildSelfChartOption('气压日均 (hPa)', '气压(hPa)', dayLabels, pressure, '#1D4ED8', { minBound: 0 }));
-                selfRadiationChart.setOption(buildSelfChartOption('光照日均', '光照', dayLabels, radiation, '#F97316', { minBound: 0 }));
-                selfSocChart.setOption(buildSelfChartOption('电量日均 (%)', '电量(%)', dayLabels, soc, '#16A34A', { minBound: 0, maxBound: 120 }));
-            })
-            .catch(err => {
-                console.error(err);
-                alert('加载自研站点数据失败');
-            });
-    }
-
-    // 点击加载按钮
-    document.getElementById('loadDataBtn').addEventListener('click', () => {
-        const station = document.getElementById('stationSelect').value;
-        const date = document.getElementById('dateInput').value;
-        const month = document.getElementById('monthInput').value;
-        if (!station || (!date && !month)) return alert("请选择站点和日期/月份");
-
-        if (month && !date) {
-            renderMonthlyChart(station, month);
-        } else {
-            renderChart(station, date);
+function renderSelfStationMonthlyChart(deviceId, month) {
+    axios.get(`/api/self-stations/history/${encodeURIComponent(deviceId)}`).then(res => {
+        const [y, m] = month.split('-');
+        const days = new Date(+y, +m, 0).getDate();
+        const monthPrefix = `${month}-`;
+        const monthData = (res.data || []).filter(d => d.recordTime && d.recordTime.startsWith(monthPrefix));
+        const xData = [], tData=[], hData=[], wData=[], pData=[], rData=[], sData=[];
+        for (let d = 1; d <= days; d++) {
+            const ds = `${month}-${String(d).padStart(2,'0')}`;
+            xData.push(String(d));
+            const recs = monthData.filter(r => r.recordTime.startsWith(ds));
+            tData.push(recs.length ? +(recs.reduce((a,r)=>a+(r.temperature||0),0)/recs.length).toFixed(1) : null);
+            hData.push(recs.length ? +(recs.reduce((a,r)=>a+(r.humidity||0),0)/recs.length).toFixed(1) : null);
+            wData.push(recs.length ? +(recs.reduce((a,r)=>a+(r.windSpeed||0),0)/recs.length).toFixed(1) : null);
+            pData.push(recs.length ? +(recs.reduce((a,r)=>a+(r.pressure||0),0)/recs.length).toFixed(1) : null);
+            rData.push(recs.length ? +(recs.reduce((a,r)=>a+(r.radiation||0),0)/recs.length).toFixed(1) : null);
+            sData.push(recs.length ? +(recs.reduce((a,r)=>a+(r.soc||0),0)/recs.length).toFixed(1) : null);
         }
-    });
+        selfTempChart.setOption(buildSelfChartOption('温度日均 (°C)', '°C', xData, tData, '#FF6B6B', {min:0}));
+        selfHumidityChart.setOption(buildSelfChartOption('湿度日均 (%)', '%', xData, hData, '#4ECDC4', {min:0,max:100}));
+        selfWindChart.setOption(buildSelfChartOption('风速日均 (m/s)', 'm/s', xData, wData, '#FFD93D', {min:0}));
+        selfPressureChart.setOption(buildSelfChartOption('气压日均 (hPa)', 'hPa', xData, pData, '#1D4ED8', {min:0}));
+        selfRadiationChart.setOption(buildSelfChartOption('光照日均', 'lx', xData, rData, '#F97316', {min:0}));
+        selfSocChart.setOption(buildSelfChartOption('电量日均 (%)', '%', xData, sData, '#16A34A', {min:0,max:120}));
+    }).catch(err => console.error(err));
+}
 
-    document.getElementById('selfStationSelect').addEventListener('change', (event) => {
-        loadSelfStationLatest(event.target.value);
-    });
+document.getElementById('selfStationSelect').addEventListener('change', e => loadSelfStationLatest(e.target.value));
+document.getElementById('loadSelfDataBtn').addEventListener('click', () => {
+    const deviceId = document.getElementById('selfStationSelect').value;
+    const date = document.getElementById('selfDateInput').value;
+    const month = document.getElementById('selfMonthInput').value;
+    if (!deviceId || (!date && !month)) return alert('请选择设备和日期/月份');
+    loadSelfStationLatest(deviceId);
+    if (month && !date) renderSelfStationMonthlyChart(deviceId, month);
+    else renderSelfStationChart(deviceId, date);
+});
 
-    document.getElementById('loadSelfDataBtn').addEventListener('click', () => {
-        const deviceId = document.getElementById('selfStationSelect').value;
-        const date = document.getElementById('selfDateInput').value;
-        const month = document.getElementById('selfMonthInput').value;
-        if (!deviceId || (!date && !month)) return alert("请选择设备和日期/月份");
+window.addEventListener('resize', () => {
+    resizeDataCharts();
+    resizeSelfCharts();
+});
 
-        loadSelfStationLatest(deviceId);
-        if (month && !date) {
-            renderSelfStationMonthlyChart(deviceId, month);
-        } else {
-            renderSelfStationChart(deviceId, date);
-        }
-    });
+// ==================== 初始化 ====================
+loadSelfStationDevices();
+setInterval(loadSelfStationDevices, 5000);
+showPage('home');
 
-    // 监听窗口变化，自动调整所有图表大小
-    window.addEventListener('resize', () => {
-        tempChart.resize();
-        humidityChart.resize();
-        windChart.resize();
-        rainChart.resize();
-        resizeSelfStationCharts();
-    });
-    loadSelfStationDevices();
-    setInterval(loadSelfStationDevices, 5000);
-    showPage('home');
-
-
-
+// 默认加载澳门大学全部数据
+setTimeout(() => {
+    loadData();
+}, 500);
 </script>
-</div>
 </body>
 </html>
-
-

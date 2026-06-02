@@ -1,81 +1,35 @@
 const infoPanel = document.getElementById('infoPanel');
-const stationNameEl = document.getElementById('stationName');
-const tempEl = document.getElementById('tempValue');
-const humidityEl = document.getElementById('humidityValue');
-const windSpeedEl = document.getElementById('windSpeedValue');
-const windDirEl = document.getElementById('windDirValue');
-const rainHourEl = document.getElementById('rainHourValue');
 
 function updateInfoPanel(stationId) {
+    const station = stations.find(s => s.id === stationId);
+    if (!station) return;
+
+    document.getElementById('stationName').textContent = station.name;
     infoPanel.style.display = 'block';
 
-    const station = stations.find(s => s.id === stationId);
-    stationNameEl.textContent = station.displayName || station.name;
-
-    fetch('/api/weather/macau')
+    fetch('/api/weather/latest/' + encodeURIComponent(stationId))
         .then(res => res.json())
         .then(data => {
-            tempEl.textContent = data.temperature[station.name] || 'N/A';
-            humidityEl.textContent = data.humidity[station.name] || 'N/A';
-            windSpeedEl.textContent = data.windSpeed[station.name] || 'N/A';
-            windDirEl.textContent = data.windDirection[station.name] || 'N/A';
-            rainHourEl.textContent = data.rainHour[station.name] || 'N/A';
+            document.getElementById('tempValue').textContent = val(data.temperature, '°C');
+            document.getElementById('humidityValue').textContent = val(data.humidity, '%');
+            document.getElementById('windSpeedValue').textContent = val(data.windSpeed10min, 'km/h');
+            document.getElementById('windDirValue').textContent = data.windDirection || '--';
+            document.getElementById('rainHourValue').textContent = val(data.rain1hour, 'mm');
         })
-        .catch(err => {
-            console.error(err);
-            tempEl.textContent = 'N/A';
-            humidityEl.textContent = 'N/A';
-            windSpeedEl.textContent = 'N/A';
-            windDirEl.textContent = 'N/A';
-            rainHourEl.textContent = 'N/A';
+        .catch(() => {
+            ['tempValue','humidityValue','windSpeedValue','windDirValue','rainHourValue']
+                .forEach(id => document.getElementById(id).textContent = '--');
         });
+}
+
+function val(v, unit) {
+    return v != null ? v + ' ' + unit : '--';
 }
 
 function closeInfoPanel() {
     infoPanel.style.display = 'none';
 }
 
-// 支持 ESC 关闭面板
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeInfoPanel();
 });
-
-//const infoPanel = document.getElementById('infoPanel');
-//const stationNameEl = document.getElementById('stationName');
-//const tempEl = document.getElementById('tempValue');
-//const humidityEl = document.getElementById('humidityValue');
-//
-//function updateInfoPanel(stationId) {
-//    // 显示面板
-//    infoPanel.style.display = 'block';
-//
-//    // 设置站点名
-//    const station = stations.find(s => s.id === stationId);
-//    stationNameEl.textContent = station.displayName || station.name;
-//
-//    // 拉取后端数据
-//    fetch('/api/weather/macau')
-//        .then(res => res.json())
-//        .then(data => {
-//            const temp = data.temperature[station.name] || 'N/A';
-//            const hum = data.humidity[station.name] || 'N/A';
-//            tempEl.textContent = temp;
-//            humidityEl.textContent = hum;
-//        })
-//        .catch(err => {
-//            console.error(err);
-//            tempEl.textContent = 'N/A';
-//            humidityEl.textContent = 'N/A';
-//        });
-//
-//}
-//
-//function closeInfoPanel() {
-//    infoPanel.style.display = 'none';
-//
-//
-//
-//// 支持 ESC 关闭面板
-//document.addEventListener('keydown', e => {
-//    if (e.key === 'Escape') closeInfoPanel();
-//});
