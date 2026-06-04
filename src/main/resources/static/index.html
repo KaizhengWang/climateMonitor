@@ -41,18 +41,31 @@
         .btn-preset { padding: 5px 12px; background: #f0f2f5; border: 1px solid #d0d5dd; border-radius: 14px; font-size: 12px; cursor: pointer; }
         .btn-preset:hover, .btn-preset.on { background: #e0f7f5; border-color: #4ECDC4; color: #2aa198; }
 
-        .data-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; padding: 16px 24px 0; }
-        .data-card { background: #fff; border-radius: 10px; padding: 14px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-        .data-card .card-label { font-size: 12px; color: #888; margin-bottom: 4px; }
-        .data-card .card-value { font-size: 22px; font-weight: 600; color: #222; }
-        .data-card .card-sub { font-size: 12px; color: #aaa; }
+        .data-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 16px 24px 0; }
+        @media (max-width: 900px) { .data-cards { grid-template-columns: repeat(2, 1fr); } }
+        .data-card { background: #fff; border-radius: 10px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); position: relative; overflow: hidden; }
+        .data-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+        .data-card.card-temp::before { background: #FF6B6B; }
+        .data-card.card-hum::before { background: #4ECDC4; }
+        .data-card.card-wind::before { background: #FFD93D; }
+        .data-card.card-rain::before { background: #5A67F2; }
+        .data-card .card-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+        .data-card .card-value { font-size: 26px; font-weight: 700; color: #222; }
+        .data-card .card-sub { font-size: 12px; color: #999; margin-top: 4px; display: flex; gap: 8px; }
+        .card-sub span { white-space: nowrap; }
+        .card-sub .up { color: #FF6B6B; }
+        .card-sub .down { color: #4ECDC4; }
 
-        .data-charts { padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 16px; }
+        .data-charts { padding: 16px 24px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        @media (max-width: 1100px) { .data-charts { grid-template-columns: 1fr; } }
         .data-charts .chart-box { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-        .chart-box .chart-title { padding: 12px 18px 0; font-size: 14px; font-weight: 500; color: #444; }
-        .chart-inner { width: 100%; height: 350px; }
+        .chart-box .chart-title { padding: 14px 18px 0; font-size: 14px; font-weight: 600; color: #333; }
+        .chart-inner { width: 100%; height: 340px; }
 
-        .loading-overlay { display: none; text-align: center; padding: 40px; color: #999; }
+        .loading-overlay { display: none; text-align: center; padding: 60px; color: #999; font-size: 15px; }
+        .loading-spinner { display: inline-block; width: 28px; height: 28px; border: 3px solid #e0e0e0; border-top-color: #4ECDC4; border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .no-data { display: none; text-align: center; padding: 80px 20px; color: #bbb; font-size: 16px; }
 
         /* ====== 自研站点 ====== */
         #selfStationPage { background: #f0f2f5; overflow-y: auto; flex-direction: column; }
@@ -131,36 +144,44 @@
     <!-- ===== 数据记录 ===== -->
     <div id="dataPage">
         <div class="data-header">
-            <h2>气象数据记录</h2>
+            <h2>气象记录</h2>
             <span style="color:#666;font-size:13px;">站点</span>
             <select id="dataStation"></select>
             <span style="color:#666;font-size:13px;">开始</span>
             <input type="date" id="dataStart" value="2026-01-01">
             <span style="color:#666;font-size:13px;">结束</span>
-            <input type="date" id="dataEnd" value="2026-04-30">
+            <input type="date" id="dataEnd" value="2026-06-30">
             <button class="btn-query" id="btnDataQuery">查询</button>
             <span style="margin-left:8px;"></span>
             <button class="btn-preset" data-range="2026-01-01,2026-01-31">1月</button>
             <button class="btn-preset" data-range="2026-02-01,2026-02-28">2月</button>
             <button class="btn-preset" data-range="2026-03-01,2026-03-31">3月</button>
             <button class="btn-preset" data-range="2026-04-01,2026-04-30">4月</button>
-            <button class="btn-preset on" data-range="2026-01-01,2026-04-30">全部</button>
+            <button class="btn-preset" data-range="2026-05-01,2026-05-31">5月</button>
+            <button class="btn-preset on" data-range="2026-06-01,2026-06-30">6月</button>
+            <button class="btn-preset" data-range="2026-07-01,2026-07-31">7月</button>
+            <button class="btn-preset" data-range="2026-08-01,2026-08-31">8月</button>
+            <button class="btn-preset" data-range="2026-09-01,2026-09-30">9月</button>
+            <button class="btn-preset" data-range="2026-10-01,2026-10-31">10月</button>
+            <button class="btn-preset" data-range="2026-11-01,2026-11-30">11月</button>
+            <button class="btn-preset" data-range="2026-12-01,2026-12-31">12月</button>
         </div>
 
         <div class="data-cards" id="dataCards">
-            <div class="data-card"><div class="card-label">最新气温</div><div class="card-value" id="cardTemp">--</div><div class="card-sub" id="cardTempRange"></div></div>
-            <div class="data-card"><div class="card-label">最新湿度</div><div class="card-value" id="cardHum">--</div><div class="card-sub" id="cardHumRange"></div></div>
-            <div class="data-card"><div class="card-label">最新风速 (10min)</div><div class="card-value" id="cardWind">--</div><div class="card-sub" id="cardWindRange"></div></div>
-            <div class="data-card"><div class="card-label">累计雨量 (1h)</div><div class="card-value" id="cardRain">--</div><div class="card-sub" id="cardRainRange"></div></div>
+            <div class="data-card card-temp"><div class="card-label">平均气温</div><div class="card-value" id="cardTemp">--</div><div class="card-sub"><span class="up" id="cardTempHigh"></span><span class="down" id="cardTempLow"></span></div></div>
+            <div class="data-card card-hum"><div class="card-label">平均湿度</div><div class="card-value" id="cardHum">--</div><div class="card-sub"><span class="up" id="cardHumHigh"></span><span class="down" id="cardHumLow"></span></div></div>
+            <div class="data-card card-wind"><div class="card-label">平均风速 (10min)</div><div class="card-value" id="cardWind">--</div><div class="card-sub"><span id="cardGust">阵风最大 --</span></div></div>
+            <div class="data-card card-rain"><div class="card-label">累计雨量</div><div class="card-value" id="cardRain">--</div><div class="card-sub"><span id="cardRainMax">最大1h --</span></div></div>
         </div>
 
-        <div class="loading-overlay" id="dataLoading">加载中...</div>
+        <div class="loading-overlay" id="dataLoading"><span class="loading-spinner"></span>正在加载气象数据...</div>
+        <div class="no-data" id="noData">暂无数据，请先导入该时间段的气象记录</div>
 
         <div class="data-charts" id="dataCharts">
-            <div class="chart-box"><div class="chart-title">气温 / 体感温度 (°C)</div><div class="chart-inner" id="chartTemp"></div></div>
-            <div class="chart-box"><div class="chart-title">相对湿度 / 露点温度 (%)</div><div class="chart-inner" id="chartHum"></div></div>
-            <div class="chart-box"><div class="chart-title">10分钟风速 / 阵风 (km/h)</div><div class="chart-inner" id="chartWind"></div></div>
-            <div class="chart-box"><div class="chart-title">1小时雨量 / 日雨量 (mm)</div><div class="chart-inner" id="chartRain"></div></div>
+            <div class="chart-box"><div class="chart-title">气温趋势 (°C)</div><div class="chart-inner" id="chartTemp"></div></div>
+            <div class="chart-box"><div class="chart-title">湿度趋势 (%)</div><div class="chart-inner" id="chartHum"></div></div>
+            <div class="chart-box"><div class="chart-title">风速趋势 (km/h)</div><div class="chart-inner" id="chartWind"></div></div>
+            <div class="chart-box"><div class="chart-title">雨量 (mm)</div><div class="chart-inner" id="chartRain"></div></div>
         </div>
     </div>
 
@@ -341,8 +362,15 @@ function loadData() {
 
     axios.get(url).then(res => {
         document.getElementById('dataLoading').style.display = 'none';
-        const records = res.data || [];
-        if (!records.length) { clearCharts(); return; }
+        var records = res.data || [];
+        if (!records.length) {
+            clearCharts();
+            document.getElementById('noData').style.display = 'block';
+            document.getElementById('dataCharts').style.display = 'none';
+            return;
+        }
+        document.getElementById('noData').style.display = 'none';
+        document.getElementById('dataCharts').style.display = '';
         renderCharts(records);
         updateCards(records);
     }).catch(err => {
@@ -352,127 +380,165 @@ function loadData() {
 }
 
 function updateCards(records) {
-    const last = records[records.length - 1];
     const temps = records.map(r => r.temperature).filter(v => v != null);
-    const hums = records.map(r => r.humidity).filter(v => v != null);
+    const hums  = records.map(r => r.humidity).filter(v => v != null);
     const winds = records.map(r => r.windSpeed10min).filter(v => v != null);
+    const gusts = records.map(r => r.windGust).filter(v => v != null);
     const rains = records.map(r => r.rain1hour).filter(v => v != null);
 
-    document.getElementById('cardTemp').textContent = last.temperature != null ? last.temperature + ' °C' : '--';
-    document.getElementById('cardTempRange').textContent = temps.length ? `${min(temps)} ~ ${max(temps)} °C` : '';
-    document.getElementById('cardHum').textContent = last.humidity != null ? last.humidity + ' %' : '--';
-    document.getElementById('cardHumRange').textContent = hums.length ? `${min(hums)} ~ ${max(hums)} %` : '';
-    document.getElementById('cardWind').textContent = last.windSpeed10min != null ? last.windSpeed10min + ' km/h' : '--';
-    document.getElementById('cardWindRange').textContent = winds.length ? `${min(winds)} ~ ${max(winds)} km/h` : '';
-    const rainTotal = rains.reduce((a, b) => a + b, 0);
-    document.getElementById('cardRain').textContent = rainTotal.toFixed(1) + ' mm';
-    document.getElementById('cardRainRange').textContent = rains.length ? `最大 ${max(rains)} mm` : '';
+    const tAvg = temps.length ? +(temps.reduce((a,b)=>a+b,0)/temps.length).toFixed(1) : null;
+    const tMin = temps.length ? Math.min(...temps).toFixed(1) : null;
+    const tMax = temps.length ? Math.max(...temps).toFixed(1) : null;
+    const hAvg = hums.length  ? +(hums.reduce((a,b)=>a+b,0)/hums.length).toFixed(1) : null;
+    const hMin = hums.length  ? Math.min(...hums) : null;
+    const hMax = hums.length  ? Math.max(...hums) : null;
+    const wAvg = winds.length ? +(winds.reduce((a,b)=>a+b,0)/winds.length).toFixed(1) : null;
+    const gMax = gusts.length ? Math.max(...gusts).toFixed(1) : null;
+    const rSum = rains.length ? +rains.reduce((a,b)=>a+b,0).toFixed(1) : null;
+    const rMax = rains.length ? Math.max(...rains).toFixed(1) : null;
+
+    document.getElementById('cardTemp').textContent = tAvg != null ? tAvg + ' °C' : '--';
+    document.getElementById('cardTempHigh').textContent = tMax != null ? '最高 ' + tMax + '°C' : '';
+    document.getElementById('cardTempLow').textContent = tMin != null ? '最低 ' + tMin + '°C' : '';
+    document.getElementById('cardHum').textContent = hAvg != null ? hAvg + ' %' : '--';
+    document.getElementById('cardHumHigh').textContent = hMax != null ? '最高 ' + hMax + '%' : '';
+    document.getElementById('cardHumLow').textContent = hMin != null ? '最低 ' + hMin + '%' : '';
+    document.getElementById('cardWind').textContent = wAvg != null ? wAvg + ' km/h' : '--';
+    document.getElementById('cardGust').textContent = gMax != null ? '阵风最大 ' + gMax + ' km/h' : '';
+    document.getElementById('cardRain').textContent = rSum != null ? rSum + ' mm' : '--';
+    document.getElementById('cardRainMax').textContent = rMax != null ? '最大1h ' + rMax + ' mm' : '';
 }
 
 function renderCharts(records) {
-    const days = daysBetween(inpStart.value, inpEnd.value);
-    const useDaily = days > 7;
+    var days = daysBetween(inpStart.value, inpEnd.value);
+    var useDaily = days > 7;
 
-    let xData, tempData, feelsData, humData, dewData, windData, gustData, rain1hData, rainDayData;
+    var chartData;
     if (useDaily) {
-        ({ xData, tempData, feelsData, humData, dewData, windData, gustData, rain1hData, rainDayData } = aggregateDaily(records));
+        chartData = aggregateDaily(records);
     } else {
-        ({ xData, tempData, feelsData, humData, dewData, windData, gustData, rain1hData, rainDayData } = raw30min(records));
+        chartData = raw30min(records);
     }
+    var xData = chartData.xData, tempData = chartData.tempData, feelsData = chartData.feelsData,
+        humData = chartData.humData, dewData = chartData.dewData,
+        windData = chartData.windData, gustData = chartData.gustData,
+        rain1hData = chartData.rain1hData, rainDayData = chartData.rainDayData,
+        tempMin = chartData.tempMin, tempMax = chartData.tempMax;
 
-    const grid = { left: '8%', right: '8%', bottom: '12%', top: '15%', containLabel: true };
+    var grid = { left: '3%', right: '4%', bottom: '8%', top: '15%', containLabel: true };
+    var xOpt = { type: 'category', data: xData, axisLabel: { rotate: useDaily ? 0 : 45, fontSize: 10 }, axisLine: { lineStyle: { color: '#ccc' } } };
 
-    cTemp.setOption({
-        grid, tooltip: { trigger: 'axis' },
-        xAxis: { type: 'category', data: xData, axisLabel: { rotate: useDaily ? 0 : 45, fontSize: 10 } },
-        yAxis: { type: 'value', name: '°C' },
+    // ── 气温趋势 ──
+    var tempSeries = [
+        { name: '气温', type: 'line', smooth: true, data: tempData, color: '#FF6B6B', symbol: 'none',
+            areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(255,107,107,0.25)'},{offset:1,color:'rgba(255,107,107,0.02)'}] } },
+            markLine: { silent: true, symbol: 'none', lineStyle: { color: '#FF6B6B', type: 'dashed', opacity: 0.5 }, data: avgLine(tempData) } },
+        { name: '体感温度', type: 'line', smooth: true, data: feelsData, color: '#FFA07A', symbol: 'none', lineStyle: { type: 'dashed', width: 1.5 } }
+    ];
+    if (useDaily && tempMin && tempMax) {
+        tempSeries.unshift(
+            { name: '最高气温', type: 'line', smooth: true, data: tempMax, color: '#E74C3C', symbol: 'none', lineStyle: { width: 0.5, opacity: 0.4 }, areaStyle: { opacity: 0 } },
+            { name: '最低气温', type: 'line', smooth: true, data: tempMin, color: '#3498DB', symbol: 'none', lineStyle: { width: 0.5, opacity: 0.4 }, areaStyle: { opacity: 0 } }
+        );
+    }
+    var tempAll = tempData.concat(feelsData);
+    if (tempMin) tempAll = tempAll.concat(tempMin);
+    var tempNums = tempAll.filter(function(v) { return v != null; });
+    var tempDataMin = tempNums.length ? Math.min.apply(null, tempNums) : 0;
+    var tempYmin = Math.floor((tempDataMin - 3) / 5) * 5;
+    cTemp.setOption({ grid: grid, tooltip: { trigger: 'axis' }, xAxis: xOpt, yAxis: { type: 'value', name: '°C', min: tempYmin, splitLine: { lineStyle: { color: '#f5f5f5' } } }, series: tempSeries }, true);
+
+    // ── 湿度趋势 ──
+    cHum.setOption({ grid: grid, tooltip: { trigger: 'axis' }, xAxis: xOpt, yAxis: { type: 'value', name: '%', splitLine: { lineStyle: { color: '#f5f5f5' } }, min: 0, max: 100 },
         series: [
-            { name: '气温', type: 'line', smooth: true, data: tempData, color: '#FF6B6B', symbol: 'none' },
-            { name: '体感温度', type: 'line', smooth: true, data: feelsData, color: '#FFA07A', symbol: 'none', lineStyle: { type: 'dashed' } }
-        ]
-    });
+            { name: '相对湿度', type: 'line', smooth: true, data: humData, color: '#4ECDC4', symbol: 'none',
+                areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(78,205,196,0.2)'},{offset:1,color:'rgba(78,205,196,0.02)'}] } },
+                markLine: { silent: true, symbol: 'none', lineStyle: { color: '#4ECDC4', type: 'dashed', opacity: 0.5 }, data: avgLine(humData) } },
+            { name: '露点', type: 'line', smooth: true, data: dewData, color: '#87CEEB', symbol: 'none', lineStyle: { type: 'dashed', width: 1.5 } }
+        ]}, true);
 
-    cHum.setOption({
-        grid, tooltip: { trigger: 'axis' },
-        xAxis: { type: 'category', data: xData, axisLabel: { rotate: useDaily ? 0 : 45, fontSize: 10 } },
-        yAxis: { type: 'value', name: '% / °C' },
+    // ── 风速趋势 ──
+    cWind.setOption({ grid: grid, tooltip: { trigger: 'axis' }, xAxis: xOpt, yAxis: { type: 'value', name: 'km/h', splitLine: { lineStyle: { color: '#f5f5f5' } } },
         series: [
-            { name: '湿度', type: 'line', smooth: true, data: humData, color: '#4ECDC4', symbol: 'none' },
-            { name: '露点', type: 'line', smooth: true, data: dewData, color: '#87CEEB', symbol: 'none', lineStyle: { type: 'dashed' } }
-        ]
-    });
+            { name: '平均风速', type: 'line', smooth: true, data: windData, color: '#FFD93D', symbol: 'none', lineStyle: { width: 2 },
+                areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(255,217,61,0.25)'},{offset:1,color:'rgba(255,217,61,0.02)'}] } } },
+            { name: '阵风', type: 'line', smooth: true, data: gustData, color: '#FF8C00', symbol: 'none', lineStyle: { type: 'dashed', width: 1.5 } }
+        ]}, true);
 
-    cWind.setOption({
-        grid, tooltip: { trigger: 'axis' },
-        xAxis: { type: 'category', data: xData, axisLabel: { rotate: useDaily ? 0 : 45, fontSize: 10 } },
-        yAxis: { type: 'value', name: 'km/h' },
+    // ── 雨量 ──
+    cRain.setOption({ grid: grid, tooltip: { trigger: 'axis' }, xAxis: xOpt, yAxis: { type: 'value', name: 'mm', splitLine: { lineStyle: { color: '#f5f5f5' } } },
         series: [
-            { name: '10min风速', type: 'line', smooth: true, data: windData, color: '#FFD93D', symbol: 'none' },
-            { name: '阵风', type: 'line', smooth: true, data: gustData, color: '#FF8C00', symbol: 'none', lineStyle: { type: 'dashed' } }
-        ]
-    });
+            { name: '1h雨量', type: 'bar', data: rain1hData, color: '#5A67F2', barMaxWidth: useDaily ? 18 : 5, itemStyle: { borderRadius: [3,3,0,0] } },
+            { name: '日累计雨量', type: 'line', smooth: true, data: rainDayData, color: '#1E3A5F', symbol: 'none', lineStyle: { width: 1.5 } }
+        ]}, true);
+}
 
-    cRain.setOption({
-        grid, tooltip: { trigger: 'axis' },
-        xAxis: { type: 'category', data: xData, axisLabel: { rotate: useDaily ? 0 : 45, fontSize: 10 } },
-        yAxis: { type: 'value', name: 'mm' },
-        series: [
-            { name: '1h雨量', type: 'bar', data: rain1hData, color: '#5A67F2', barMaxWidth: useDaily ? 16 : 4 },
-            { name: '日雨量', type: 'line', smooth: true, data: rainDayData, color: '#1E3A5F', symbol: 'none' }
-        ]
-    });
+function avgLine(data) {
+    var nums = data.filter(function(v) { return v != null; });
+    if (!nums.length) return [];
+    var sum = nums.reduce(function(a,b) { return a + b; }, 0);
+    var avg = +(sum / nums.length).toFixed(1);
+    return [{ yAxis: avg, label: { formatter: '均 ' + avg, position: 'insideEndTop' } }];
 }
 
 function raw30min(records) {
-    const xData = records.map(r => r.recordTime ? r.recordTime.substring(5, 16).replace('T', ' ') : '');
+    var xData = records.map(function(r) { return r.recordTime ? r.recordTime.substring(5, 16).replace('T', ' ') : ''; });
     return {
-        xData,
-        tempData: records.map(r => r.temperature),
-        feelsData: records.map(r => r.feelsLike),
-        humData: records.map(r => r.humidity),
-        dewData: records.map(r => r.dewPoint),
-        windData: records.map(r => r.windSpeed10min),
-        gustData: records.map(r => r.windGust),
-        rain1hData: records.map(r => r.rain1hour),
-        rainDayData: records.map(r => r.rainDaily)
+        xData: xData,
+        tempData: records.map(function(r) { return r.temperature; }),
+        feelsData: records.map(function(r) { return r.feelsLike; }),
+        humData: records.map(function(r) { return r.humidity; }),
+        dewData: records.map(function(r) { return r.dewPoint; }),
+        windData: records.map(function(r) { return r.windSpeed10min; }),
+        gustData: records.map(function(r) { return r.windGust; }),
+        rain1hData: records.map(function(r) { return r.rain1hour; }),
+        rainDayData: records.map(function(r) { return r.rainDaily; })
     };
 }
 
 function aggregateDaily(records) {
-    const map = {};
-    records.forEach(r => {
+    var map = {};
+    records.forEach(function(r) {
         if (!r.recordTime) return;
-        const day = r.recordTime.substring(0, 10);
+        var day = r.recordTime.substring(0, 10);
         if (!map[day]) map[day] = [];
         map[day].push(r);
     });
 
-    const xData = [], tempData = [], feelsData = [], humData = [], dewData = [], windData = [], gustData = [], rain1hData = [], rainDayData = [];
-    for (const [day, recs] of Object.entries(map)) {
+    var xData = [], tempData = [], feelsData = [], humData = [], dewData = [], windData = [], gustData = [], rain1hData = [], rainDayData = [];
+    var tempMin = [], tempMax = [];
+    var keys = Object.keys(map).sort();
+    keys.forEach(function(day) {
+        var recs = map[day];
         xData.push(day.substring(5));
         tempData.push(avg(recs, 'temperature'));
+        tempMin.push(minOf(recs, 'temperature'));
+        tempMax.push(maxOf(recs, 'temperature'));
         feelsData.push(avg(recs, 'feelsLike'));
         humData.push(avg(recs, 'humidity'));
         dewData.push(avg(recs, 'dewPoint'));
         windData.push(avg(recs, 'windSpeed10min'));
         gustData.push(maxOf(recs, 'windGust'));
         rain1hData.push(sum(recs, 'rain1hour'));
-        rainDayData.push(avg(recs, 'rainDaily'));
-    }
-    return { xData, tempData, feelsData, humData, dewData, windData, gustData, rain1hData, rainDayData };
+        rainDayData.push(maxOf(recs, 'rainDaily'));
+    });
+    return { xData: xData, tempData: tempData, feelsData: feelsData, humData: humData, dewData: dewData,
+        windData: windData, gustData: gustData, rain1hData: rain1hData, rainDayData: rainDayData,
+        tempMin: tempMin, tempMax: tempMax };
 }
 
-function avg(recs, key) { const vals = recs.map(r => r[key]).filter(v => v != null); return vals.length ? +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : null; }
-function sum(recs, key) { const vals = recs.map(r => r[key]).filter(v => v != null); return vals.length ? +vals.reduce((a,b)=>a+b,0).toFixed(1) : null; }
-function maxOf(recs, key) { const vals = recs.map(r => r[key]).filter(v => v != null); return vals.length ? Math.max(...vals) : null; }
-function min(arr) { return Math.min(...arr); }
-function max(arr) { return Math.max(...arr); }
+function avg(recs, key) { var vals = recs.map(function(r) { return r[key]; }).filter(function(v) { return v != null; }); return vals.length ? +(vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1) : null; }
+function sum(recs, key) { var vals = recs.map(function(r) { return r[key]; }).filter(function(v) { return v != null; }); return vals.length ? +vals.reduce(function(a,b){return a+b;},0).toFixed(1) : null; }
+function maxOf(recs, key) { var vals = recs.map(function(r) { return r[key]; }).filter(function(v) { return v != null; }); return vals.length ? Math.max.apply(null, vals) : null; }
+function minOf(recs, key) { var vals = recs.map(function(r) { return r[key]; }).filter(function(v) { return v != null; }); return vals.length ? Math.min.apply(null, vals) : null; }
+function min(arr) { return Math.min.apply(null, arr); }
+function max(arr) { return Math.max.apply(null, arr); }
 function daysBetween(s, e) { return (new Date(e) - new Date(s)) / 86400000; }
 
 function clearCharts() {
-    [cTemp, cHum, cWind, cRain].forEach(c => c.setOption({ series: [] }));
-    ['cardTemp','cardHum','cardWind','cardRain'].forEach(id => document.getElementById(id).textContent = '--');
-    ['cardTempRange','cardHumRange','cardWindRange','cardRainRange'].forEach(id => document.getElementById(id).textContent = '');
+    [cTemp, cHum, cWind, cRain].forEach(function(c) { c.setOption({ series: [] }); });
+    ['cardTemp','cardHum','cardWind','cardRain'].forEach(function(id) { document.getElementById(id).textContent = '--'; });
+    ['cardTempHigh','cardTempLow','cardHumHigh','cardHumLow','cardGust','cardRainMax'].forEach(function(id) { document.getElementById(id).textContent = ''; });
 }
 
 function resizeDataCharts() { cTemp.resize(); cHum.resize(); cWind.resize(); cRain.resize(); }
