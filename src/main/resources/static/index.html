@@ -22,12 +22,56 @@
         .info-panel .value { color: #fff; font-weight: bold; }
         .hint { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.7); color: #fff; padding: 10px 15px; border-radius: 5px; font-size: 14px; }
 
-        #monitorPage { display: flex; }
-        #cameraList { width: 200px; background: #222; color: #fff; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; }
-        #cameraList button { width: 100%; margin-bottom: 8px; padding: 8px; background: #333; color: #fff; border: none; cursor: pointer; border-radius: 3px; }
-        #cameraList button.active { background: #4ECDC4; color: #000; }
-        #videoPlayer { flex: 1; background: #000; display: flex; align-items: center; justify-content: center; }
-        #videoPlayer video { width: 95%; height: 95%; object-fit: contain; background: #000; }
+        /* ====== 今日气象 ====== */
+        #monitorPage { display: flex; background: #0d1b2a; color: #e0e0e0; height: 100%; overflow: hidden; }
+        .today-left { width: 270px; min-width: 270px; background: rgba(18,28,46,0.95); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.06); }
+        .today-left-head { padding: 18px 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .today-left-head-row { display: flex; justify-content: space-between; align-items: center; }
+        .today-left-head-title { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: 2px; }
+        .today-left-head-time { font-size: 12px; color: #888; }
+        .today-station-list { flex:1; overflow-y: auto; padding: 8px 10px; }
+        .today-station-list::-webkit-scrollbar { width: 4px; }
+        .today-station-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+        .today-station-item { display: flex; align-items: center; padding: 10px 12px; margin-bottom: 4px; border-radius: 10px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; position: relative; }
+        .today-station-item:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+        .today-station-item.sel { background: rgba(78,205,196,0.1); border-color: rgba(78,205,196,0.3); }
+        .today-si-temp { width: 52px; font-size: 24px; font-weight: 700; text-align: right; flex-shrink: 0; }
+        .today-si-info { flex:1; margin-left: 14px; }
+        .today-si-name { font-size: 13px; font-weight: 500; color: #ddd; }
+        .today-si-wind { font-size: 11px; color: #888; margin-top: 2px; }
+        .today-left-foot { padding: 10px 16px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 11px; color: #666; display: flex; justify-content: space-between; align-items: center; }
+        .today-refresh { color: #4ECDC4; cursor: pointer; user-select: none; }
+        .today-refresh:hover { color: #7ee8df; }
+
+        .today-map-wrap { flex:1; position: relative; }
+        #todayMap { width:100%; height:100%; }
+        .today-map-overlay { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); text-align: center; pointer-events: none; z-index: 1000; }
+        .today-overlay-city { font-size: 28px; font-weight: 700; color: #333; text-shadow: 0 1px 8px rgba(255,255,255,0.8); letter-spacing: 8px; }
+        .today-overlay-time { font-size: 13px; color: rgba(0,0,0,0.5); margin-top: 2px; }
+        .today-temp-marker { color: #fff; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+
+        .today-right { width: 310px; min-width: 310px; background: rgba(18,28,46,0.95); display: flex; flex-direction: column; gap: 12px; padding: 16px 14px; border-left: 1px solid rgba(255,255,255,0.06); overflow-y: auto; }
+        .today-right::-webkit-scrollbar { width: 4px; }
+        .today-right::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+        .today-detail-card { background: rgba(255,255,255,0.03); border-radius: 14px; padding: 18px; border: 1px solid rgba(255,255,255,0.06); }
+        .today-detail-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .today-detail-name { font-size: 16px; font-weight: 600; color: #fff; }
+        .today-detail-badge { font-size: 11px; padding: 3px 10px; border-radius: 10px; background: rgba(78,205,196,0.15); color: #4ECDC4; }
+        .today-detail-big { font-size: 56px; font-weight: 200; color: #fff; line-height: 1; margin-bottom: 4px; letter-spacing: -2px; }
+        .today-detail-feel { font-size: 12px; color: #888; margin-bottom: 18px; }
+        .today-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .today-dg-item { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px; }
+        .today-dg-label { display: block; font-size: 11px; color: #888; margin-bottom: 4px; }
+        .today-dg-val { display: block; font-size: 18px; font-weight: 600; color: #fff; }
+
+        .today-alert-card { background: rgba(255,255,255,0.03); border-radius: 14px; padding: 16px 18px; border: 1px solid rgba(255,255,255,0.06); }
+        .today-alert-title { font-size: 13px; font-weight: 600; color: #FFD93D; margin-bottom: 12px; }
+        .today-alert-body { display: flex; flex-direction: column; gap: 8px; }
+        .today-alert-item { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; }
+
+        .today-spark-box { background: rgba(255,255,255,0.03); border-radius: 14px; padding: 10px 14px; border: 1px solid rgba(255,255,255,0.06); }
+        .leaflet-control { display: none; }
+        .leaflet-div-icon { background: none !important; border: none !important; }
 
         /* ====== 数据记录页面 ====== */
         #dataPage { background: #f0f2f5; overflow-y: auto; flex-direction: column; }
@@ -105,10 +149,12 @@
 <body>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <div id="navbar">
     <button id="btnHome" class="active">首页</button>
-    <button id="btnMonitor">监控</button>
+    <button id="btnMonitor">今日气象</button>
     <button id="btnData">数据记录</button>
     <button id="btnSelfStation">自研站点</button>
     <button id="btnExtremes">特殊统计</button>
@@ -129,15 +175,57 @@
         <div class="hint">点击地图上的红点查看气象数据</div>
     </div>
 
-    <!-- ===== 监控 ===== -->
+    <!-- ===== 今日气象 ===== -->
     <div id="monitorPage">
-        <div id="cameraList">
-            <button class="active" data-src="video/demo.mp4">摄像头1</button>
-            <button data-src="video/demo.mp4">摄像头2</button>
-            <button data-src="video/demo.mp4">摄像头3</button>
+        <div class="today-left" id="todayLeft">
+            <div class="today-left-head">
+                <div class="today-left-head-row">
+                    <span class="today-left-head-title">实况监测</span>
+                    <span class="today-left-head-time" id="todayUpdateTime">--</span>
+                </div>
+                <div style="font-size:11px;color:#888;">澳门10站实时数据</div>
+            </div>
+            <div class="today-station-list" id="todayStationList"></div>
+            <div class="today-left-foot">
+                <span>数据源: 澳门天文气象追击站</span>
+                <span class="today-refresh" id="todayRefreshBtn">⟳ 刷新</span>
+            </div>
         </div>
-        <div id="videoPlayer">
-            <video id="cameraVideo" src="video/demo.mp4" controls autoplay muted></video>
+        <div class="today-map-wrap">
+            <div id="todayMap"></div>
+            <div class="today-map-overlay" id="todayMapOverlay">
+                <div class="today-overlay-city">澳 门</div>
+                <div class="today-overlay-time" id="todayClock">--</div>
+            </div>
+        </div>
+        <div class="today-right" id="todayRight">
+            <div class="today-detail-card" id="todayDetailCard">
+                <div class="today-detail-head">
+                    <span class="today-detail-name" id="todayDetailName">选择站点</span>
+                    <span class="today-detail-badge" id="todayDetailBadge"></span>
+                </div>
+                <div class="today-detail-big" id="todayDetailTemp">--°</div>
+                <div class="today-detail-feel" id="todayDetailDesc">点击左侧站点或地图标记查看详情</div>
+                <div class="today-detail-grid">
+                    <div class="today-dg-item"><span class="today-dg-label">湿度</span><span class="today-dg-val" id="todayHumVal">--</span></div>
+                    <div class="today-dg-item"><span class="today-dg-label">风速(10min)</span><span class="today-dg-val" id="todayWindVal">--</span></div>
+                    <div class="today-dg-item"><span class="today-dg-label">风向</span><span class="today-dg-val" id="todayDirVal">--</span></div>
+                    <div class="today-dg-item"><span class="today-dg-label">1h雨量</span><span class="today-dg-val" id="todayRainVal">--</span></div>
+                </div>
+            </div>
+            <div class="today-alert-card" id="todayAlertCard">
+                <div class="today-alert-title">⚠ 气象提示</div>
+                <div class="today-alert-body" id="todayAlertBody">
+                    <div class="today-alert-item"><span>全澳最高温</span><span id="todayMaxTemp" style="font-weight:600;">--</span></div>
+                    <div class="today-alert-item"><span>全澳最低温</span><span id="todayMinTemp" style="font-weight:600;">--</span></div>
+                    <div class="today-alert-item"><span>最强阵风</span><span id="todayMaxGust" style="font-weight:600;">--</span></div>
+                    <div class="today-alert-item"><span>最大雨量(1h)</span><span id="todayMaxRain" style="font-weight:600;">--</span></div>
+                </div>
+            </div>
+            <div class="today-spark-box" id="todaySparkBox">
+                <div class="chart-title">过去24小时温度 (°C)</div>
+                <div class="chart-inner" id="todaySparkChart" style="height:160px;"></div>
+            </div>
         </div>
     </div>
 
@@ -286,10 +374,13 @@ const btns = {
 function showPage(name) {
     for (const p in pages) pages[p].style.display = 'none';
     for (const b in btns) btns[b].classList.remove('active');
-    const display = (name === 'data' || name === 'selfStation' || name === 'extremes') ? 'flex' : 'block';
+    const display = (name === 'data' || name === 'selfStation' || name === 'extremes' || name === 'monitor') ? 'flex' : 'block';
     pages[name].style.display = display;
     btns[name].classList.add('active');
 
+    if (name === 'monitor') {
+        setTimeout(() => { initTodayPage(); }, 200);
+    }
     if (name === 'data') {
         setTimeout(() => { resizeDataCharts(); }, 100);
     }
@@ -306,16 +397,219 @@ btns.data.addEventListener('click', () => showPage('data'));
 btns.selfStation.addEventListener('click', () => showPage('selfStation'));
 btns.extremes.addEventListener('click', () => showPage('extremes'));
 
-// ==================== 监控 ====================
-const video = document.getElementById('cameraVideo');
-document.querySelectorAll('#cameraList button').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('#cameraList button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        video.src = btn.dataset.src;
-        video.play();
+// ==================== 今日气象 ====================
+var todayMap = null;
+var todayMarkers = {};
+var todayAllData = {};
+var todaySelectedStation = 'um';
+var todaySparkChart = null;
+
+function initTodayPage() {
+    if (todayMap) { todayMap.invalidateSize(); updateTodayClock(); return; }
+
+    // init map
+    todayMap = L.map('todayMap', { zoomControl: false, attributionControl: false }).setView([22.16, 113.56], 12);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19
+    }).addTo(todayMap);
+
+    // restrict bounds to Macau area
+    var southWest = L.latLng(22.08, 113.50), northEast = L.latLng(22.24, 113.63);
+    todayMap.setMaxBounds(L.latLngBounds(southWest, northEast));
+    todayMap.setMinZoom(11);
+
+    todaySparkChart = echarts.init(document.getElementById('todaySparkChart'));
+    loadTodayData();
+    updateTodayClock();
+    setInterval(updateTodayClock, 30000);
+
+    document.getElementById('todayRefreshBtn').addEventListener('click', loadTodayData);
+}
+
+function updateTodayClock() {
+    var now = new Date();
+    document.getElementById('todayClock').textContent =
+        now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+}
+
+function loadTodayData() {
+    document.getElementById('todayUpdateTime').textContent = '加载中...';
+    axios.get('/api/weather/now').then(function(res) {
+        todayAllData = res.data || {};
+        var now = new Date();
+        document.getElementById('todayUpdateTime').textContent =
+            now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ' 更新';
+        renderStationList();
+        renderMapMarkers();
+        renderAlerts();
+        if (todaySelectedStation && todayAllData[todaySelectedStation]) {
+            renderDetail(todayAllData[todaySelectedStation]);
+            loadSparkData(todaySelectedStation);
+        }
+    }).catch(function(err) {
+        document.getElementById('todayUpdateTime').textContent = '加载失败';
+        console.error(err);
     });
-});
+}
+
+function renderStationList() {
+    var container = document.getElementById('todayStationList');
+    var stationNames = {
+        'tg':'大潭山','dp':'紀念孫中山市政公園','pe':'外港碼頭','fm':'大炮台山',
+        'mm':'海事博物館','em':'澳門污水處理廠','ja':'東亞運站','um':'澳門大學',
+        'dc':'路環分站','kv':'九澳','pn':'友誼大橋北峰','ps':'友誼大橋南峰',
+        'pg':'嘉樂庇總督大橋','pv':'西灣大橋','mn':'澳門大橋北','ms':'澳門大橋南'
+    };
+    // only show our 10 stations
+    var ourStations = ['pe','dp','ja','em','dc','fm','mm','um','kv','tg'];
+
+    var items = [];
+    ourStations.forEach(function(sid) {
+        var d = todayAllData[sid];
+        var temp = d && d.temperature != null ? d.temperature : null;
+        items.push({ id: sid, temp: temp, wind: d ? d.windDirection : null });
+    });
+    items.sort(function(a, b) {
+        if (a.temp == null && b.temp == null) return 0;
+        if (a.temp == null) return 1;
+        if (b.temp == null) return -1;
+        return b.temp - a.temp;
+    });
+
+    container.innerHTML = items.map(function(item) {
+        var sel = item.id === todaySelectedStation ? ' sel' : '';
+        var color = tempColor(item.temp);
+        var t = item.temp != null ? item.temp.toFixed(1) + '°' : '--';
+        var w = item.wind || '';
+        return '<div class="today-station-item' + sel + '" data-sid="' + item.id + '">' +
+            '<span class="today-si-temp" style="color:' + color + '">' + t + '</span>' +
+            '<span class="today-si-info"><span class="today-si-name">' + (stationNames[item.id] || item.id) + '</span>' +
+            '<span class="today-si-wind">' + w + '</span></span>' +
+            '</div>';
+    }).join('');
+
+    container.querySelectorAll('.today-station-item').forEach(function(el) {
+        el.addEventListener('click', function() {
+            var sid = el.dataset.sid;
+            todaySelectedStation = sid;
+            container.querySelectorAll('.today-station-item').forEach(function(e) { e.classList.remove('sel'); });
+            el.classList.add('sel');
+            if (todayAllData[sid]) renderDetail(todayAllData[sid]);
+            loadSparkData(sid);
+            // highlight marker
+            if (todayMarkers[sid]) todayMarkers[sid].openPopup();
+        });
+    });
+}
+
+function renderMapMarkers() {
+    // clear old markers
+    Object.values(todayMarkers).forEach(function(m) { todayMap.removeLayer(m); });
+    todayMarkers = {};
+
+    var stationCoords = {
+        'pe':[22.1978,113.5604], 'dp':[22.2162,113.5443], 'ja':[22.1564,113.5432],
+        'em':[22.2072,113.5598], 'dc':[22.1181,113.5517], 'fm':[22.1968,113.5422],
+        'mm':[22.1862,113.5313], 'um':[22.1270,113.5460], 'kv':[22.1332,113.5823],
+        'tg':[22.1585,113.5658]
+    };
+
+    Object.keys(stationCoords).forEach(function(sid) {
+        var d = todayAllData[sid];
+        var t = d && d.temperature != null ? d.temperature : null;
+        var color = tempColor(t);
+        var label = t != null ? t.toFixed(1) + '°C' : '--';
+        var name = {
+            'pe':'外港','dp':'紀念孫中山','ja':'東亞運','em':'黑沙環','dc':'路環',
+            'fm':'大炮台','mm':'媽閣','um':'澳大','kv':'九澳','tg':'大潭山'
+        }[sid] || sid;
+
+        var icon = L.divIcon({
+            className: '',
+            html: '<div class="today-temp-marker" style="color:' + color + ';">' + name + ' ' + label + '</div>',
+            iconSize: [0,0], iconAnchor: [40,15]
+        });
+        var marker = L.marker(stationCoords[sid], { icon: icon }).addTo(todayMap);
+        marker.bindPopup('<b>' + name + '</b><br>温度: ' + label +
+            '<br>湿度: ' + (d && d.humidity != null ? d.humidity + '%' : '--') +
+            '<br>风速: ' + (d && d.windSpeed10min != null ? d.windSpeed10min + ' km/h' : '--'));
+        marker.on('click', function() {
+            todaySelectedStation = sid;
+            renderStationList();
+            if (todayAllData[sid]) renderDetail(todayAllData[sid]);
+            loadSparkData(sid);
+        });
+        todayMarkers[sid] = marker;
+    });
+}
+
+function renderDetail(d) {
+    document.getElementById('todayDetailName').textContent = {
+        'tg':'大潭山','dp':'紀念孫中山','pe':'外港碼頭','fm':'大炮台山',
+        'mm':'海事博物館','em':'澳門污水處理廠','ja':'東亞運站','um':'澳門大學',
+        'dc':'路環分站','kv':'九澳'
+    }[d.stationId] || d.stationId;
+    document.getElementById('todayDetailBadge').textContent = d.stationId.toUpperCase();
+    document.getElementById('todayDetailTemp').textContent = d.temperature != null ? d.temperature.toFixed(1) + '°' : '--°';
+    document.getElementById('todayDetailDesc').textContent = d.temperature != null ? tempDesc(d.temperature) : '';
+    document.getElementById('todayHumVal').textContent = d.humidity != null ? d.humidity + ' %' : '--';
+    document.getElementById('todayWindVal').textContent = d.windSpeed10min != null ? d.windSpeed10min + ' km/h' : '--';
+    document.getElementById('todayDirVal').textContent = d.windDirection || '--';
+    document.getElementById('todayRainVal').textContent = d.rain1hour != null ? d.rain1hour + ' mm' : '--';
+}
+
+function renderAlerts() {
+    var temps = [], maxGust = null, maxRain = null;
+    Object.values(todayAllData).forEach(function(d) {
+        if (d.temperature != null) temps.push({ id: d.stationId, val: d.temperature });
+        if (d.windSpeed10min != null && (maxGust == null || d.windSpeed10min > maxGust.val)) maxGust = { id: d.stationId, val: d.windSpeed10min };
+        if (d.rain1hour != null && (maxRain == null || d.rain1hour > maxRain.val)) maxRain = { id: d.stationId, val: d.rain1hour };
+    });
+    temps.sort(function(a,b) { return b.val - a.val; });
+    var maxT = temps.length > 0 ? temps[0] : null;
+    var minT = temps.length > 0 ? temps[temps.length-1] : null;
+
+    var sidToName = {'tg':'大潭山','pe':'外港','fm':'大炮台','dp':'紀念孫中山',
+        'ja':'東亞運','em':'黑沙環','dc':'路環','mm':'媽閣','um':'澳大','kv':'九澳'};
+    document.getElementById('todayMaxTemp').textContent = maxT ? maxT.val.toFixed(1) + '°C (' + (sidToName[maxT.id]||maxT.id) + ')' : '--';
+    document.getElementById('todayMinTemp').textContent = minT ? minT.val.toFixed(1) + '°C (' + (sidToName[minT.id]||minT.id) + ')' : '--';
+    document.getElementById('todayMaxGust').textContent = maxGust ? maxGust.val.toFixed(1) + ' km/h (' + (sidToName[maxGust.id]||maxGust.id) + ')' : '--';
+    document.getElementById('todayMaxRain').textContent = maxRain ? maxRain.val + ' mm (' + (sidToName[maxRain.id]||maxRain.id) + ')' : '--';
+}
+
+function loadSparkData(stationId) {
+    axios.get('/api/weather/recent24h/' + stationId).then(function(res) {
+        var records = res.data || [];
+        if (!records.length) { todaySparkChart.setOption({ series: [] }); return; }
+        var xData = records.map(function(r) { return r.recordTime ? r.recordTime.substring(11, 16) : ''; });
+        var tData = records.map(function(r) { return r.temperature; });
+        todaySparkChart.setOption({
+            grid: { left: '0%', right: '2%', top: '10%', bottom: '5%' },
+            xAxis: { type: 'category', data: xData, show: false },
+            yAxis: { type: 'value', show: false, scale: true },
+            series: [{
+                type: 'line', data: tData, smooth: true, symbol: 'none',
+                lineStyle: { color: '#FF6B6B', width: 1.5 },
+                areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                    colorStops: [{offset:0,color:'rgba(255,107,107,0.3)'},{offset:1,color:'rgba(255,107,107,0.02)'}] } }
+            }]
+        }, true);
+    });
+}
+
+function tempColor(t) {
+    return '#3182CE';
+}
+
+function tempDesc(t) {
+    if (t >= 35) return '酷热';
+    if (t >= 30) return '炎热';
+    if (t >= 25) return '温暖';
+    if (t >= 20) return '舒适';
+    if (t >= 15) return '凉爽';
+    if (t >= 10) return '微凉';
+    return '寒冷';
+}
 
 // ==================== 数据记录页面 ====================
 const selStation = document.getElementById('dataStation');
@@ -430,7 +724,7 @@ function renderCharts(records) {
 
     // ── 气温趋势 ──
     var tempSeries = [
-        { name: '气温', type: 'line', smooth: true, data: tempData, color: '#FF6B6B', symbol: 'none',
+        { name: '平均气温', type: 'line', smooth: true, data: tempData, color: '#FF6B6B', symbol: 'none',
             areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(255,107,107,0.25)'},{offset:1,color:'rgba(255,107,107,0.02)'}] } },
             markLine: { silent: true, symbol: 'none', lineStyle: { color: '#FF6B6B', type: 'dashed', opacity: 0.5 }, data: avgLine(tempData) } },
         { name: '体感温度', type: 'line', smooth: true, data: feelsData, color: '#FFA07A', symbol: 'none', lineStyle: { type: 'dashed', width: 1.5 } }
@@ -609,14 +903,36 @@ function loadSelfStationLatest(deviceId) {
     axios.get(`/api/self-stations/latest/${encodeURIComponent(deviceId)}`).then(res => updateSelfStationSummary(res.data)).catch(() => updateSelfStationSummary(null));
 }
 
-function buildSelfChartOption(title, yName, xData, seriesData, color, axisOpts = {}) {
-    const valid = seriesData.filter(v => v != null);
-    const grid = { left: '8%', right: '8%', bottom: '12%', top: '15%', containLabel: true };
+function hexToRgba(hex, alpha) {
+    var r = parseInt(hex.slice(1,3), 16), g = parseInt(hex.slice(3,5), 16), b = parseInt(hex.slice(5,7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+}
+
+function buildSelfChartOption(title, yName, xData, seriesData, color, axisOpts) {
+    axisOpts = axisOpts || {};
+    var grid = { left: '8%', right: '8%', bottom: '12%', top: '15%', containLabel: true };
+    var yOpts = { type: 'value', name: yName, splitLine: { lineStyle: { color: '#f5f5f5' } } };
+    if (axisOpts.min != null) {
+        yOpts.min = axisOpts.min;
+    } else {
+        var nums = seriesData.filter(function(v) { return v != null; });
+        if (nums.length) {
+            var min = Math.min.apply(null, nums), max = Math.max.apply(null, nums);
+            var range = max - min || 1;
+            yOpts.min = Math.floor((min - range * 0.2) * 10) / 10;
+        }
+    }
+    if (axisOpts.max != null) yOpts.max = axisOpts.max;
     return {
-        grid, tooltip: { trigger: 'axis' },
+        grid: grid, tooltip: { trigger: 'axis' },
         xAxis: { type: 'category', data: xData, axisLabel: { rotate: 30, fontSize: 10 } },
-        yAxis: { type: 'value', name: yName, ...(axisOpts.min != null ? { min: axisOpts.min } : {}), ...(axisOpts.max != null ? { max: axisOpts.max } : {}) },
-        series: [{ name: title, type: 'line', smooth: true, data: seriesData, color, symbol: 'none' }]
+        yAxis: yOpts,
+        series: [{
+            name: title, type: 'line', smooth: true, data: seriesData, symbol: 'none',
+            lineStyle: { color: color, width: 2 },
+            areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                colorStops: [{offset:0, color: hexToRgba(color, 0.25)}, {offset:1, color: hexToRgba(color, 0.02)}] } }
+        }]
     };
 }
 
@@ -624,10 +940,10 @@ function renderSelfStationChart(deviceId, date) {
     axios.get(`/api/self-stations/history/${encodeURIComponent(deviceId)}`).then(res => {
         const data = (res.data || []).filter(d => d.recordTime && d.recordTime.startsWith(date)).sort((a, b) => (a.recordTime||'').localeCompare(b.recordTime||''));
         const xData = data.map(d => { const t = d.recordTime; return t ? t.substring(11, 16) : ''; });
-        selfTempChart.setOption(buildSelfChartOption('温度 (°C)', '°C', xData, data.map(d=>d.temperature), '#FF6B6B', {min:0}));
-        selfHumidityChart.setOption(buildSelfChartOption('湿度 (%)', '%', xData, data.map(d=>d.humidity), '#4ECDC4', {min:0,max:100}));
+        selfTempChart.setOption(buildSelfChartOption('温度 (°C)', '°C', xData, data.map(d=>d.temperature), '#FF6B6B'));
+        selfHumidityChart.setOption(buildSelfChartOption('湿度 (%)', '%', xData, data.map(d=>d.humidity), '#4ECDC4', {max:100}));
         selfWindChart.setOption(buildSelfChartOption('风速 (m/s)', 'm/s', xData, data.map(d=>d.windSpeed), '#FFD93D', {min:0}));
-        selfPressureChart.setOption(buildSelfChartOption('气压 (hPa)', 'hPa', xData, data.map(d=>d.pressure), '#1D4ED8', {min:0}));
+        selfPressureChart.setOption(buildSelfChartOption('气压 (hPa)', 'hPa', xData, data.map(d=>d.pressure), '#1D4ED8'));
         selfRadiationChart.setOption(buildSelfChartOption('光照', 'lx', xData, data.map(d=>d.radiation), '#F97316', {min:0}));
         selfSocChart.setOption(buildSelfChartOption('电量 (%)', '%', xData, data.map(d=>d.soc), '#16A34A', {min:0,max:120}));
     }).catch(err => console.error(err));
@@ -651,10 +967,10 @@ function renderSelfStationMonthlyChart(deviceId, month) {
             rData.push(recs.length ? +(recs.reduce((a,r)=>a+(r.radiation||0),0)/recs.length).toFixed(1) : null);
             sData.push(recs.length ? +(recs.reduce((a,r)=>a+(r.soc||0),0)/recs.length).toFixed(1) : null);
         }
-        selfTempChart.setOption(buildSelfChartOption('温度日均 (°C)', '°C', xData, tData, '#FF6B6B', {min:0}));
-        selfHumidityChart.setOption(buildSelfChartOption('湿度日均 (%)', '%', xData, hData, '#4ECDC4', {min:0,max:100}));
+        selfTempChart.setOption(buildSelfChartOption('温度日均 (°C)', '°C', xData, tData, '#FF6B6B'));
+        selfHumidityChart.setOption(buildSelfChartOption('湿度日均 (%)', '%', xData, hData, '#4ECDC4', {max:100}));
         selfWindChart.setOption(buildSelfChartOption('风速日均 (m/s)', 'm/s', xData, wData, '#FFD93D', {min:0}));
-        selfPressureChart.setOption(buildSelfChartOption('气压日均 (hPa)', 'hPa', xData, pData, '#1D4ED8', {min:0}));
+        selfPressureChart.setOption(buildSelfChartOption('气压日均 (hPa)', 'hPa', xData, pData, '#1D4ED8'));
         selfRadiationChart.setOption(buildSelfChartOption('光照日均', 'lx', xData, rData, '#F97316', {min:0}));
         selfSocChart.setOption(buildSelfChartOption('电量日均 (%)', '%', xData, sData, '#16A34A', {min:0,max:120}));
     }).catch(err => console.error(err));
@@ -757,31 +1073,36 @@ function showDayDetail(dayData, label) {
     const grid = { left: '8%', right: '6%', bottom: '12%', top: '15%', containLabel: true };
     const xOpt = { type: 'category', data: xData, axisLabel: { rotate: 45, fontSize: 10 } };
 
+    var ySplit = { splitLine: { lineStyle: { color: '#f5f5f5' } } };
+
     extrChartTemp.setOption({
         grid, tooltip: { trigger: 'axis' },
-        xAxis: xOpt, yAxis: { type: 'value', name: '°C' },
+        xAxis: xOpt, yAxis: { type: 'value', name: '°C', scale: true, splitLine: { lineStyle: { color: '#f5f5f5' } } },
         series: [
-            { name: '气温', type: 'line', smooth: true, data: temp, color: '#FF6B6B', symbol: 'none' },
-            { name: '体感温度', type: 'line', smooth: true, data: feels, color: '#FFA07A', symbol: 'none', lineStyle: { type: 'dashed' } }
+            { name: '气温', type: 'line', smooth: true, data: temp, symbol: 'none', lineStyle: { color: '#FF6B6B', width: 2 },
+                areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(255,107,107,0.25)'},{offset:1,color:'rgba(255,107,107,0.02)'}] } } },
+            { name: '体感温度', type: 'line', smooth: true, data: feels, symbol: 'none', lineStyle: { type: 'dashed', color: '#FFA07A', width: 1.5 } }
         ]
     });
 
     extrChartHum.setOption({
         grid, tooltip: { trigger: 'axis' },
-        xAxis: xOpt, yAxis: { type: 'value', name: '% / °C' },
+        xAxis: xOpt, yAxis: { type: 'value', name: '% / °C', scale: true, splitLine: { lineStyle: { color: '#f5f5f5' } } },
         series: [
-            { name: '湿度', type: 'line', smooth: true, data: hum, color: '#4ECDC4', symbol: 'none' },
-            { name: '露点', type: 'line', smooth: true, data: dew, color: '#87CEEB', symbol: 'none', lineStyle: { type: 'dashed' } }
+            { name: '湿度', type: 'line', smooth: true, data: hum, symbol: 'none', lineStyle: { color: '#4ECDC4', width: 2 },
+                areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(78,205,196,0.2)'},{offset:1,color:'rgba(78,205,196,0.02)'}] } } },
+            { name: '露点', type: 'line', smooth: true, data: dew, symbol: 'none', lineStyle: { type: 'dashed', color: '#87CEEB', width: 1.5 } }
         ]
     });
 
     extrChartWind.setOption({
         grid, tooltip: { trigger: 'axis' },
-        xAxis: xOpt, yAxis: { type: 'value', name: 'km/h / mm' },
+        xAxis: xOpt, yAxis: { type: 'value', name: 'km/h / mm', scale: true, splitLine: { lineStyle: { color: '#f5f5f5' } } },
         series: [
-            { name: '10min风速', type: 'line', smooth: true, data: wind, color: '#FFD93D', symbol: 'none' },
-            { name: '阵风', type: 'line', smooth: true, data: gust, color: '#FF8C00', symbol: 'none', lineStyle: { type: 'dashed' } },
-            { name: '1h雨量', type: 'bar', data: rain, color: '#5A67F2', barMaxWidth: 4 }
+            { name: '10min风速', type: 'line', smooth: true, data: wind, symbol: 'none', lineStyle: { color: '#FFD93D', width: 2 },
+                areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(255,217,61,0.25)'},{offset:1,color:'rgba(255,217,61,0.02)'}] } } },
+            { name: '阵风', type: 'line', smooth: true, data: gust, symbol: 'none', lineStyle: { type: 'dashed', color: '#FF8C00', width: 1.5 } },
+            { name: '1h雨量', type: 'bar', data: rain, color: '#5A67F2', barMaxWidth: 4, itemStyle: { borderRadius: [3,3,0,0] } }
         ]
     });
 

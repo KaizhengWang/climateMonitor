@@ -270,6 +270,17 @@ public class WeatherHistoryScraperService {
         progress.incrementAndGet();
     }
 
+    // ── fetch recent 24h for frontend display ──
+    public List<WeatherHistoryRecord> fetchRecent24h(String stationId) {
+        String today = LocalDate.now().toString();
+        String yesterday = LocalDate.now().minusDays(1).toString();
+        try {
+            return fetchStationData(stationId, yesterday, today);
+        } catch (IOException e) {
+            return Collections.emptyList();
+        }
+    }
+
     // ── HTML fetching & parsing (unchanged) ──
     List<WeatherHistoryRecord> fetchStationData(String stationId, String startDate, String endDate)
             throws IOException {

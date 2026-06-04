@@ -79,6 +79,11 @@ public class WeatherController {
         return dao.findByStationAndTimeRange(stationId, startTime, endTime);
     }
 
+    @GetMapping("/recent24h/{stationId}")
+    public List<WeatherHistoryRecord> recent24h(@PathVariable String stationId) {
+        return scraperService.fetchRecent24h(stationId);
+    }
+
     @GetMapping("/latest/{stationId}")
     public WeatherHistoryRecord latest(@PathVariable String stationId) {
         List<WeatherHistoryRecord> all = dao.findByStation(stationId);
@@ -88,6 +93,11 @@ public class WeatherController {
     @GetMapping("/now/{stationId}")
     public com.umiot.microclimate.dto.NowWeatherDTO now(@PathVariable String stationId) {
         return nowWeatherService.fetchNow(stationId);
+    }
+
+    @GetMapping("/now")
+    public Map<String, com.umiot.microclimate.dto.NowWeatherDTO> nowAll() {
+        return nowWeatherService.fetchAllNow();
     }
 
     @GetMapping("/extremes")

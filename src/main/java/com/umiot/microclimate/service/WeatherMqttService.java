@@ -56,7 +56,7 @@ public class WeatherMqttService {
 
     private LocalDateTime parseRecordTime(String value) {
         if (value == null || value.isBlank()) {
-            return LocalDateTime.now();
+            return roundToNearestQuarterHour(LocalDateTime.now());
         }
 
         List<DateTimeFormatter> formatters = List.of(
@@ -69,16 +69,25 @@ public class WeatherMqttService {
 
         for (DateTimeFormatter formatter : formatters) {
             try {
-                return LocalDateTime.parse(value, formatter);
+                return roundToNearestQuarterHour(LocalDateTime.parse(value, formatter));
             } catch (DateTimeParseException ignored) {
             }
         }
 
         try {
-            return OffsetDateTime.parse(value).toLocalDateTime();
+            return roundToNearestQuarterHour(OffsetDateTime.parse(value).toLocalDateTime());
         } catch (DateTimeParseException ignored) {
         }
 
-        return LocalDateTime.now();
+        return roundToNearestQuarterHour(LocalDateTime.now());
+    }
+
+    private LocalDateTime roundToNearestQuarterHour(LocalDateTime time) {
+        int minute = time.getMinute();
+        int rounded = ((minute + 7) / 15) * 15;
+        if (rounded >= 60) {
+            return time.plusHours(1).withMinute(0).withSecond(0).withNano(0);
+        }
+        return time.withMinute(rounded).withSecond(0).withNano(0);
     }
 }

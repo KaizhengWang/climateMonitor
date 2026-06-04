@@ -3,11 +3,13 @@ package com.umiot.microclimate.service;
 import com.umiot.microclimate.dto.NowWeatherDTO;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -49,6 +51,112 @@ public class NowWeatherService {
         } finally {
             pool.shutdown();
         }
+    }
+
+    public Map<String, NowWeatherDTO> fetchAllNow() {
+        Map<String, NowWeatherDTO> result = new LinkedHashMap<>();
+        ExecutorService pool = Executors.newFixedThreadPool(5);
+        try {
+            Future<Map<String, Double>> tempF = pool.submit(() -> fetchAllValues("Temperature"));
+            Future<Map<String, Double>> humF = pool.submit(() -> fetchAllValues("Humidity"));
+            Future<Map<String, Double>> windF = pool.submit(() -> fetchAllValues("WindSpeed"));
+            Future<Map<String, Double>> rainF = pool.submit(() -> fetchAllValues("rainHour"));
+            Future<Map<String, String>> dirF = pool.submit(this::fetchAllWindDirections);
+
+            Map<String, Double> temps = getOrNull(tempF);
+            Map<String, Double> hums = getOrNull(humF);
+            Map<String, Double> winds = getOrNull(windF);
+            Map<String, Double> rains = getOrNull(rainF);
+            Map<String, String> dirs = getOrNull(dirF);
+
+            if (temps == null) temps = Collections.emptyMap();
+            if (hums == null) hums = Collections.emptyMap();
+            if (winds == null) winds = Collections.emptyMap();
+            if (rains == null) rains = Collections.emptyMap();
+            if (dirs == null) dirs = Collections.emptyMap();
+
+            java.util.Set<String> allIds = new java.util.LinkedHashSet<>();
+            allIds.addAll(temps.keySet());
+            allIds.addAll(hums.keySet());
+            allIds.addAll(winds.keySet());
+
+            for (String id : allIds) {
+                NowWeatherDTO dto = new NowWeatherDTO();
+                dto.setStationId(id.toLowerCase());
+                dto.setTemperature(temps.get(id));
+                dto.setHumidity(hums.get(id));
+                dto.setWindSpeed10min(winds.get(id));
+                dto.setRain1hour(rains.get(id));
+                dto.setWindDirection(dirs.get(id));
+                result.put(id.toLowerCase(), dto);
+            }
+            return result;
+        } finally {
+            pool.shutdown();
+        }
+    }
+
+    private Map<String, Double> fetchAllValues(String element) {
+        ElementRequest req = ELEMENTS.get(element);
+        if (req == null) return Collections.emptyMap();
+        try {
+            String url = String.format("%s/pages/nowWeather/searchNowWeather/%s.php?element=%s&name=&unit=%s",
+                    BASE, req.provider, req.element,
+                    URLEncoder.encode(req.unit, StandardCharsets.UTF_8));
+            Document doc = Jsoup.connect(url)
+                    .userAgent(UA)
+                    .referrer(REFERER)
+                    .timeout(15000)
+                    .get();
+            return parseAllNumeric(doc);
+        } catch (Exception e) {
+            return Collections.emptyMap();
+        }
+    }
+
+    private Map<String, String> fetchAllWindDirections() {
+        try {
+            String url = BASE + "/pages/nowWeather/searchNowWeather/windDir.php";
+            Document doc = Jsoup.connect(url)
+                    .userAgent(UA)
+                    .referrer(REFERER)
+                    .timeout(15000)
+                    .get();
+            return parseAllText(doc);
+        } catch (Exception e) {
+            return Collections.emptyMap();
+        }
+    }
+
+    private Map<String, Double> parseAllNumeric(Document doc) {
+        Map<String, Double> result = new LinkedHashMap<>();
+        Elements lis = doc.select("li span.value");
+        for (Element span : lis) {
+            Element li = span.parent();
+            String id = li.id();
+            if (id == null || id.isEmpty()) continue;
+            String text = span.text().trim();
+            if (text.isEmpty() || "---".equals(text)) continue;
+            try {
+                result.put(id, Double.parseDouble(text));
+            } catch (NumberFormatException ignored) {}
+        }
+        return result;
+    }
+
+    private Map<String, String> parseAllText(Document doc) {
+        Map<String, String> result = new LinkedHashMap<>();
+        Elements lis = doc.select("li span.value");
+        for (Element span : lis) {
+            Element li = span.parent();
+            String id = li.id();
+            if (id == null || id.isEmpty()) continue;
+            String text = span.text().trim();
+            if (!text.isEmpty() && !"---".equals(text)) {
+                result.put(id, text);
+            }
+        }
+        return result;
     }
 
     private Double fetchValue(String stationId, String element) {
