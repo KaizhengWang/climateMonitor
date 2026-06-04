@@ -7,7 +7,7 @@ function updateInfoPanel(stationId) {
     document.getElementById('stationName').textContent = station.name;
     infoPanel.style.display = 'block';
 
-    fetch('/api/weather/latest/' + encodeURIComponent(stationId))
+    fetch('/api/weather/now/' + encodeURIComponent(stationId))
         .then(res => res.json())
         .then(data => {
             document.getElementById('tempValue').textContent = val(data.temperature, '°C');

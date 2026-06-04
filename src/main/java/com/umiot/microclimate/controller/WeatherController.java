@@ -15,10 +15,13 @@ public class WeatherController {
 
     private final WeatherHistoryScraperService scraperService;
     private final WeatherHistoryDao dao;
+    private final com.umiot.microclimate.service.NowWeatherService nowWeatherService;
 
-    public WeatherController(WeatherHistoryScraperService scraperService, WeatherHistoryDao dao) {
+    public WeatherController(WeatherHistoryScraperService scraperService, WeatherHistoryDao dao,
+                             com.umiot.microclimate.service.NowWeatherService nowWeatherService) {
         this.scraperService = scraperService;
         this.dao = dao;
+        this.nowWeatherService = nowWeatherService;
     }
 
     @GetMapping("/import")
@@ -74,6 +77,11 @@ public class WeatherController {
     public WeatherHistoryRecord latest(@PathVariable String stationId) {
         List<WeatherHistoryRecord> all = dao.findByStation(stationId);
         return all.isEmpty() ? null : all.get(all.size() - 1);
+    }
+
+    @GetMapping("/now/{stationId}")
+    public com.umiot.microclimate.dto.NowWeatherDTO now(@PathVariable String stationId) {
+        return nowWeatherService.fetchNow(stationId);
     }
 
     @GetMapping("/extremes")
