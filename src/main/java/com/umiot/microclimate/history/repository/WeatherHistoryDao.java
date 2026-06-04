@@ -3,69 +3,98 @@ package com.umiot.microclimate.history.repository;
 import com.umiot.microclimate.history.entity.WeatherHistoryRecord;
 import org.springframework.stereotype.Repository;
 
+import java.io.File;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Repository
 public class WeatherHistoryDao {
 
-    private static final String DB_URL = "jdbc:sqlite:weather_history.db";
-
-    private static final String CREATE_TABLE_SQL = """
-        CREATE TABLE IF NOT EXISTS weather_history_record (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            station_id TEXT NOT NULL,
-            temperature REAL,
-            daily_high REAL,
-            daily_low REAL,
-            feels_like REAL,
-            humidity REAL,
-            dew_point REAL,
-            rain_1min REAL,
-            rain_1hour REAL,
-            rain_2hour REAL,
-            rain_daily REAL,
-            wind_speed_10min REAL,
-            wind_speed_60min REAL,
-            wind_gust REAL,
-            wind_direction TEXT,
-            wind_direction_degrees REAL,
-            record_time TEXT NOT NULL,
-            UNIQUE(station_id, record_time)
-        )
-        """;
-
-    private static final String INSERT_SQL = """
-        INSERT OR IGNORE INTO weather_history_record
-        (station_id, temperature, daily_high, daily_low, feels_like,
-         humidity, dew_point, rain_1min, rain_1hour, rain_2hour,
-         rain_daily, wind_speed_10min, wind_speed_60min, wind_gust,
-         wind_direction, wind_direction_degrees, record_time)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """;
+    private static final String DB_DIR = "weather_history";
+    private static final String DB_NAME_PATTERN = "weather_history_%d_%02d.db";
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(DB_URL);
+    // ── path helpers ──
+    private String dbDirPath() {
+        return DB_DIR;
     }
 
-    public void initTable() {
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement()) {
-            stmt.execute(CREATE_TABLE_SQL);
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to init history DB table", e);
+    private String dbFileName(int year, int month) {
+        return String.format(DB_NAME_PATTERN, year, month);
+    }
+
+    private String dbUrl(int year, int month) {
+        return "jdbc:sqlite:" + DB_DIR + "/" + dbFileName(year, month);
+    }
+
+    // ── ensure directory exists ──
+    public void ensureDir() {
+        File dir = new File(DB_DIR);
+        if (!dir.exists()) {
+            dir.mkdirs();
         }
     }
 
-    public void batchInsert(List<WeatherHistoryRecord> records) {
-        try (Connection conn = getConnection()) {
+    // ── connection ──
+    private Connection getConnection(int year, int month) throws SQLException {
+        ensureDir();
+        return DriverManager.getConnection(dbUrl(year, month));
+    }
+
+    // ── table init ──
+    public void initTable(int year, int month) {
+        String sql = """
+            CREATE TABLE IF NOT EXISTS weather_history_record (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                station_id TEXT NOT NULL,
+                temperature REAL,
+                daily_high REAL,
+                daily_low REAL,
+                feels_like REAL,
+                humidity REAL,
+                dew_point REAL,
+                rain_1min REAL,
+                rain_1hour REAL,
+                rain_2hour REAL,
+                rain_daily REAL,
+                wind_speed_10min REAL,
+                wind_speed_60min REAL,
+                wind_gust REAL,
+                wind_direction TEXT,
+                wind_direction_degrees REAL,
+                record_time TEXT NOT NULL,
+                UNIQUE(station_id, record_time)
+            )
+            """;
+        try (Connection conn = getConnection(year, month);
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to init table for " + year + "-" + month, e);
+        }
+    }
+
+    // ── batch insert ──
+    public void batchInsert(int year, int month, List<WeatherHistoryRecord> records) {
+        if (records.isEmpty()) return;
+        initTable(year, month);
+        String sql = """
+            INSERT OR IGNORE INTO weather_history_record
+            (station_id, temperature, daily_high, daily_low, feels_like,
+             humidity, dew_point, rain_1min, rain_1hour, rain_2hour,
+             rain_daily, wind_speed_10min, wind_speed_60min, wind_gust,
+             wind_direction, wind_direction_degrees, record_time)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """;
+        try (Connection conn = getConnection(year, month)) {
             conn.setAutoCommit(false);
-            try (PreparedStatement ps = conn.prepareStatement(INSERT_SQL)) {
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 for (WeatherHistoryRecord r : records) {
                     ps.setString(1, r.getStationId());
                     setDouble(ps, 2, r.getTemperature());
@@ -90,85 +119,128 @@ public class WeatherHistoryDao {
                 conn.commit();
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to batch insert weather history", e);
+            throw new RuntimeException("Failed to batch insert for " + year + "-" + month, e);
         }
     }
 
+    // ── query single month ──
+    private List<WeatherHistoryRecord> queryMonth(int year, int month, String sql, SqlParamSetter setter) {
+        File f = new File(DB_DIR, dbFileName(year, month));
+        if (!f.exists()) return Collections.emptyList();
+        try (Connection conn = getConnection(year, month);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (setter != null) setter.apply(ps);
+            List<WeatherHistoryRecord> results = new ArrayList<>();
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) results.add(mapRow(rs));
+            }
+            return results;
+        } catch (SQLException e) {
+            return Collections.emptyList();
+        }
+    }
+
+    // ── iterate months ──
+    private List<WeatherHistoryRecord> queryMonths(LocalDateTime start, LocalDateTime end,
+                                                    String sqlTemplate, SqlParamSetter setter) {
+        List<WeatherHistoryRecord> all = new ArrayList<>();
+        YearMonth ym = YearMonth.from(start);
+        YearMonth endYm = YearMonth.from(end);
+        while (!ym.isAfter(endYm)) {
+            all.addAll(queryMonth(ym.getYear(), ym.getMonthValue(), sqlTemplate, setter));
+            ym = ym.plusMonths(1);
+        }
+        all.sort((a, b) -> {
+            LocalDateTime ta = a.getRecordTime();
+            LocalDateTime tb = b.getRecordTime();
+            if (ta == null) return -1;
+            if (tb == null) return 1;
+            return ta.compareTo(tb);
+        });
+        return all;
+    }
+
+    // ── iterate all existing months ──
+    private List<WeatherHistoryRecord> queryAllMonths(String sqlTemplate, SqlParamSetter setter) {
+        File dir = new File(DB_DIR);
+        if (!dir.exists() || !dir.isDirectory()) return Collections.emptyList();
+        File[] files = dir.listFiles((d, name) -> name.startsWith("weather_history_") && name.endsWith(".db"));
+        if (files == null) return Collections.emptyList();
+
+        List<WeatherHistoryRecord> all = new ArrayList<>();
+        for (File f : files) {
+            String name = f.getName();
+            // weather_history_2026_01.db → extract year and month
+            String core = name.replace("weather_history_", "").replace(".db", "");
+            String[] parts = core.split("_");
+            if (parts.length != 2) continue;
+            try {
+                int y = Integer.parseInt(parts[0]);
+                int m = Integer.parseInt(parts[1]);
+                all.addAll(queryMonth(y, m, sqlTemplate, setter));
+            } catch (NumberFormatException ignored) {}
+        }
+        all.sort((a, b) -> {
+            LocalDateTime ta = a.getRecordTime();
+            LocalDateTime tb = b.getRecordTime();
+            if (ta == null) return -1;
+            if (tb == null) return 1;
+            return ta.compareTo(tb);
+        });
+        return all;
+    }
+
+    // ── public query methods ──
+
     public List<WeatherHistoryRecord> findByStation(String stationId) {
-        String sql = "SELECT * FROM weather_history_record WHERE station_id = ? ORDER BY record_time ASC";
-        return queryList(sql, stmt -> stmt.setString(1, stationId));
+        return queryAllMonths(
+            "SELECT * FROM weather_history_record WHERE station_id = ? ORDER BY record_time ASC",
+            ps -> ps.setString(1, stationId));
     }
 
     public List<WeatherHistoryRecord> findByStationAndTimeRange(String stationId, LocalDateTime start, LocalDateTime end) {
-        String sql = "SELECT * FROM weather_history_record WHERE station_id = ? AND record_time BETWEEN ? AND ? ORDER BY record_time ASC";
-        return queryList(sql, stmt -> {
-            stmt.setString(1, stationId);
-            stmt.setString(2, start.format(FMT));
-            stmt.setString(3, end.format(FMT));
-        });
-    }
-
-    public long countByStation(String stationId) {
-        String sql = "SELECT COUNT(*) FROM weather_history_record WHERE station_id = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, stationId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getLong(1) : 0;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to count records", e);
-        }
-    }
-
-    public long countAll() {
-        String sql = "SELECT COUNT(*) FROM weather_history_record";
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            return rs.next() ? rs.getLong(1) : 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to count records", e);
-        }
+        return queryMonths(start, end,
+            "SELECT * FROM weather_history_record WHERE station_id = ? AND record_time BETWEEN ? AND ? ORDER BY record_time ASC",
+            ps -> {
+                ps.setString(1, stationId);
+                ps.setString(2, start.format(FMT));
+                ps.setString(3, end.format(FMT));
+            });
     }
 
     public List<WeatherHistoryRecord> findByStationAndYear(String stationId, int year) {
-        String start = year + "-01-01 00:00:00";
-        String end = year + "-12-31 23:59:59";
-        String sql = "SELECT * FROM weather_history_record WHERE station_id = ? AND record_time BETWEEN ? AND ? ORDER BY record_time ASC";
-        return queryList(sql, stmt -> {
-            stmt.setString(1, stationId);
-            stmt.setString(2, start);
-            stmt.setString(3, end);
-        });
+        return queryMonths(
+            LocalDateTime.of(year, 1, 1, 0, 0),
+            LocalDateTime.of(year, 12, 31, 23, 59),
+            "SELECT * FROM weather_history_record WHERE station_id = ? AND record_time BETWEEN ? AND ? ORDER BY record_time ASC",
+            ps -> {
+                ps.setString(1, stationId);
+                ps.setString(2, year + "-01-01 00:00:00");
+                ps.setString(3, year + "-12-31 23:59:59");
+            });
+    }
+
+    public long countByStation(String stationId) {
+        return queryAllMonths(
+            "SELECT * FROM weather_history_record WHERE station_id = ?",
+            ps -> ps.setString(1, stationId)).size();
+    }
+
+    public long countAll() {
+        return queryAllMonths("SELECT * FROM weather_history_record", null).size();
     }
 
     public void deleteAll() {
-        String sql = "DELETE FROM weather_history_record";
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to delete records", e);
+        File dir = new File(DB_DIR);
+        if (!dir.exists()) return;
+        File[] files = dir.listFiles((d, name) -> name.startsWith("weather_history_") && name.endsWith(".db"));
+        if (files == null) return;
+        for (File f : files) {
+            f.delete();
         }
     }
 
-    private List<WeatherHistoryRecord> queryList(String sql, SqlParamSetter setter) {
-        List<WeatherHistoryRecord> results = new ArrayList<>();
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            setter.apply(ps);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    results.add(mapRow(rs));
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to query weather history", e);
-        }
-        return results;
-    }
-
+    // ── row mapper ──
     private WeatherHistoryRecord mapRow(ResultSet rs) throws SQLException {
         WeatherHistoryRecord r = new WeatherHistoryRecord();
         r.setId(rs.getLong("id"));

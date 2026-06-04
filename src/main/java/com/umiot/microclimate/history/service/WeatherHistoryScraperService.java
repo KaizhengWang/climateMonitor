@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,9 +55,46 @@ public class WeatherHistoryScraperService {
 
     public WeatherHistoryScraperService(WeatherHistoryDao dao) {
         this.dao = dao;
-        dao.initTable();
+        dao.ensureDir();
     }
 
+    // ── import a single month ──
+    public Map<String, Object> startImportMonth(int year, int month) {
+        if (importing.get()) {
+            Map<String, Object> resp = new LinkedHashMap<>();
+            resp.put("status", "already_running");
+            resp.put("progress", progress.get() + "/" + totalTasks);
+            resp.put("currentTask", currentTask);
+            return resp;
+        }
+        totalTasks = STATIONS.size();
+        progress.set(0);
+        lastError = null;
+        importing.set(true);
+
+        new Thread(() -> doImportMonth(year, month), "weather-import-month").start();
+
+        Map<String, Object> resp = new LinkedHashMap<>();
+        resp.put("status", "started");
+        resp.put("totalTasks", totalTasks);
+        resp.put("month", year + "-" + String.format("%02d", month));
+        return resp;
+    }
+
+    private void doImportMonth(int year, int month) {
+        try {
+            for (Map.Entry<String, String> entry : STATIONS.entrySet()) {
+                fetchAndSaveMonth(entry.getKey(), entry.getValue(), year, month);
+                Thread.sleep(2000);
+            }
+        } catch (Exception e) {
+            lastError = "Import failed: " + e.getMessage();
+        } finally {
+            importing.set(false);
+        }
+    }
+
+    // ── import full 5-month batch (legacy) ──
     public Map<String, Object> startImport() {
         if (importing.get()) {
             Map<String, Object> resp = new LinkedHashMap<>();
@@ -66,7 +104,7 @@ public class WeatherHistoryScraperService {
             return resp;
         }
 
-        totalTasks = STATIONS.size() * 5; // 16 stations × 5 months (Jan–May)
+        totalTasks = STATIONS.size() * 5;
         progress.set(0);
         lastError = null;
         importing.set(true);
@@ -80,31 +118,10 @@ public class WeatherHistoryScraperService {
     }
 
     private void doImport() {
-        LocalDate[] monthStarts = {
-            LocalDate.of(2026, 1, 1),
-            LocalDate.of(2026, 2, 1),
-            LocalDate.of(2026, 3, 1),
-            LocalDate.of(2026, 4, 1),
-            LocalDate.of(2026, 5, 1)
-        };
-        LocalDate[] monthEnds = {
-            LocalDate.of(2026, 1, 31),
-            LocalDate.of(2026, 2, 28),
-            LocalDate.of(2026, 3, 31),
-            LocalDate.of(2026, 4, 30),
-            LocalDate.of(2026, 5, 31)
-        };
-
         try {
-            for (Map.Entry<String, String> entry : STATIONS.entrySet()) {
-                String stationId = entry.getKey();
-                String stationName = entry.getValue();
-
-                for (int m = 0; m < monthStarts.length; m++) {
-                    String startDate = monthStarts[m].toString();
-                    String endDate = monthEnds[m].toString();
-
-                    fetchAndSave(stationId, stationName, startDate, endDate);
+            for (int m = 1; m <= 5; m++) {
+                for (Map.Entry<String, String> entry : STATIONS.entrySet()) {
+                    fetchAndSaveMonth(entry.getKey(), entry.getValue(), 2026, m);
                     Thread.sleep(2000);
                 }
             }
@@ -115,6 +132,7 @@ public class WeatherHistoryScraperService {
         }
     }
 
+    // ── import custom range (auto-splits by month) ──
     public Map<String, Object> startImportRange(String startDate, String endDate) {
         if (importing.get()) {
             Map<String, Object> resp = new LinkedHashMap<>();
@@ -137,9 +155,13 @@ public class WeatherHistoryScraperService {
 
     private void doImportRange(LocalDate start, LocalDate end) {
         try {
-            for (Map.Entry<String, String> entry : STATIONS.entrySet()) {
-                fetchAndSave(entry.getKey(), entry.getValue(), start.toString(), end.toString());
-                Thread.sleep(2000);
+            List<YearMonth> months = monthsBetween(start, end);
+            totalTasks = STATIONS.size() * months.size();
+            for (YearMonth ym : months) {
+                for (Map.Entry<String, String> entry : STATIONS.entrySet()) {
+                    fetchAndSaveMonth(entry.getKey(), entry.getValue(), ym.getYear(), ym.getMonthValue());
+                    Thread.sleep(2000);
+                }
             }
         } catch (Exception e) {
             lastError = "Import failed: " + e.getMessage();
@@ -148,6 +170,18 @@ public class WeatherHistoryScraperService {
         }
     }
 
+    private List<YearMonth> monthsBetween(LocalDate start, LocalDate end) {
+        List<YearMonth> list = new ArrayList<>();
+        YearMonth ym = YearMonth.from(start);
+        YearMonth endYm = YearMonth.from(end);
+        while (!ym.isAfter(endYm)) {
+            list.add(ym);
+            ym = ym.plusMonths(1);
+        }
+        return list;
+    }
+
+    // ── progress / status ──
     public Map<String, Object> getProgress() {
         Map<String, Object> p = new LinkedHashMap<>();
         p.put("running", importing.get());
@@ -157,8 +191,30 @@ public class WeatherHistoryScraperService {
         return p;
     }
 
-    private void fetchAndSave(String stationId, String stationName, String startDate, String endDate)
-            throws InterruptedException {
+    public Map<String, Object> getImportStatus() {
+        Map<String, Object> status = new LinkedHashMap<>();
+        status.put("totalRecords", dao.countAll());
+        Map<String, Long> stationCounts = new LinkedHashMap<>();
+        for (String stationId : STATIONS.keySet()) {
+            long count = dao.countByStation(stationId);
+            if (count > 0) {
+                stationCounts.put(stationId, count);
+            }
+        }
+        status.put("stationCounts", stationCounts);
+        return status;
+    }
+
+    public void clearAllData() {
+        dao.deleteAll();
+    }
+
+    // ── fetch & save for a single month ──
+    private void fetchAndSaveMonth(String stationId, String stationName, int year, int month) {
+        YearMonth ym = YearMonth.of(year, month);
+        String startDate = ym.atDay(1).toString();
+        String endDate = ym.atEndOfMonth().toString();
+
         currentTask = String.format("%s (%s) %s~%s", stationName, stationId, startDate, endDate);
 
         // try full month up to 3 times
@@ -166,21 +222,26 @@ public class WeatherHistoryScraperService {
             try {
                 List<WeatherHistoryRecord> records = fetchStationData(stationId, startDate, endDate);
                 if (!records.isEmpty()) {
-                    dao.batchInsert(records);
+                    dao.batchInsert(year, month, records);
                 }
                 System.out.printf("[OK] %s: %d records%n", currentTask, records.size());
                 progress.incrementAndGet();
                 return;
             } catch (IOException e) {
                 System.err.printf("[RETRY %d/3] %s: %s%n", attempt, currentTask, e.getMessage());
-                if (attempt < 3) Thread.sleep(3000);
+                if (attempt < 3) {
+                    try { Thread.sleep(3000); } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
             }
         }
 
-        // full month failed — try weekly
+        // full month failed — try weekly fallback
         System.out.printf("[FALLBACK] %s: splitting into weeks%n", currentTask);
-        LocalDate start = LocalDate.parse(startDate);
-        LocalDate end = LocalDate.parse(endDate);
+        LocalDate start = ym.atDay(1);
+        LocalDate end = ym.atEndOfMonth();
         int monthTotal = 0;
         for (LocalDate weekStart = start; weekStart.isBefore(end); weekStart = weekStart.plusWeeks(1)) {
             LocalDate weekEnd = weekStart.plusDays(6);
@@ -192,24 +253,24 @@ public class WeatherHistoryScraperService {
                 try {
                     List<WeatherHistoryRecord> records = fetchStationData(stationId, ws, we);
                     if (!records.isEmpty()) {
-                        dao.batchInsert(records);
+                        dao.batchInsert(year, month, records);
                         monthTotal += records.size();
                     }
-                    Thread.sleep(800);
                     break;
                 } catch (IOException e) {
                     if (attempt == 2) {
                         lastError = String.format("%s week %s~%s: %s", currentTask, ws, we, e.getMessage());
                         System.err.println("[ERROR] " + lastError);
                     }
-                    Thread.sleep(2000);
                 }
+                try { Thread.sleep(attempt == 1 ? 800 : 2000); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); return; }
             }
         }
         System.out.printf("[OK] %s: %d records (weekly fallback)%n", currentTask, monthTotal);
         progress.incrementAndGet();
     }
 
+    // ── HTML fetching & parsing (unchanged) ──
     List<WeatherHistoryRecord> fetchStationData(String stationId, String startDate, String endDate)
             throws IOException {
         String url = BASE_URL
@@ -225,14 +286,12 @@ public class WeatherHistoryScraperService {
             .timeout(120000)
             .get();
 
-        // find the record table
         Element recordTable = doc.selectFirst("div.record table");
         if (recordTable == null) return Collections.emptyList();
 
         Elements rows = recordTable.select("tr");
         if (rows.size() <= 1) return Collections.emptyList();
 
-        // build column index map from header row (th elements)
         Map<String, Integer> colIdx = new LinkedHashMap<>();
         Elements headers = rows.get(0).select("th");
         for (int i = 0; i < headers.size(); i++) {
@@ -269,7 +328,6 @@ public class WeatherHistoryScraperService {
             r.setWindGust(parseCell(cells, colIdx, "陣風(km/h)"));
             r.setWindDirection(parseCellText(cells, colIdx, "風向"));
             r.setWindDirectionDegrees(parseCell(cells, colIdx, "風向度數(°)"));
-
             records.add(r);
         }
         return records;
@@ -289,23 +347,5 @@ public class WeatherHistoryScraperService {
     private String parseCellText(Elements cells, Map<String, Integer> colIdx, String colName) {
         String text = getCell(cells, colIdx, colName);
         return text.isEmpty() || "---".equals(text) ? null : text;
-    }
-
-    public Map<String, Object> getImportStatus() {
-        Map<String, Object> status = new LinkedHashMap<>();
-        status.put("totalRecords", dao.countAll());
-        Map<String, Long> stationCounts = new LinkedHashMap<>();
-        for (String stationId : STATIONS.keySet()) {
-            long count = dao.countByStation(stationId);
-            if (count > 0) {
-                stationCounts.put(stationId, count);
-            }
-        }
-        status.put("stationCounts", stationCounts);
-        return status;
-    }
-
-    public void clearAllData() {
-        dao.deleteAll();
     }
 }

@@ -36,6 +36,12 @@ public class WeatherController {
         return scraperService.startImportRange(start, end);
     }
 
+    @GetMapping("/import/{year}/{month}")
+    public Map<String, Object> startImportMonth(
+            @PathVariable int year, @PathVariable int month) {
+        return scraperService.startImportMonth(year, month);
+    }
+
     @GetMapping("/import/progress")
     public Map<String, Object> importProgress() {
         return scraperService.getProgress();
