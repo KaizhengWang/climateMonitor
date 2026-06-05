@@ -9,5 +9,5 @@ const stations = [
     { id: 'um', name: '澳門大學',           lon: 113.5460, lat: 22.1270 },
     { id: 'kv', name: '九澳',              lon: 113.5823, lat: 22.1332 },
     { id: 'tg', name: '大潭山',            lon: 113.5658, lat: 22.1585 },
-    { id: 'self_a', name: '自研站A',       lon: 113.5440, lat: 22.1350, source: 'mqtt' },
+    { id: 'self_a', name: '自研站A',       lon: 113.5435, lat: 22.1350, source: 'mqtt' },
 ];

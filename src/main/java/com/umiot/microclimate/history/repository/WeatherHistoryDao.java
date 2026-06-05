@@ -240,6 +240,22 @@ public class WeatherHistoryDao {
         }
     }
 
+    public java.util.List<Integer> getAvailableYears() {
+        java.util.Set<Integer> years = new java.util.TreeSet<>();
+        File dir = new File(DB_DIR);
+        if (!dir.exists() || !dir.isDirectory()) return java.util.Collections.emptyList();
+        File[] files = dir.listFiles((d, name) -> name.startsWith("weather_history_") && name.endsWith(".db"));
+        if (files == null) return java.util.Collections.emptyList();
+        for (File f : files) {
+            String core = f.getName().replace("weather_history_", "").replace(".db", "");
+            String[] parts = core.split("_");
+            if (parts.length >= 1) {
+                try { years.add(Integer.parseInt(parts[0])); } catch (NumberFormatException ignored) {}
+            }
+        }
+        return new java.util.ArrayList<>(years);
+    }
+
     // ── row mapper ──
     private WeatherHistoryRecord mapRow(ResultSet rs) throws SQLException {
         WeatherHistoryRecord r = new WeatherHistoryRecord();

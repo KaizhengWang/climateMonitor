@@ -6,6 +6,8 @@ import com.umiot.microclimate.history.service.WeatherHistoryScraperService;
 import com.umiot.microclimate.dto.NowWeatherDTO;
 import com.umiot.microclimate.entity.SelfWeatherRecord;
 import com.umiot.microclimate.repository.SelfWeatherRecordRepository;
+import com.umiot.microclimate.service.DsecStatsService;
+import com.umiot.microclimate.service.StationCompareService;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -21,6 +23,8 @@ public class WeatherController {
     private final WeatherHistoryDao dao;
     private final com.umiot.microclimate.service.NowWeatherService nowWeatherService;
     private final SelfWeatherRecordRepository selfRepo;
+    private final DsecStatsService dsecStatsService;
+    private final StationCompareService stationCompareService;
 
     // 自研站 stationId → deviceId 映射
     private static final Map<String, String> SELF_STATION_MAP = Map.of(
@@ -29,11 +33,15 @@ public class WeatherController {
 
     public WeatherController(WeatherHistoryScraperService scraperService, WeatherHistoryDao dao,
                              com.umiot.microclimate.service.NowWeatherService nowWeatherService,
-                             SelfWeatherRecordRepository selfRepo) {
+                             SelfWeatherRecordRepository selfRepo,
+                             DsecStatsService dsecStatsService,
+                             StationCompareService stationCompareService) {
         this.scraperService = scraperService;
         this.dao = dao;
         this.nowWeatherService = nowWeatherService;
         this.selfRepo = selfRepo;
+        this.dsecStatsService = dsecStatsService;
+        this.stationCompareService = stationCompareService;
     }
 
     @GetMapping("/import")
@@ -128,6 +136,30 @@ public class WeatherController {
             dto.setUpdateTime(r.getRecordTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         }
         return dto;
+    }
+
+    @GetMapping("/city-info")
+    public Map<String, Object> cityInfo() {
+        return dsecStatsService.fetchCityInfo();
+    }
+
+    @GetMapping("/station-compare")
+    public Map<String, Object> stationCompare() {
+        return stationCompareService.getStationComparison();
+    }
+
+    @GetMapping("/years")
+    public List<Integer> availableYears() {
+        return dao.getAvailableYears();
+    }
+
+    @GetMapping("/dsec-search")
+    public String dsecSearch(@RequestParam String keyword, @RequestParam(defaultValue = "English") String lang) {
+        try {
+            return dsecStatsService.searchIndicator(keyword, lang);
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
     }
 
     @GetMapping("/extremes")

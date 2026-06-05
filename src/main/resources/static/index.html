@@ -12,12 +12,12 @@
         #headerTitle:hover { opacity: 0.85; }
         #headerRefresh { position: absolute; right: 24px; padding: 5px 10px; background: transparent; border: 1.5px solid #0F7B6B; color: #FFFFFF; border-radius: 4px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
         #headerRefresh:hover { background: #0F7B6B; }
-        #navbar { height: 42px; background: #F0F5FB; display: flex; align-items: center; padding: 0 16px; overflow-x: auto; gap: 4px; border-bottom: 1px solid rgba(0,0,0,0.04); }
+        #navbar { height: 38px; background: #F0F5FB; display: flex; align-items: center; padding: 0 16px; overflow-x: auto; gap: 4px; border-bottom: 1px solid rgba(0,0,0,0.04); }
         #navbar::-webkit-scrollbar { height: 2px; }
         #navbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 2px; }
-        #navbar button { padding: 6px 14px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #5A6B87; cursor: pointer; font-size: 13px; white-space: nowrap; flex-shrink: 0; transition: all 0.15s; }
+        #navbar button { padding: 6px 14px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #3A4B67; cursor: pointer; font-size: 13px; font-weight: 500; white-space: nowrap; flex-shrink: 0; transition: all 0.15s; }
         #navbar button:hover { color: #0F7B6B; background: #E4EDF5; }
-        #navbar button.active { color: #0F7B6B; border-bottom-color: #0F7B6B; font-weight: 500; background: transparent; }
+        #navbar button.active { color: #0F7B6B; border-bottom-color: #0F7B6B; font-weight: 600; background: transparent; }
         #subNav { height: 36px; background: #E8EEF6; display: none; align-items: center; padding: 0 16px; gap: 4px; border-bottom: 1px solid rgba(0,0,0,0.04); }
         #subNav button { padding: 4px 14px; background: transparent; border: none; color: #5A6B87; cursor: pointer; font-size: 12px; border-radius: 3px; transition: all 0.15s; }
         #subNav button:hover { color: #0F7B6B; background: rgba(15,123,107,0.06); }
@@ -33,7 +33,7 @@
         .dash-grid {
             display: grid;
             grid-template-columns: 280px 1fr 280px;
-            grid-template-rows: 1fr 1fr 200px;
+            grid-template-rows: 0.8fr 1.2fr 160px;
             width: 100%; height: 100%;
             gap: 8px; padding: 8px;
             box-sizing: border-box;
@@ -43,10 +43,10 @@
         /* grid placement */
         #panelCityInfo      { grid-column: 1; grid-row: 1; }
         #panelStationCompare{ grid-column: 1; grid-row: 2; }
-        #panelCoord         { grid-column: 1; grid-row: 3; }
+        #panelCoord         { grid-column: 2; grid-row: 3; }
         #panelMicroclimate  { grid-column: 3; grid-row: 1; }
         #panelIndoor        { grid-column: 3; grid-row: 2; }
-        #panelBuilding      { grid-column: 2; grid-row: 3; }
+        #panelBuilding      { grid-column: 1; grid-row: 3; }
         #panelGrid          { grid-column: 3; grid-row: 3; }
 
         .dash-map-wrap {
@@ -57,6 +57,7 @@
             border: 1px solid rgba(255,255,255,0.06);
         }
         .dash-map-wrap #cesiumContainer { width: 100%; height: 100%; }
+        .cesium-widget-credits, .cesium-credit-logoContainer, .cesium-credit-textContainer { display: none !important; }
 
         .dash-panel {
             background: rgba(18,28,46,0.92);
@@ -97,7 +98,8 @@
             border-bottom: 1px solid rgba(255,255,255,0.04);
         }
         .dash-metric-label { font-size: 12px; color: #8899aa; }
-        .dash-metric-val { font-size: 16px; font-weight: 600; color: #e8edf3; }
+        .dash-metric-val { font-size: 12px; font-weight: 600; color: #e8edf3; }
+        .dash-metric-sub { font-size: 10px; color: #556677; }
 
         .dash-placeholder {
             flex: 1; display: flex; align-items: center; justify-content: center;
@@ -105,12 +107,29 @@
         }
 
         /* info panel overlay on map */
-        .info-panel { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.82); color: #fff; padding: 16px 18px; border-radius: 10px; width: 260px; z-index: 1000; display: none; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
-        .info-panel .title { font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #4ECDC4; border-bottom: 2px solid #4ECDC4; padding-bottom: 6px; }
-        .info-panel .row { margin: 7px 0; display: flex; justify-content: space-between; }
-        .info-panel .label { color: #aaa; font-size: 13px; }
-        .info-panel .value { color: #fff; font-weight: bold; font-size: 14px; }
+        .info-panel { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.40); color: #fff; padding: 12px 14px; border-radius: 10px; width: 180px; z-index: 1000; display: none; border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(10px); }
+        .info-panel .title { font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #4ECDC4; border-bottom: 2px solid #4ECDC4; padding-bottom: 5px; }
+        .info-panel .row { margin: 5px 0; display: flex; justify-content: space-between; }
+        .info-panel .label { color: #ccc; font-size: 12px; }
+        .info-panel .value { color: #fff; font-weight: bold; font-size: 13px; }
         .hint { position: absolute; bottom: 12px; left: 12px; background: rgba(0,0,0,0.7); color: #aaa; padding: 8px 12px; border-radius: 5px; font-size: 12px; z-index: 1000; }
+
+        /* ====== 站点对比面板 ====== */
+        .sc-avg-row { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: rgba(15,123,107,0.15); border-radius: 6px; margin-bottom: 8px; font-size: 13px; }
+        .sc-avg-label { color: #4ECDC4; font-weight: bold; margin-right: auto; }
+        .sc-avg-val { color: #fff; font-weight: bold; }
+        .sc-list { display: flex; flex-direction: column; gap: 3px; overflow-y: auto; flex: 1; }
+        .sc-list::-webkit-scrollbar { width: 3px; }
+        .sc-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+        .sc-item { display: flex; align-items: center; padding: 4px 8px; border-radius: 4px; font-size: 12px; background: rgba(255,255,255,0.03); }
+        .sc-item:hover { background: rgba(255,255,255,0.06); }
+        .sc-name { width: 80px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sc-val { width: 55px; text-align: right; font-weight: bold; color: #fff; }
+        .sc-diff { width: 50px; text-align: right; font-size: 11px; }
+        .sc-diff.up { color: #E74C3C; }
+        .sc-diff.down { color: #4ECDC4; }
+        .sc-self-tag { font-size: 10px; background: #3182CE; color: #fff; padding: 0 4px; border-radius: 2px; margin-left: 4px; }
+        .sc-chart-note { font-size: 10px; color: #aab; text-align: center; padding: 2px 8px; line-height: 1.4; }
 
         /* ====== 今日气象 ====== */
         #monitorPage { display: flex; background: #0d1b2a; color: #e0e0e0; height: 100%; overflow: hidden; }
@@ -244,7 +263,6 @@
 
 <div id="headerBar">
     <a id="headerTitle" href="#" title="返回首页">澳门微气候-电网-建筑综合智慧治理平台</a>
-    <button id="headerRefresh" title="刷新当前页面">⟳</button>
 </div>
 <div id="navbar">
     <button id="btnMonitor">今日气象</button>
@@ -272,9 +290,13 @@
                     <span class="dash-panel-title">城市基本信息</span>
                 </div>
                 <div class="dash-panel-body">
-                    <div class="dash-metric"><span class="dash-metric-label">人流</span><span class="dash-metric-val" id="metricPedestrian">--</span></div>
+                    <div class="dash-metric"><span class="dash-metric-label">常住人口</span><span class="dash-metric-val" id="metricResidentPop">--</span></div>
                     <div class="dash-metric"><span class="dash-metric-label">GDP</span><span class="dash-metric-val" id="metricGdp">--</span></div>
-                    <div class="dash-metric"><span class="dash-metric-label">月用电总量</span><span class="dash-metric-val" id="metricPower">--</span></div>
+                    <div class="dash-metric"><span class="dash-metric-label">GDP 增长率</span><span class="dash-metric-val" id="metricGdpChange">--</span></div>
+                    <div class="dash-metric"><span class="dash-metric-label">上月入境旅客</span><span class="dash-metric-val" id="metricVisitor">--</span></div>
+                    <div class="dash-metric"><span class="dash-metric-label">人均用电量</span><span class="dash-metric-val" id="metricElec">--</span></div>
+                    <div class="dash-metric"><span class="dash-metric-label">人口密度</span><span class="dash-metric-val" id="metricPopulation">--</span></div>
+                    <div style="font-size:10px;color:#556;text-align:center;margin-top:4px;">数据源: DSEC 统计暨普查局</div>
                 </div>
             </div>
             <!-- 右侧上：城市微气候分布 -->
@@ -298,7 +320,7 @@
                     <div class="row"><span class="label">风向</span><span class="value" id="windDirValue"></span></div>
                     <div class="row"><span class="label">1小时雨量</span><span class="value" id="rainHourValue"></span></div>
                 </div>
-                <div class="hint">点击地图上的红点查看气象数据</div>
+                <div class="hint">点击站点查看详细实时数据</div>
             </div>
             <!-- 左侧下：室外采集数据站之间的对比 -->
             <div class="dash-panel" id="panelStationCompare">
@@ -307,7 +329,12 @@
                     <span class="dash-panel-title">室外采集数据站对比</span>
                 </div>
                 <div class="dash-panel-body" id="panelStationCompareChart">
-                    <div class="dash-placeholder">站点对比图表</div>
+                    <div class="sc-avg-row" id="scAvgRow">
+                        <span class="sc-avg-label">澳门平均</span>
+                        <span class="sc-avg-val" id="scAvgTemp">--℃</span>
+                        <span class="sc-avg-val" id="scAvgHum">--%</span>
+                    </div>
+                    <div class="sc-list" id="scList"></div>
                 </div>
             </div>
             <!-- 右侧下：室内终端采集数据情况 -->
@@ -320,17 +347,7 @@
                     <div class="dash-placeholder">室内温湿度 / 电气参数</div>
                 </div>
             </div>
-            <!-- 下方左：协同治理 -->
-            <div class="dash-panel" id="panelCoord">
-                <div class="dash-panel-head">
-                    <span class="dash-panel-icon">&#x1F91D;</span>
-                    <span class="dash-panel-title">协同治理</span>
-                </div>
-                <div class="dash-panel-body" id="panelCoordChart">
-                    <div class="dash-placeholder">多源数据协同分析</div>
-                </div>
-            </div>
-            <!-- 下方中：建筑能效密度分布 -->
+            <!-- 下方左：建筑能效密度分布 -->
             <div class="dash-panel" id="panelBuilding">
                 <div class="dash-panel-head">
                     <span class="dash-panel-icon">&#x1F3D7;</span>
@@ -338,6 +355,17 @@
                 </div>
                 <div class="dash-panel-body" id="panelBuildingChart">
                     <div class="dash-placeholder">能耗热力分布 / 建筑能效评级</div>
+                </div>
+            </div>
+            <!-- 下方中：协同治理 - 建筑电压调优 -->
+            <div class="dash-panel" id="panelCoord">
+                <div class="dash-panel-head">
+                    <span class="dash-panel-icon">&#x1F91D;</span>
+                    <span class="dash-panel-title">协同治理</span>
+                </div>
+                <div class="dash-panel-body" id="panelCoordChart" style="flex-direction:column; align-items:center; gap:6px;">
+                    <div class="sc-chart-wrap" id="voltageChart" style="flex:1; width:55%; min-height:0;"></div>
+                    <div class="sc-chart-note">建筑电压标幺值调优对比 &mdash; 阈值 0.95&thinsp;p.u.，调优后低压时段恢复至正常水平</div>
                 </div>
             </div>
             <!-- 下方右：城市电网源荷不均衡 -->
@@ -497,7 +525,7 @@
             <span style="color:#666;font-size:13px;">站点</span>
             <select id="extrStation"></select>
             <span style="color:#666;font-size:13px;">年份</span>
-            <select id="extrYear"><option value="2026">2026</option></select>
+            <select id="extrYear"><option value="">--</option></select>
             <button class="btn-query" id="btnExtrQuery">查询</button>
         </div>
 
@@ -606,23 +634,16 @@ function showPage(name) {
     if (name === 'extremes') {
         setTimeout(function() { resizeExtrCharts(); }, 100);
     }
+    if (name === 'home') {
+        setTimeout(function() {
+            if (voltageChart) voltageChart.resize();
+        }, 200);
+    }
 }
 
 // sub-nav click handlers
 btnSubData.addEventListener('click', function() { showPage('data'); });
 btnSubSelf.addEventListener('click', function() { showPage('selfStation'); });
-// header refresh button
-document.getElementById('headerRefresh').addEventListener('click', function() {
-    var currentPage = '';
-    for (var key in btns) {
-        if (btns[key].classList.contains('active')) { currentPage = key; break; }
-    }
-    if (currentPage === 'monitor') loadTodayData();
-    if (currentPage === 'selfStation') {
-        var dev = document.getElementById('selfStationSelect').value;
-        if (dev) loadSelfStationLatest(dev);
-    }
-});
 // header title → home page
 document.getElementById('headerTitle').addEventListener('click', function(e) {
     e.preventDefault();
@@ -1252,6 +1273,18 @@ stations.forEach(s => {
 });
 document.getElementById('extrStation').value = 'um';
 
+// init year dropdown
+axios.get('/api/weather/years').then(function(res) {
+    var years = res.data || [];
+    var sel = document.getElementById('extrYear');
+    years.forEach(function(y) {
+        var opt = document.createElement('option');
+        opt.value = y; opt.textContent = y;
+        sel.appendChild(opt);
+    });
+    if (years.length > 0) sel.value = years[years.length - 1];
+}).catch(function(){});
+
 document.getElementById('btnExtrQuery').addEventListener('click', loadExtremes);
 
 function loadExtremes() {
@@ -1364,6 +1397,152 @@ showPage('home');
 setTimeout(() => {
     loadData();
 }, 500);
+
+// ==================== 城市基本信息 (DSEC) ====================
+function loadCityInfo() {
+    axios.get('/api/weather/city-info', { timeout: 15000 }).then(function(res) {
+        var d = res.data || {};
+        // 入境旅客
+        if (d.visitor) {
+            document.getElementById('metricVisitor').textContent =
+                Number(d.visitor).toLocaleString() + ' 人次';
+        }
+        // 常住人口
+        if (d.residentPopulation) {
+            document.getElementById('metricResidentPop').textContent =
+                Number(d.residentPopulation).toLocaleString() + ' 人';
+        }
+        // GDP
+        if (d.gdp) {
+            var gdpBillion = (Number(d.gdp) / 1000).toFixed(1);
+            document.getElementById('metricGdp').textContent = gdpBillion + ' 亿澳门元';
+            document.getElementById('metricGdp').title = d.gdpPeriod ? d.gdpPeriod : '';
+        }
+        // GDP 增长率
+        if (d.gdpChange) {
+            document.getElementById('metricGdpChange').textContent = d.gdpChange + '%';
+            document.getElementById('metricGdpChange').style.color =
+                Number(d.gdpChange) >= 0 ? '#4ECDC4' : '#E74C3C';
+        }
+        // 用电量
+        if (d.electricity) {
+            document.getElementById('metricElec').textContent =
+                Number(d.electricity).toLocaleString() + ' ' + (d.electricityUnit || 'kWh');
+        }
+        // 人口密度
+        if (d.population) {
+            document.getElementById('metricPopulation').textContent =
+                Number(d.population).toLocaleString() + ' ' + (d.populationUnit || '千人/km²');
+        }
+    }).catch(function() {
+        // 静默失败，保持默认 --
+    });
+}
+
+loadCityInfo();
+setInterval(loadCityInfo, 300000); // 每5分钟刷新
+
+function loadStationCompare() {
+    axios.get('/api/weather/station-compare', { timeout: 15000 }).then(function(res) {
+        var d = res.data || {};
+        document.getElementById('scAvgTemp').textContent = (d.avgTemperature || '--') + '℃';
+        document.getElementById('scAvgHum').textContent = (d.avgHumidity || '--') + '%';
+
+        var list = document.getElementById('scList');
+        var html = '';
+        (d.stations || []).forEach(function(s) {
+            var nameHtml = s.stationName;
+
+            var tempDiffHtml = '';
+            if (s.tempDiff != null) {
+                var cls = s.tempDiff >= 0 ? 'up' : 'down';
+                var sign = s.tempDiff > 0 ? '+' : '';
+                tempDiffHtml = '<span class="sc-diff ' + cls + '">' + sign + s.tempDiff + '℃</span>';
+            }
+
+            var humDiffHtml = '';
+            if (s.humDiff != null) {
+                var cls = s.humDiff >= 0 ? 'up' : 'down';
+                var sign = s.humDiff > 0 ? '+' : '';
+                humDiffHtml = '<span class="sc-diff ' + cls + '">' + sign + s.humDiff + '%</span>';
+            }
+
+            html += '<div class="sc-item">' +
+                '<span class="sc-name">' + nameHtml + '</span>' +
+                '<span class="sc-val">' + (s.temperature != null ? s.temperature + '℃' : '--') + '</span>' +
+                tempDiffHtml +
+                '<span class="sc-val">' + (s.humidity != null ? s.humidity + '%' : '--') + '</span>' +
+                humDiffHtml +
+                '</div>';
+        });
+        list.innerHTML = html;
+    }).catch(function() {
+        // 静默失败
+    });
+}
+
+loadStationCompare();
+setInterval(loadStationCompare, 300000);
+
+// ====== 协同治理 - 建筑电压调优图表 ======
+var voltageChart = null;
+function loadVoltageChart() {
+    var dom = document.getElementById('voltageChart');
+    if (!dom || dom.clientWidth === 0) return;
+    fetch('/table/电压调优化前后v3.csv').then(function(resp) {
+        if (!resp.ok) return;
+        return resp.text();
+    }).then(function(csv) {
+        if (!csv) return;
+        var lines = csv.trim().split('\n');
+        var step = Math.max(1, Math.floor((lines.length - 1) / 200));
+        var timeData = [], beforeData = [], afterData = [];
+        for (var i = 1; i < lines.length; i += step) {
+            var cols = lines[i].split(',');
+            timeData.push(parseFloat(cols[0]));
+            beforeData.push(parseFloat(cols[1]));
+            afterData.push(parseFloat(cols[2]));
+        }
+        if (!voltageChart) voltageChart = echarts.init(dom);
+        voltageChart.setOption({
+            grid: { left: 48, right: 16, top: 16, bottom: 28 },
+            tooltip: { trigger: 'axis', confine: true,
+    formatter: function(params) {
+        var s = '<span style="font-size:11px">' + parseFloat(params[0].name).toFixed(1) + ' s</span>';
+        for (var i = 0; i < params.length; i++) {
+            var p = params[i];
+            if (p.value != null) {
+                s += '<br/>' + p.marker + ' ' + p.seriesName + ': <b>' + p.value.toFixed(5) + '</b> P.U.';
+            }
+        }
+        return s;
+    },
+    textStyle: { fontSize: 11 }
+},
+            xAxis: { type: 'category', data: timeData, name: '时间 (s)', nameLocation: 'middle', nameGap: 22,
+                axisLabel: { fontSize: 10, color: '#889' }, nameTextStyle: { fontSize: 10, color: '#667' } },
+            yAxis: { type: 'value', name: 'P.U.', min: 0.948, max: 0.9525,
+                axisLabel: { fontSize: 10, color: '#889' }, nameTextStyle: { fontSize: 10, color: '#667' },
+                splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } } },
+            series: [
+                { name: '优化前', type: 'line', data: beforeData, symbol: 'none', lineStyle: { width: 1.5, color: '#E74C3C' } },
+                { name: '优化后', type: 'line', data: afterData, symbol: 'none', lineStyle: { width: 1.5, color: '#4ECDC4' } },
+                { name: '阈值 0.95', type: 'line', data: [], markLine: { silent: true, symbol: 'none',
+                    lineStyle: { type: 'dashed', color: '#FFD93D', width: 1 },
+                    data: [{ yAxis: 0.95, label: { formatter: '0.95', fontSize: 11, color: '#FFD93D', position: 'insideEndTop' } }] } }
+            ],
+            legend: { right: 10, top: 0, textStyle: { fontSize: 10, color: '#889' } }
+        });
+    }).catch(function(){});
+}
+loadVoltageChart();
+
+// resize on window change
+var origResize = window.onresize;
+window.onresize = function() {
+    if (origResize) origResize();
+    if (voltageChart) voltageChart.resize();
+};
 </script>
 </body>
 </html>
