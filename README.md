@@ -1,4 +1,38 @@
-Project address: http://154.12.28.56:8080/
+Here's the English translation of the "How to Submit a Pull Request (PR)" guide:
+
+How to Submit a PR:
+
+Step 1: Fork the repository
+
+On the repository page, click Fork in the upper right corner → this creates a copy under the contributor's own GitHub account.
+
+Step 2: Clone the forked repository locally
+
+bash
+git clone https://github.com/KaizhengWang/climateMonitor.git
+cd project
+Step 3: Create a branch for development
+
+bash
+git checkout -b feature/xxx
+Replace feature/xxx with a feature name, e.g., feature/login.
+
+Step 4: Make changes and commit the code
+
+bash
+git add .
+git commit -m "Implement xxx feature"
+Step 5: Push the branch to the contributor's own GitHub repository
+
+bash
+git push origin feature/xxx
+Step 6: Create a Pull Request on GitHub
+
+Open the contributor's repository page → select the branch you just pushed (feature/xxx).
+
+Click Pull Request → New Pull Request → set base: main, compare: feature/xxx.
+
+Fill in the title and description → submit the PR.
 
 提交PR方法：
 
