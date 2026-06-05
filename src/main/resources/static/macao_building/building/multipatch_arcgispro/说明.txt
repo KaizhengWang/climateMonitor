@@ -1,1 +1,0 @@
-proj_arcgispro.aprx 是 ArcGIS Pro 2.4 的工程文件，不同电脑可能因为路径不一样需要修改路径，建议直接使用 ArcGIS Pro 的局部场景模式加载 multipatch 数据即可。
