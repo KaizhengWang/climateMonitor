@@ -7,7 +7,11 @@ function updateInfoPanel(stationId) {
     document.getElementById('stationName').textContent = station.name;
     infoPanel.style.display = 'block';
 
-    fetch('/api/weather/now/' + encodeURIComponent(stationId))
+    const url = station.source === 'mqtt'
+        ? '/api/weather/now-self/' + encodeURIComponent(stationId)
+        : '/api/weather/now/' + encodeURIComponent(stationId);
+
+    fetch(url)
         .then(res => res.json())
         .then(data => {
             document.getElementById('tempValue').textContent = val(data.temperature, '°C');

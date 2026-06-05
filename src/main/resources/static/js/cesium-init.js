@@ -41,37 +41,62 @@ Cesium.GeoJsonDataSource.load('/geojson/macau_boundaryv2.geojson', {
     viewer.dataSources.add(dataSource);
 });
 
+// ---------- 加载澳门建筑3D Tiles模型 ----------
+Cesium.Cesium3DTileset.fromUrl('/macao_building/building/3dtiles/tileset.json')
+    .then(tileset => {
+        viewer.scene.primitives.add(tileset);
+        viewer.zoomTo(tileset);
+    })
+    .catch(e => console.warn('澳门建筑模型加载失败:', e.message));
+
 // 创建站点实体
 const stationEntities = {};
 stations.forEach(station => {
-    const labelText = station.displayName || station.name;
-const entity = viewer.entities.add({
-    id: station.id,
-    name: station.displayName || station.name,
-    position: Cesium.Cartesian3.fromDegrees(station.lon, station.lat, 50),
-    point: {
-        pixelSize: 16, // 可视大小
-        color: Cesium.Color.fromCssColorString('#E74C3C')
-    },
-    // 用一个透明的更大点增加点击区域
-    ellipse: {
-        semiMinorAxis: 25,  // 扩大判定范围，单位：像素
-        semiMajorAxis: 25,
-        material: Cesium.Color.TRANSPARENT,
-        outline: false
-    },
-    label: {
-        text: station.displayName || station.name,
-        font: '22px "Microsoft YaHei", bold',
-        fillColor: Cesium.Color.BLACK,
-        outlineColor: Cesium.Color.WHITE,
-        outlineWidth: 3,
-        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        pixelOffset: new Cesium.Cartesian2(0, -25)
+    const isSelf = station.source === 'mqtt';
+
+    const entity = {
+        id: station.id,
+        name: station.displayName || station.name,
+        position: Cesium.Cartesian3.fromDegrees(station.lon, station.lat, 50),
+        // 透明的点击判定区域
+        ellipse: {
+            semiMinorAxis: 25,
+            semiMajorAxis: 25,
+            material: Cesium.Color.TRANSPARENT,
+            outline: false
+        },
+        label: {
+            text: station.displayName || station.name,
+            font: '20px "Microsoft YaHei", bold',
+            fillColor: Cesium.Color.BLACK,
+            outlineColor: Cesium.Color.WHITE,
+            outlineWidth: 3,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -25),
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+        }
+    };
+
+    if (isSelf) {
+        // 自研站：蓝色三角
+        entity.billboard = {
+            image: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"><polygon points="11,1 21,21 1,21" fill="#3182CE" stroke="#1A5A9A" stroke-width="1"/></svg>'),
+            width: 22,
+            height: 22,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM
+        };
+    } else {
+        // 外部站：红色圆点
+        entity.point = {
+            pixelSize: 14,
+            color: Cesium.Color.fromCssColorString('#E74C3C'),
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+        };
     }
-    });
-    stationEntities[station.id] = entity;
+
+    stationEntities[station.id] = viewer.entities.add(entity);
 });
 
 // 点击事件：只处理 stations 中的实体

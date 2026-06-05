@@ -3,10 +3,14 @@ package com.umiot.microclimate.controller;
 import com.umiot.microclimate.history.entity.WeatherHistoryRecord;
 import com.umiot.microclimate.history.repository.WeatherHistoryDao;
 import com.umiot.microclimate.history.service.WeatherHistoryScraperService;
+import com.umiot.microclimate.dto.NowWeatherDTO;
+import com.umiot.microclimate.entity.SelfWeatherRecord;
+import com.umiot.microclimate.repository.SelfWeatherRecordRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
@@ -16,12 +20,20 @@ public class WeatherController {
     private final WeatherHistoryScraperService scraperService;
     private final WeatherHistoryDao dao;
     private final com.umiot.microclimate.service.NowWeatherService nowWeatherService;
+    private final SelfWeatherRecordRepository selfRepo;
+
+    // 自研站 stationId → deviceId 映射
+    private static final Map<String, String> SELF_STATION_MAP = Map.of(
+        "self_a", "34:85:18:8F:5D:F4"
+    );
 
     public WeatherController(WeatherHistoryScraperService scraperService, WeatherHistoryDao dao,
-                             com.umiot.microclimate.service.NowWeatherService nowWeatherService) {
+                             com.umiot.microclimate.service.NowWeatherService nowWeatherService,
+                             SelfWeatherRecordRepository selfRepo) {
         this.scraperService = scraperService;
         this.dao = dao;
         this.nowWeatherService = nowWeatherService;
+        this.selfRepo = selfRepo;
     }
 
     @GetMapping("/import")
@@ -98,6 +110,24 @@ public class WeatherController {
     @GetMapping("/now")
     public Map<String, com.umiot.microclimate.dto.NowWeatherDTO> nowAll() {
         return nowWeatherService.fetchAllNow();
+    }
+
+    @GetMapping("/now-self/{stationId}")
+    public NowWeatherDTO nowSelf(@PathVariable String stationId) {
+        String deviceId = SELF_STATION_MAP.getOrDefault(stationId, stationId);
+        SelfWeatherRecord r = selfRepo.findTopByDeviceIdOrderByRecordTimeDesc(deviceId);
+        if (r == null) return null;
+        NowWeatherDTO dto = new NowWeatherDTO();
+        dto.setStationId(stationId);
+        dto.setTemperature(r.getTemperature());
+        dto.setHumidity(r.getHumidity());
+        dto.setWindSpeed10min(r.getWindSpeed());
+        dto.setWindDirection(r.getWindDirection());
+        dto.setRain1hour(null);
+        if (r.getRecordTime() != null) {
+            dto.setUpdateTime(r.getRecordTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        }
+        return dto;
     }
 
     @GetMapping("/extremes")
