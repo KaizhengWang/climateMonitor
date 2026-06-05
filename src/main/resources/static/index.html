@@ -26,16 +26,91 @@
         body.has-subnav #content { top: 124px; }
         .placeholder-page { background: #f0f2f5; display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #999; font-size: 18px; }
         .placeholder-page .p-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
-        #homePage { width: 100%; height: 100%; display: block; }
+        #homePage { width: 100%; height: 100%; display: block; background: #0a1628; }
         #monitorPage, #dataPage, #selfStationPage, #extremesPage { width: 100%; height: 100%; display: none; }
-        #cesiumContainer { width: 100%; height: 100%; }
 
-        .info-panel { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.8); color: #fff; padding: 20px; border-radius: 10px; width: 300px; z-index: 1000; display: none; }
-        .info-panel .title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #4ECDC4; border-bottom: 2px solid #4ECDC4; padding-bottom: 5px; }
-        .info-panel .row { margin: 8px 0; display: flex; justify-content: space-between; }
-        .info-panel .label { color: #ccc; }
-        .info-panel .value { color: #fff; font-weight: bold; }
-        .hint { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.7); color: #fff; padding: 10px 15px; border-radius: 5px; font-size: 14px; }
+        /* ====== 首页仪表盘布局 ====== */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            grid-template-rows: 1fr 1fr 200px;
+            width: 100%; height: 100%;
+            gap: 8px; padding: 8px;
+            box-sizing: border-box;
+        }
+        .dash-grid > * { min-height: 0; }
+
+        /* grid placement */
+        #panelCityInfo      { grid-column: 1; grid-row: 1; }
+        #panelStationCompare{ grid-column: 1; grid-row: 2; }
+        #panelCoord         { grid-column: 1; grid-row: 3; }
+        #panelMicroclimate  { grid-column: 3; grid-row: 1; }
+        #panelIndoor        { grid-column: 3; grid-row: 2; }
+        #panelBuilding      { grid-column: 2; grid-row: 3; }
+        #panelGrid          { grid-column: 3; grid-row: 3; }
+
+        .dash-map-wrap {
+            grid-column: 2; grid-row: 1 / 3;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .dash-map-wrap #cesiumContainer { width: 100%; height: 100%; }
+
+        .dash-panel {
+            background: rgba(18,28,46,0.92);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .dash-panel:hover {
+            border-color: rgba(15,123,107,0.25);
+            box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+        }
+        .dash-panel-head {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.02);
+            flex-shrink: 0;
+        }
+        .dash-panel-icon { font-size: 14px; line-height: 1; }
+        .dash-panel-title {
+            font-size: 13px; font-weight: 600; color: #c8d6e5;
+            letter-spacing: 1px;
+        }
+        .dash-panel-body {
+            flex: 1; padding: 10px 14px;
+            display: flex; flex-direction: column; gap: 8px;
+            overflow-y: auto;
+        }
+        .dash-panel-body::-webkit-scrollbar { width: 3px; }
+        .dash-panel-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+        .dash-metric {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .dash-metric-label { font-size: 12px; color: #8899aa; }
+        .dash-metric-val { font-size: 16px; font-weight: 600; color: #e8edf3; }
+
+        .dash-placeholder {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.15); font-size: 13px;
+        }
+
+        /* info panel overlay on map */
+        .info-panel { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.82); color: #fff; padding: 16px 18px; border-radius: 10px; width: 260px; z-index: 1000; display: none; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
+        .info-panel .title { font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #4ECDC4; border-bottom: 2px solid #4ECDC4; padding-bottom: 6px; }
+        .info-panel .row { margin: 7px 0; display: flex; justify-content: space-between; }
+        .info-panel .label { color: #aaa; font-size: 13px; }
+        .info-panel .value { color: #fff; font-weight: bold; font-size: 14px; }
+        .hint { position: absolute; bottom: 12px; left: 12px; background: rgba(0,0,0,0.7); color: #aaa; padding: 8px 12px; border-radius: 5px; font-size: 12px; z-index: 1000; }
 
         /* ====== 今日气象 ====== */
         #monitorPage { display: flex; background: #0d1b2a; color: #e0e0e0; height: 100%; overflow: hidden; }
@@ -189,16 +264,93 @@
 <div id="content">
     <!-- ===== 首页 ===== -->
     <div id="homePage">
-        <div id="cesiumContainer"></div>
-        <div id="infoPanel" class="info-panel">
-            <div class="title" id="stationName"></div>
-            <div class="row"><span class="label">温度</span><span class="value" id="tempValue"></span></div>
-            <div class="row"><span class="label">湿度</span><span class="value" id="humidityValue"></span></div>
-            <div class="row"><span class="label">风速 (10min)</span><span class="value" id="windSpeedValue"></span></div>
-            <div class="row"><span class="label">风向</span><span class="value" id="windDirValue"></span></div>
-            <div class="row"><span class="label">1小时雨量</span><span class="value" id="rainHourValue"></span></div>
+        <div class="dash-grid">
+            <!-- 左侧上：城市基本信息 -->
+            <div class="dash-panel" id="panelCityInfo">
+                <div class="dash-panel-head">
+                    <span class="dash-panel-icon">&#x1F4CA;</span>
+                    <span class="dash-panel-title">城市基本信息</span>
+                </div>
+                <div class="dash-panel-body">
+                    <div class="dash-metric"><span class="dash-metric-label">人流</span><span class="dash-metric-val" id="metricPedestrian">--</span></div>
+                    <div class="dash-metric"><span class="dash-metric-label">GDP</span><span class="dash-metric-val" id="metricGdp">--</span></div>
+                    <div class="dash-metric"><span class="dash-metric-label">月用电总量</span><span class="dash-metric-val" id="metricPower">--</span></div>
+                </div>
+            </div>
+            <!-- 右侧上：城市微气候分布 -->
+            <div class="dash-panel" id="panelMicroclimate">
+                <div class="dash-panel-head">
+                    <span class="dash-panel-icon">&#x1F321;</span>
+                    <span class="dash-panel-title">城市微气候分布</span>
+                </div>
+                <div class="dash-panel-body" id="panelMicroclimateChart">
+                    <div class="dash-placeholder">热力图 / 等温线</div>
+                </div>
+            </div>
+            <!-- Cesium 地图 -->
+            <div class="dash-map-wrap">
+                <div id="cesiumContainer"></div>
+                <div id="infoPanel" class="info-panel">
+                    <div class="title" id="stationName"></div>
+                    <div class="row"><span class="label">温度</span><span class="value" id="tempValue"></span></div>
+                    <div class="row"><span class="label">湿度</span><span class="value" id="humidityValue"></span></div>
+                    <div class="row"><span class="label">风速 (10min)</span><span class="value" id="windSpeedValue"></span></div>
+                    <div class="row"><span class="label">风向</span><span class="value" id="windDirValue"></span></div>
+                    <div class="row"><span class="label">1小时雨量</span><span class="value" id="rainHourValue"></span></div>
+                </div>
+                <div class="hint">点击地图上的红点查看气象数据</div>
+            </div>
+            <!-- 左侧下：室外采集数据站之间的对比 -->
+            <div class="dash-panel" id="panelStationCompare">
+                <div class="dash-panel-head">
+                    <span class="dash-panel-icon">&#x1F4E1;</span>
+                    <span class="dash-panel-title">室外采集数据站对比</span>
+                </div>
+                <div class="dash-panel-body" id="panelStationCompareChart">
+                    <div class="dash-placeholder">站点对比图表</div>
+                </div>
+            </div>
+            <!-- 右侧下：室内终端采集数据情况 -->
+            <div class="dash-panel" id="panelIndoor">
+                <div class="dash-panel-head">
+                    <span class="dash-panel-icon">&#x1F3E0;</span>
+                    <span class="dash-panel-title">室内终端采集数据</span>
+                </div>
+                <div class="dash-panel-body" id="panelIndoorChart">
+                    <div class="dash-placeholder">室内温湿度 / 电气参数</div>
+                </div>
+            </div>
+            <!-- 下方左：协同治理 -->
+            <div class="dash-panel" id="panelCoord">
+                <div class="dash-panel-head">
+                    <span class="dash-panel-icon">&#x1F91D;</span>
+                    <span class="dash-panel-title">协同治理</span>
+                </div>
+                <div class="dash-panel-body" id="panelCoordChart">
+                    <div class="dash-placeholder">多源数据协同分析</div>
+                </div>
+            </div>
+            <!-- 下方中：建筑能效密度分布 -->
+            <div class="dash-panel" id="panelBuilding">
+                <div class="dash-panel-head">
+                    <span class="dash-panel-icon">&#x1F3D7;</span>
+                    <span class="dash-panel-title">建筑能效密度分布</span>
+                </div>
+                <div class="dash-panel-body" id="panelBuildingChart">
+                    <div class="dash-placeholder">能耗热力分布 / 建筑能效评级</div>
+                </div>
+            </div>
+            <!-- 下方右：城市电网源荷不均衡 -->
+            <div class="dash-panel" id="panelGrid">
+                <div class="dash-panel-head">
+                    <span class="dash-panel-icon">&#x26A1;</span>
+                    <span class="dash-panel-title">城市电网源荷不均衡</span>
+                </div>
+                <div class="dash-panel-body" id="panelGridChart">
+                    <div class="dash-placeholder">源荷曲线 / 负载均衡指标</div>
+                </div>
+            </div>
         </div>
-        <div class="hint">点击地图上的红点查看气象数据</div>
     </div>
 
     <!-- ===== 今日气象 ===== -->
@@ -1078,6 +1230,7 @@ document.getElementById('loadSelfDataBtn').addEventListener('click', () => {
 });
 
 window.addEventListener('resize', () => {
+    if (window.cesiumViewer) window.cesiumViewer.resize();
     resizeDataCharts();
     resizeSelfCharts();
     resizeExtrCharts();

@@ -13,6 +13,7 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
     selectionIndicator: false,
     fullscreenButton: true
 });
+window.cesiumViewer = viewer;
 
 // 澳门全景初始视角
 viewer.camera.setView({
