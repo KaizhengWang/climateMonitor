@@ -7,10 +7,25 @@
     <script src="https://cdn.jsdelivr.net/npm/cesium@1.110/Build/Cesium/Cesium.js"></script>
     <style>
         html, body { width: 100%; height: 100%; margin: 0; padding: 0; font-family: 'Microsoft YaHei', sans-serif; }
-        #navbar { height: 50px; background: #111; display: flex; align-items: center; padding: 0 10px; color: #fff; }
-        #navbar button { margin-right: 10px; padding: 8px 15px; background: #222; border: none; color: #fff; cursor: pointer; border-radius: 3px; }
-        #navbar button.active { background: #4ECDC4; color: #000; }
-        #content { position: absolute; top: 50px; bottom: 0; left: 0; right: 0; }
+        #headerBar { height: 48px; background: #1A2A4F; display: flex; align-items: center; justify-content: center; padding: 0 24px; border-bottom: 1px solid rgba(255,255,255,0.08); position: relative; }
+        #headerTitle { color: #FFFFFF; font-size: 19px; font-weight: 600; letter-spacing: 3px; text-decoration: none; cursor: pointer; transition: opacity 0.2s; }
+        #headerTitle:hover { opacity: 0.85; }
+        #headerRefresh { position: absolute; right: 24px; padding: 5px 10px; background: transparent; border: 1.5px solid #0F7B6B; color: #FFFFFF; border-radius: 4px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+        #headerRefresh:hover { background: #0F7B6B; }
+        #navbar { height: 42px; background: #F0F5FB; display: flex; align-items: center; padding: 0 16px; overflow-x: auto; gap: 4px; border-bottom: 1px solid rgba(0,0,0,0.04); }
+        #navbar::-webkit-scrollbar { height: 2px; }
+        #navbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 2px; }
+        #navbar button { padding: 6px 14px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #5A6B87; cursor: pointer; font-size: 13px; white-space: nowrap; flex-shrink: 0; transition: all 0.15s; }
+        #navbar button:hover { color: #0F7B6B; background: #E4EDF5; }
+        #navbar button.active { color: #0F7B6B; border-bottom-color: #0F7B6B; font-weight: 500; background: transparent; }
+        #subNav { height: 36px; background: #E8EEF6; display: none; align-items: center; padding: 0 16px; gap: 4px; border-bottom: 1px solid rgba(0,0,0,0.04); }
+        #subNav button { padding: 4px 14px; background: transparent; border: none; color: #5A6B87; cursor: pointer; font-size: 12px; border-radius: 3px; transition: all 0.15s; }
+        #subNav button:hover { color: #0F7B6B; background: rgba(15,123,107,0.06); }
+        #subNav button.active { color: #0F7B6B; font-weight: 500; background: rgba(15,123,107,0.1); }
+        #content { position: absolute; top: 88px; bottom: 0; left: 0; right: 0; }
+        body.has-subnav #content { top: 124px; }
+        .placeholder-page { background: #f0f2f5; display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #999; font-size: 18px; }
+        .placeholder-page .p-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
         #homePage { width: 100%; height: 100%; display: block; }
         #monitorPage, #dataPage, #selfStationPage, #extremesPage { width: 100%; height: 100%; display: none; }
         #cesiumContainer { width: 100%; height: 100%; }
@@ -152,12 +167,23 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+<div id="headerBar">
+    <a id="headerTitle" href="#" title="返回首页">澳门微气候-电网-建筑综合智慧治理平台</a>
+    <button id="headerRefresh" title="刷新当前页面">⟳</button>
+</div>
 <div id="navbar">
-    <button id="btnHome" class="active">首页</button>
     <button id="btnMonitor">今日气象</button>
-    <button id="btnData">数据记录</button>
-    <button id="btnSelfStation">自研站点</button>
-    <button id="btnExtremes">特殊统计</button>
+    <button id="btnOutdoor">室外终端气象监测</button>
+    <button id="btnExtremes">极端气候</button>
+    <button id="btnIndoor">室内环境-电气集成终端</button>
+    <button id="btnSim">城市微气候模拟</button>
+    <button id="btnBuilding">建筑管理</button>
+    <button id="btnGrid">城市电网</button>
+    <button id="btnCoord">气候-电网-建筑协同治理</button>
+</div>
+<div id="subNav" style="display:none;">
+    <button id="btnSubData" class="active">外部站点</button>
+    <button id="btnSubSelf">自研站点</button>
 </div>
 
 <div id="content">
@@ -349,6 +375,22 @@
             <div class="chart-box"><div class="chart-title">风速 / 阵风 (km/h) + 1h雨量 (mm)</div><div class="chart-inner" id="extrChartWind" style="height:300px;"></div></div>
         </div>
     </div>
+
+    <!-- ===== 室内环境-电气集成终端 ===== -->
+    <div class="placeholder-page" id="indoorPage"><div class="p-icon">🔌</div>室内环境-电气集成终端<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
+
+    <!-- ===== 城市微气候模拟 ===== -->
+    <div class="placeholder-page" id="simPage"><div class="p-icon">🌡️</div>城市微气候模拟<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
+
+    <!-- ===== 建筑管理 ===== -->
+    <div class="placeholder-page" id="buildingPage"><div class="p-icon">🏢</div>建筑管理<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
+
+    <!-- ===== 城市电网 ===== -->
+    <div class="placeholder-page" id="gridPage"><div class="p-icon">⚡</div>城市电网<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
+
+    <!-- ===== 气候-电网-建筑协同治理 ===== -->
+    <div class="placeholder-page" id="coordPage"><div class="p-icon">🔗</div>气候-电网-建筑协同治理<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
+
 </div>
 
 <script src="js/stations.js"></script>
@@ -361,41 +403,89 @@ const pages = {
     monitor: document.getElementById('monitorPage'),
     data: document.getElementById('dataPage'),
     selfStation: document.getElementById('selfStationPage'),
-    extremes: document.getElementById('extremesPage')
+    extremes: document.getElementById('extremesPage'),
+    indoor: document.getElementById('indoorPage'),
+    sim: document.getElementById('simPage'),
+    building: document.getElementById('buildingPage'),
+    grid: document.getElementById('gridPage'),
+    coord: document.getElementById('coordPage')
 };
 const btns = {
-    home: document.getElementById('btnHome'),
     monitor: document.getElementById('btnMonitor'),
-    data: document.getElementById('btnData'),
-    selfStation: document.getElementById('btnSelfStation'),
-    extremes: document.getElementById('btnExtremes')
+    outdoor: document.getElementById('btnOutdoor'),
+    extremes: document.getElementById('btnExtremes'),
+    indoor: document.getElementById('btnIndoor'),
+    sim: document.getElementById('btnSim'),
+    building: document.getElementById('btnBuilding'),
+    grid: document.getElementById('btnGrid'),
+    coord: document.getElementById('btnCoord')
 };
+var subNav = document.getElementById('subNav');
+var btnSubData = document.getElementById('btnSubData');
+var btnSubSelf = document.getElementById('btnSubSelf');
 
 function showPage(name) {
     for (const p in pages) pages[p].style.display = 'none';
     for (const b in btns) btns[b].classList.remove('active');
-    const display = (name === 'data' || name === 'selfStation' || name === 'extremes' || name === 'monitor') ? 'flex' : 'block';
+    // hide sub-nav by default, will show below if outdoor
+    subNav.style.display = 'none';
+    document.body.classList.remove('has-subnav');
+
+    var flexPages = ['data','selfStation','extremes','monitor','indoor','sim','building','grid','coord'];
+    var display = flexPages.indexOf(name) >= 0 ? 'flex' : 'block';
     pages[name].style.display = display;
-    btns[name].classList.add('active');
 
     if (name === 'monitor') {
-        setTimeout(() => { initTodayPage(); }, 200);
+        btns.monitor.classList.add('active');
+        setTimeout(function() { initTodayPage(); }, 200);
+    } else if (name === 'data' || name === 'selfStation') {
+        // outdoor sub-pages
+        btns.outdoor.classList.add('active');
+        subNav.style.display = 'flex';
+        document.body.classList.add('has-subnav');
+        btnSubData.classList.toggle('active', name === 'data');
+        btnSubSelf.classList.toggle('active', name === 'selfStation');
+        if (name === 'data') setTimeout(function() { resizeDataCharts(); }, 100);
+        if (name === 'selfStation') setTimeout(function() { resizeSelfCharts(); }, 100);
+    } else if (btns[name]) {
+        btns[name].classList.add('active');
     }
-    if (name === 'data') {
-        setTimeout(() => { resizeDataCharts(); }, 100);
-    }
-    if (name === 'selfStation') {
-        setTimeout(() => { resizeSelfCharts(); }, 100);
-    }
+
     if (name === 'extremes') {
-        setTimeout(() => { resizeExtrCharts(); }, 100);
+        setTimeout(function() { resizeExtrCharts(); }, 100);
     }
 }
-btns.home.addEventListener('click', () => showPage('home'));
-btns.monitor.addEventListener('click', () => showPage('monitor'));
-btns.data.addEventListener('click', () => showPage('data'));
-btns.selfStation.addEventListener('click', () => showPage('selfStation'));
-btns.extremes.addEventListener('click', () => showPage('extremes'));
+
+// sub-nav click handlers
+btnSubData.addEventListener('click', function() { showPage('data'); });
+btnSubSelf.addEventListener('click', function() { showPage('selfStation'); });
+// header refresh button
+document.getElementById('headerRefresh').addEventListener('click', function() {
+    var currentPage = '';
+    for (var key in btns) {
+        if (btns[key].classList.contains('active')) { currentPage = key; break; }
+    }
+    if (currentPage === 'monitor') loadTodayData();
+    if (currentPage === 'selfStation') {
+        var dev = document.getElementById('selfStationSelect').value;
+        if (dev) loadSelfStationLatest(dev);
+    }
+});
+// header title → home page
+document.getElementById('headerTitle').addEventListener('click', function(e) {
+    e.preventDefault();
+    showPage('home');
+    if (window.cesiumViewer) window.cesiumViewer.resize();
+});
+// nav buttons (outdoor defaults to data)
+btns.outdoor.addEventListener('click', function() { showPage('data'); });
+btns.monitor.addEventListener('click', function() { showPage('monitor'); });
+btns.extremes.addEventListener('click', function() { showPage('extremes'); });
+btns.indoor.addEventListener('click', function() { showPage('indoor'); });
+btns.sim.addEventListener('click', function() { showPage('sim'); });
+btns.building.addEventListener('click', function() { showPage('building'); });
+btns.grid.addEventListener('click', function() { showPage('grid'); });
+btns.coord.addEventListener('click', function() { showPage('coord'); });
 
 // ==================== 今日气象 ====================
 var todayMap = null;

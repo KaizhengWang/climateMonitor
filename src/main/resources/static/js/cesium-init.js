@@ -9,6 +9,8 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
     geocoder: false,
     homeButton: false,
     sceneModePicker: false,
+    infoBox: false,
+    selectionIndicator: false,
     fullscreenButton: true
 });
 
