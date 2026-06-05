@@ -32,9 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 
-**/macao_building/
-# or
-src/main/resources/static/macao_building/
 
 microclimate-2584-DESKTOP-WKZ-8573c356-tcpmqttusrcn1883
 

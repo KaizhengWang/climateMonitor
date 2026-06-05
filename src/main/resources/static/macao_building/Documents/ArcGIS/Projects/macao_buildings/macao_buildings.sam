@@ -1,0 +1,86 @@
+{
+  "SAModels": {
+    "Info": {
+      "ModelNames": [
+        "New Suitability Model"
+      ],
+      "ModelTypes": [
+        "Suitability"
+      ]
+    },
+    "New Suitability Model": {
+      "General": {
+        "Version": "2.0",
+        "ModelName": "New Suitability Model",
+        "ModelType": "Suitability",
+        "CreateDate": "2023/5/2 10:57:15",
+        "ModifyDate": "2023/5/2 10:57:15",
+        "CriterionCount": 0,
+        "QueryCount": 0
+      },
+      "Control": {
+        "WeightByIndex": 0,
+        "ScaleIndex": 4,
+        "OutRaster": "",
+        "SummaryReport": ""
+      },
+      "Suitability": {
+        "CriteriaNames": [],
+        "XformNames": [],
+        "CriteriaURIs": [],
+        "TransformURIs": [],
+        "XmlDataConns": [],
+        "XmlXfmConns": [],
+        "WeightValues": [],
+        "MinWeights": [],
+        "MaxWeights": [],
+        "IsSelected": [],
+        "TransformCategory": [],
+        "TransformParameters": [],
+        "FromScale": 1.0,
+        "ToScale": 10.0
+      },
+      "Query": {
+        "QueryLayerName": [],
+        "QueryLayerXml": []
+      },
+      "Locate": {
+        "TotalArea": "",
+        "AreaUnits": "",
+        "OutRegionRaster": "",
+        "RegionCount": "",
+        "RegionShape": "",
+        "TradeOffPct": "",
+        "EvalMethod": "",
+        "RegionMinArea": "",
+        "RegionMaxArea": "",
+        "MaxDistBetRegions": "",
+        "MinDistBetRegions": "",
+        "DistanceUnits": "",
+        "ExistingRegions": "",
+        "NeighborGrowth": "",
+        "IslandsAllowed": "",
+        "SeedCount": "",
+        "ResolutionGrowth": "",
+        "SelectionMethod": ""
+      },
+      "Environments": {
+        "workspace": "",
+        "scratchWorkspace": ""
+      },
+      "SuitabilityEnvironments": {
+        "extent": "DEFAULT",
+        "cellSize": "MAXOF"
+      },
+      "LocateEnvironments": {
+        "extent": "DEFAULT",
+        "cellSize": "MAXOF"
+      },
+      "SourcesDataGroups": {
+        "LocalDataParams": [],
+        "ServiceDataParams": [],
+        "NoXFMDataParams": []
+      }
+    }
+  }
+}
