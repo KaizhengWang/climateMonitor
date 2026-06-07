@@ -32,8 +32,8 @@
         /* ====== 首页仪表盘布局 ====== */
         .dash-grid {
             display: grid;
-            grid-template-columns: 280px 1fr 280px;
-            grid-template-rows: 0.92fr 1.08fr 160px; // 控制第一排第二排面板长度比例
+            grid-template-columns: 310px 1fr 310px;
+            grid-template-rows: 0.92fr 1.08fr 240px; // 控制第一排第二排面板长度比例
             width: 100%; height: 100%;
             gap: 8px; padding: 8px;
             box-sizing: border-box;
@@ -45,8 +45,8 @@
         #panelStationCompare{ grid-column: 1; grid-row: 2; }
         #panelCoord         { grid-column: 2; grid-row: 3; }
         #panelMicroclimate  { grid-column: 3; grid-row: 1; }
-        #panelIndoor        { grid-column: 3; grid-row: 2; }
-        #panelBuilding      { grid-column: 1; grid-row: 3; }
+        #panelIndoor        { grid-column: 1; grid-row: 3; }
+        #panelBuilding      { grid-column: 3; grid-row: 2; }
         #panelGrid          { grid-column: 3; grid-row: 3; }
 
         .dash-map-wrap {
@@ -253,6 +253,268 @@
         .extr-detail { margin: 16px 24px 24px; background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: none; }
         .extr-detail .detail-header { padding: 12px 18px; font-size: 15px; font-weight: 500; border-bottom: 1px solid #f0f0f0; }
         .extr-detail .chart-inner { width: 100%; height: 350px; }
+
+        /* ====== 室内环境-电气集成终端 ====== */
+        #indoorPage { flex-direction: column; }
+        .indoor-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr 340px;
+            width: 100%; height: 100%;
+            gap: 8px; padding: 8px;
+            box-sizing: border-box;
+        }
+        .indoor-grid > * { min-height: 0; }
+
+        .indoor-left, .indoor-mid, .indoor-right {
+            display: flex; flex-direction: column; gap: 8px;
+            overflow-y: auto; overflow-x: hidden;
+        }
+        .indoor-left::-webkit-scrollbar,
+        .indoor-mid::-webkit-scrollbar,
+        .indoor-right::-webkit-scrollbar { width: 3px; }
+        .indoor-left::-webkit-scrollbar-thumb,
+        .indoor-mid::-webkit-scrollbar-thumb,
+        .indoor-right::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+        .indoor-card {
+            background: rgba(18,28,46,0.92);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
+            backdrop-filter: blur(8px);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .indoor-card:hover {
+            border-color: rgba(15,123,107,0.25);
+            box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+        }
+        .indoor-card-head {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.02);
+            flex-shrink: 0;
+        }
+        .indoor-card-icon { font-size: 14px; line-height: 1; }
+        .indoor-card-title {
+            font-size: 13px; font-weight: 600; color: #c8d6e5;
+            letter-spacing: 1px; flex: 1;
+        }
+        .indoor-card-badge {
+            font-size: 11px; padding: 2px 10px; border-radius: 10px;
+            background: rgba(78,205,196,0.12); color: #4ECDC4;
+        }
+        .indoor-card-badge.offline { background: rgba(231,76,60,0.12); color: #E74C3C; }
+        .indoor-card-body {
+            flex: 1; padding: 10px 14px;
+            display: flex; flex-direction: column; gap: 8px;
+            overflow-y: auto;
+        }
+        .indoor-card-body::-webkit-scrollbar { width: 3px; }
+        .indoor-card-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+
+        /* 房间概况 */
+        .indoor-info-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .indoor-info-label { font-size: 12px; color: #8899aa; }
+        .indoor-info-val { font-size: 12px; font-weight: 500; color: #e0e6f0; }
+
+        /* 环境参数 */
+        .indoor-env-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+        }
+        .indoor-env-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .indoor-env-icon {
+            width: 36px; height: 36px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+        .indoor-env-info { display: flex; flex-direction: column; }
+        .indoor-env-label { font-size: 11px; color: #8899aa; }
+        .indoor-env-val { font-size: 20px; font-weight: 700; color: #e8edf3; line-height: 1.2; }
+        .indoor-env-unit { font-size: 11px; font-weight: 400; color: #667788; margin-left: 2px; }
+
+        /* 电气参数 */
+        .indoor-elec-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+        .indoor-elec-item {
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px; padding: 10px 12px;
+            border: 1px solid rgba(255,255,255,0.04);
+            display: flex; flex-direction: column; gap: 2px;
+        }
+        .indoor-elec-label { font-size: 11px; color: #8899aa; }
+        .indoor-elec-val { font-size: 20px; font-weight: 700; color: #FFD93D; line-height: 1.2; }
+        .indoor-elec-unit { font-size: 11px; color: #667788; }
+        .indoor-elec-bar {
+            margin-top: 4px; height: 4px; background: rgba(255,255,255,0.06);
+            border-radius: 2px; overflow: hidden;
+        }
+        .indoor-elec-bar-fill {
+            height: 100%; background: linear-gradient(90deg, #4ECDC4, #FFD93D);
+            border-radius: 2px; transition: width 0.6s;
+        }
+
+        /* 舒适度 */
+        .indoor-comfort-top { display: flex; flex-direction: column; gap: 10px; }
+        .indoor-comfort-main {
+            display: flex; align-items: center; gap: 20px;
+        }
+        .indoor-comfort-pmv-wrap, .indoor-comfort-ppd-wrap {
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .indoor-comfort-pmv-label, .indoor-comfort-ppd-label {
+            font-size: 11px; color: #8899aa; margin-bottom: 2px;
+        }
+        .indoor-comfort-pmv-val {
+            font-size: 32px; font-weight: 700; line-height: 1;
+        }
+        .indoor-comfort-ppd-val {
+            font-size: 22px; font-weight: 600; color: #FFD93D; line-height: 1;
+        }
+        .indoor-comfort-status {
+            font-size: 14px; font-weight: 600; color: #c8d6e5;
+            display: flex; align-items: center; gap: 6px;
+            margin-left: auto;
+        }
+        .indoor-comfort-status-dot {
+            width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+        }
+
+        /* PMV 色带 */
+        .indoor-pmv-band { position: relative; }
+        .indoor-pmv-gradient {
+            height: 10px; border-radius: 5px;
+            background: linear-gradient(to right,
+                #3182CE 0%, #63B3ED 16%, #87CEEB 28%,
+                #4ECDC4 42%, #81E6D9 50%, #4ECDC4 58%,
+                #FFA07A 72%, #FF6B6B 84%, #E74C3C 100%
+            );
+        }
+        .indoor-pmv-labels {
+            display: flex; justify-content: space-between;
+            font-size: 9px; color: #667788; margin-top: 3px;
+        }
+        .indoor-pmv-marker {
+            position: absolute; top: -4px;
+            width: 3px; height: 18px; background: #fff;
+            border-radius: 2px;
+            box-shadow: 0 0 6px rgba(255,255,255,0.5);
+            transition: left 0.5s ease;
+        }
+
+        /* 占用状态 */
+        .indoor-comfort-occ {
+            display: flex; gap: 12px; flex-wrap: wrap;
+            padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.04);
+        }
+        .indoor-occ-item {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12px; color: #8899aa;
+        }
+        .indoor-occ-val { font-weight: 500; color: #e0e6f0; }
+        .indoor-occ-icon { font-size: 14px; }
+
+        /* 设备在线表格 */
+        .indoor-dev-table {
+            width: 100%; border-collapse: collapse;
+            font-size: 12px;
+        }
+        .indoor-dev-table th {
+            text-align: left; padding: 6px 8px;
+            color: #667788; font-weight: 500;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            white-space: nowrap;
+        }
+        .indoor-dev-table td {
+            padding: 5px 8px;
+            color: #c8d6e5;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            white-space: nowrap;
+        }
+        .indoor-dev-table .dev-online { color: #4ECDC4; }
+        .indoor-dev-table .dev-offline { color: #E74C3C; }
+        .indoor-dev-table .dev-comm { color: #8899aa; font-size: 11px; }
+        .indoor-dev-table .dev-time { color: #667788; font-size: 11px; }
+
+        /* 终端控制 */
+        .indoor-ctrl-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .indoor-ctrl-label { font-size: 12px; color: #c8d6e5; }
+        .indoor-ctrl-val { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: #e8edf3; }
+        .indoor-ctrl-btn {
+            width: 24px; height: 24px; border-radius: 4px;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+            color: #c8d6e5; cursor: pointer; font-size: 14px; line-height: 1;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+        }
+        .indoor-ctrl-btn:hover { background: rgba(15,123,107,0.2); border-color: #0F7B6B; }
+
+        /* toggle switch */
+        .indoor-toggle { position: relative; display: inline-block; width: 40px; height: 22px; }
+        .indoor-toggle input { opacity: 0; width: 0; height: 0; }
+        .indoor-toggle-slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 22px;
+            transition: 0.3s;
+        }
+        .indoor-toggle-slider:before {
+            content: ''; position: absolute;
+            height: 16px; width: 16px; left: 3px; bottom: 3px;
+            background: #8899aa; border-radius: 50%;
+            transition: 0.3s;
+        }
+        .indoor-toggle input:checked + .indoor-toggle-slider {
+            background: rgba(15,123,107,0.4);
+        }
+        .indoor-toggle input:checked + .indoor-toggle-slider:before {
+            transform: translateX(18px);
+            background: #4ECDC4;
+        }
+
+        /* 迷你图表 */
+        .indoor-mini-chart-wrap {
+            background: rgba(255,255,255,0.02);
+            border-radius: 6px; padding: 6px 8px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .indoor-mini-chart-title {
+            font-size: 11px; color: #8899aa; margin-bottom: 2px;
+        }
+
+        /* 告警 */
+        .indoor-alert-box {
+            background: rgba(255,255,255,0.02);
+            border-radius: 6px; padding: 8px 10px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .indoor-alert-title { font-size: 11px; color: #FFD93D; font-weight: 600; margin-bottom: 4px; }
+        .indoor-alert-list { display: flex; flex-direction: column; gap: 2px; }
+        .indoor-alert-item { font-size: 11px; color: #8899aa; }
+        .indoor-alert-item.warn { color: #FFD93D; }
+        .indoor-alert-item.error { color: #E74C3C; }
     </style>
 </head>
 <body>
@@ -305,13 +567,19 @@
                     <span class="dash-panel-icon">&#x1F321;</span>
                     <span class="dash-panel-title">城市微气候分布</span>
                 </div>
-                <div class="dash-panel-body" id="panelMicroclimateChart">
-                    <div class="dash-placeholder">热力图 / 等温线</div>
+                <div class="dash-panel-body" id="panelMicroclimateChart" style="padding:4px 8px 0;">
+                    <div id="microclimateLineChart" style="width:100%;height:calc(100% - 18px);"></div>
+                    <div class="sc-chart-note">1–10号街区城市冠层温度分布</div>
                 </div>
             </div>
             <!-- Cesium 地图 -->
             <div class="dash-map-wrap">
                 <div id="cesiumContainer"></div>
+                <img id="microclimateMapOverlay" src="table/澳门本岛建筑街区.png"
+                     style="display:none; position:absolute; top:8px; right:8px;
+                            max-width:80%; max-height:80%; border-radius:10px;
+                            border:2px solid rgba(255,255,255,0.25); box-shadow:0 8px 40px rgba(0,0,0,0.7);
+                            z-index:999; pointer-events:none;" />
                 <div id="infoPanel" class="info-panel">
                     <div class="title" id="stationName"></div>
                     <div class="row"><span class="label">温度</span><span class="value" id="tempValue"></span></div>
@@ -337,35 +605,66 @@
                     <div class="sc-list" id="scList"></div>
                 </div>
             </div>
-            <!-- 右侧下：室内终端采集数据情况 -->
+            <!-- 下方左：室内终端采集数据 -->
             <div class="dash-panel" id="panelIndoor">
                 <div class="dash-panel-head">
                     <span class="dash-panel-icon">&#x1F3E0;</span>
                     <span class="dash-panel-title">室内终端采集数据</span>
+                    <span style="font-size:10px;color:#667;margin-left:auto;" id="dashIndoorRoom">N21-5003</span>
                 </div>
-                <div class="dash-panel-body" id="panelIndoorChart">
-                    <div class="dash-placeholder">室内温湿度 / 电气参数</div>
+                <div class="dash-panel-body" id="panelIndoorChart" style="display:flex;flex-direction:row;gap:8px;">
+                    <!-- 左半：环境指标 -->
+                    <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+                        <div style="font-size:10px;color:#667;margin-bottom:2px;">🌡 环境</div>
+                        <div class="dash-metric"><span class="dash-metric-label">室温</span><span class="dash-metric-val" id="dashIndoorTemp" style="color:#FF6B6B;">--</span></div>
+                        <div class="dash-metric"><span class="dash-metric-label">湿度</span><span class="dash-metric-val" id="dashIndoorHum" style="color:#4ECDC4;">--</span></div>
+                        <div class="dash-metric"><span class="dash-metric-label">CO₂</span><span class="dash-metric-val" id="dashIndoorCO2" style="color:#FFD93D;">--</span></div>
+                        <div class="dash-metric"><span class="dash-metric-label">PM2.5</span><span class="dash-metric-val" id="dashIndoorPM25">--</span></div>
+                    </div>
+                    <!-- 右半：电气 + 状态 -->
+                    <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+                        <div style="font-size:10px;color:#667;margin-bottom:2px;">⚡ 电气 & 状态</div>
+                        <div class="dash-metric"><span class="dash-metric-label">功率</span><span class="dash-metric-val" id="dashIndoorPower" style="color:#FFD93D;">--</span></div>
+                        <div class="dash-metric"><span class="dash-metric-label">电量</span><span class="dash-metric-val" id="dashIndoorEnergy">--</span></div>
+                        <div class="dash-metric"><span class="dash-metric-label">PMV</span><span class="dash-metric-val" id="dashIndoorPMV">--</span></div>
+                        <div class="dash-metric"><span class="dash-metric-label">设备</span><span class="dash-metric-val" id="dashIndoorDevices" style="color:#4ECDC4;">--</span></div>
+                    </div>
                 </div>
             </div>
-            <!-- 下方左：建筑能效密度分布 -->
+            <!-- 右侧下：建筑能效密度分布 -->
             <div class="dash-panel" id="panelBuilding">
                 <div class="dash-panel-head">
                     <span class="dash-panel-icon">&#x1F3D7;</span>
                     <span class="dash-panel-title">建筑能效密度分布</span>
                 </div>
-                <div class="dash-panel-body" id="panelBuildingChart">
-                    <div class="dash-placeholder">能耗热力分布 / 建筑能效评级</div>
+                <div class="dash-panel-body" id="panelBuildingChart" style="padding:4px 8px 0;">
+                    <div id="buildingBarChart" style="width:100%;height:calc(100% - 18px);"></div>
+                    <div class="sc-chart-note">微气候效应下各个建筑街区制冷能耗强度</div>
                 </div>
             </div>
-            <!-- 下方中：协同治理 - 建筑电压调优 -->
+            <!-- 下方中：协同治理 -->
             <div class="dash-panel" id="panelCoord">
                 <div class="dash-panel-head">
                     <span class="dash-panel-icon">&#x1F91D;</span>
                     <span class="dash-panel-title">协同治理</span>
                 </div>
-                <div class="dash-panel-body" id="panelCoordChart" style="flex-direction:column; align-items:center; gap:6px;">
-                    <div class="sc-chart-wrap" id="voltageChart" style="flex:1; width:55%; min-height:0;"></div>
-                    <div class="sc-chart-note">建筑电压标幺值调优对比 &mdash; 阈值 0.95&thinsp;p.u.，调优后低压时段恢复至正常水平</div>
+                <div class="dash-panel-body" id="panelCoordChart" style="flex-direction:row; gap:8px; padding:6px 10px;">
+                    <!-- 左：建筑电压标幺值调优 -->
+                    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+                        <div style="font-size:11px;color:#889;text-align:center;margin-bottom:4px;">建筑电压标幺值调优</div>
+                        <div id="voltageChart" style="flex:1; min-height:0;"></div>
+                        <div class="sc-chart-note" style="margin-top:2px;">阈值 0.95&thinsp;p.u.，调优后低压时段恢复至正常水平</div>
+                    </div>
+                    <!-- 右：电网协同优化成本 -->
+                    <div style="flex:1.2; display:flex; flex-direction:column; min-width:0;">
+                        <div style="font-size:11px;color:#889;text-align:center;margin-bottom:4px;">电网协同优化成本分析</div>
+                        <div style="flex:1; display:flex; gap:6px; min-height:0;">
+                            <div id="coordBarShed" style="flex:1; min-width:0;"></div>
+                            <div id="coordBarCurt" style="flex:1; min-width:0;"></div>
+                            <div id="coordBarTotal" style="flex:1; min-width:0;"></div>
+                        </div>
+                        <div class="sc-chart-note">C1:无需求响应 &nbsp; C2:统一电价+需求响应 &nbsp; C3:CLMP+需求响应</div>
+                    </div>
                 </div>
             </div>
             <!-- 下方右：城市电网源荷不均衡 -->
@@ -557,7 +856,315 @@
     </div>
 
     <!-- ===== 室内环境-电气集成终端 ===== -->
-    <div class="placeholder-page" id="indoorPage"><div class="p-icon">🔌</div>室内环境-电气集成终端<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
+    <div id="indoorPage" style="display:none; width:100%; height:100%; background:#0d1b2a; overflow:hidden;">
+        <div class="indoor-grid">
+            <!-- ====== 左列：房间概况 + 设备布置图 ====== -->
+            <div class="indoor-left">
+                <!-- 房间概况 -->
+                <div class="indoor-card">
+                    <div class="indoor-card-head">
+                        <span class="indoor-card-icon">🏠</span>
+                        <span class="indoor-card-title">房间概况</span>
+                        <span class="indoor-card-badge online">● 在线</span>
+                    </div>
+                    <div class="indoor-card-body" style="gap:6px;">
+                        <div class="indoor-info-row"><span class="indoor-info-label">房间编号</span><span class="indoor-info-val" id="irRoomId">澳门大学 N21-5003</span></div>
+                        <div class="indoor-info-row"><span class="indoor-info-label">房间类型</span><span class="indoor-info-val" id="irRoomType">实验室 / 办公室</span></div>
+                        <div class="indoor-info-row"><span class="indoor-info-label">在线设备</span><span class="indoor-info-val" id="irOnlineCnt" style="color:#4ECDC4;">8 / 9 台</span></div>
+                        <div class="indoor-info-row"><span class="indoor-info-label">在线率</span><span class="indoor-info-val" id="irOnlineRate" style="color:#4ECDC4;">88.9%</span></div>
+                        <div class="indoor-info-row"><span class="indoor-info-label">通信方式</span><span class="indoor-info-val" id="irComm">Wi-Fi + RS485</span></div>
+                        <div class="indoor-info-row"><span class="indoor-info-label">边缘网关</span><span class="indoor-info-val" id="irGateway" style="color:#4ECDC4;">N21-GW-01 (在线)</span></div>
+                        <div class="indoor-info-row"><span class="indoor-info-label">更新时间</span><span class="indoor-info-val" id="irUpdateTime">--</span></div>
+                    </div>
+                </div>
+                <!-- 房间设备布置图 -->
+                <div class="indoor-card" style="flex:1; min-height:0;">
+                    <div class="indoor-card-head">
+                        <span class="indoor-card-icon">📐</span>
+                        <span class="indoor-card-title">房间设备布置图</span>
+                    </div>
+                    <div class="indoor-card-body" style="align-items:center; justify-content:center; padding:6px;">
+                        <svg viewBox="0 0 320 280" style="width:100%; max-width:320px; height:auto;">
+                            <!-- 房间轮廓 -->
+                            <rect x="15" y="15" width="290" height="250" rx="6" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+                            <!-- 门 -->
+                            <rect x="15" y="95" width="8" height="40" rx="2" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                            <line x1="23" y1="95" x2="23" y2="135" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="3,3"/>
+                            <!-- 窗户 -->
+                            <rect x="80" y="15" width="60" height="4" rx="1" fill="rgba(135,206,235,0.15)" stroke="rgba(135,206,235,0.3)" stroke-width="0.5"/>
+                            <rect x="180" y="15" width="60" height="4" rx="1" fill="rgba(135,206,235,0.15)" stroke="rgba(135,206,235,0.3)" stroke-width="0.5"/>
+                            <!-- 桌椅示意 -->
+                            <rect x="180" y="200" width="50" height="30" rx="3" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>
+                            <rect x="190" y="208" width="30" height="15" rx="2" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+
+                            <!-- Wi-Fi 网关 (中心) -->
+                            <circle cx="160" cy="150" r="14" fill="rgba(15,123,107,0.2)" stroke="#0F7B6B" stroke-width="2"/>
+                            <text x="160" y="154" text-anchor="middle" fill="#0F7B6B" font-size="9" font-weight="600">GW</text>
+                            <text x="160" y="172" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="7">Wi-Fi 网关</text>
+
+                            <!-- Wi-Fi 设备 (蓝色) -->
+                            <circle cx="50" cy="50" r="8" fill="rgba(49,130,206,0.2)" stroke="#3182CE" stroke-width="1.2"/>
+                            <text x="50" y="53" text-anchor="middle" fill="#63B3ED" font-size="7">TH</text>
+                            <text x="50" y="66" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="6">温湿度</text>
+                            <line x1="58" y1="54" x2="148" y2="142" stroke="rgba(49,130,206,0.3)" stroke-width="0.7" stroke-dasharray="5,3"/>
+
+                            <circle cx="50" cy="115" r="8" fill="rgba(49,130,206,0.2)" stroke="#3182CE" stroke-width="1.2"/>
+                            <text x="50" y="118" text-anchor="middle" fill="#63B3ED" font-size="7">PR</text>
+                            <text x="50" y="131" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="6">人体存在</text>
+                            <line x1="58" y1="118" x2="148" y2="147" stroke="rgba(49,130,206,0.3)" stroke-width="0.7" stroke-dasharray="5,3"/>
+
+                            <circle cx="270" cy="50" r="8" fill="rgba(49,130,206,0.2)" stroke="#3182CE" stroke-width="1.2"/>
+                            <text x="270" y="53" text-anchor="middle" fill="#63B3ED" font-size="7">AC</text>
+                            <text x="270" y="66" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="6">空调控制</text>
+                            <line x1="262" y1="54" x2="172" y2="142" stroke="rgba(49,130,206,0.3)" stroke-width="0.7" stroke-dasharray="5,3"/>
+
+                            <circle cx="270" cy="130" r="8" fill="rgba(49,130,206,0.2)" stroke="#3182CE" stroke-width="1.2"/>
+                            <text x="270" y="133" text-anchor="middle" fill="#63B3ED" font-size="7">SP</text>
+                            <text x="270" y="146" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="6">智能插座</text>
+                            <line x1="262" y1="132" x2="172" y2="148" stroke="rgba(49,130,206,0.3)" stroke-width="0.7" stroke-dasharray="5,3"/>
+
+                            <circle cx="270" cy="210" r="8" fill="rgba(49,130,206,0.2)" stroke="#3182CE" stroke-width="1.2"/>
+                            <text x="270" y="213" text-anchor="middle" fill="#63B3ED" font-size="7">CP</text>
+                            <text x="270" y="226" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="6">控制面板</text>
+                            <line x1="262" y1="212" x2="172" y2="154" stroke="rgba(49,130,206,0.3)" stroke-width="0.7" stroke-dasharray="5,3"/>
+
+                            <!-- RS485 设备 (绿色) - 总线拓扑 -->
+                            <circle cx="80" cy="235" r="8" fill="rgba(78,205,196,0.15)" stroke="#4ECDC4" stroke-width="1.2"/>
+                            <text x="80" y="238" text-anchor="middle" fill="#4ECDC4" font-size="7">CO₂</text>
+                            <text x="80" y="251" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="6">CO₂传感器</text>
+
+                            <circle cx="190" cy="245" r="8" fill="rgba(78,205,196,0.15)" stroke="#4ECDC4" stroke-width="1.2"/>
+                            <text x="190" y="248" text-anchor="middle" fill="#4ECDC4" font-size="7">EM</text>
+                            <text x="190" y="261" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="6">智能电表</text>
+
+                            <circle cx="130" cy="265" r="8" fill="rgba(78,205,196,0.15)" stroke="#4ECDC4" stroke-width="1.2"/>
+                            <text x="130" y="268" text-anchor="middle" fill="#4ECDC4" font-size="7">CB</text>
+                            <text x="130" y="276" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-size="6">智能空开</text>
+
+                            <!-- RS485 总线 -->
+                            <polyline points="86,237 126,260 132,260 184,246" fill="none" stroke="rgba(78,205,196,0.4)" stroke-width="1" stroke-dasharray="6,2"/>
+                            <line x1="126" y1="260" x2="126" y2="148" stroke="rgba(78,205,196,0.3)" stroke-width="0.6" stroke-dasharray="4,3"/>
+                            <circle cx="126" cy="148" r="3" fill="rgba(78,205,196,0.5)"/>
+
+                            <!-- 图例 -->
+                            <line x1="25" y1="278" x2="55" y2="278" stroke="rgba(49,130,206,0.5)" stroke-width="1" stroke-dasharray="4,2"/>
+                            <text x="60" y="280" fill="rgba(255,255,255,0.3)" font-size="6">Wi-Fi</text>
+                            <line x1="100" y1="278" x2="130" y2="278" stroke="rgba(78,205,196,0.5)" stroke-width="1" stroke-dasharray="5,2"/>
+                            <text x="135" y="280" fill="rgba(255,255,255,0.3)" font-size="6">RS485</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== 中列：核心数据 ====== -->
+            <div class="indoor-mid">
+                <!-- 环境参数 -->
+                <div class="indoor-card">
+                    <div class="indoor-card-head">
+                        <span class="indoor-card-icon">🌡️</span>
+                        <span class="indoor-card-title">环境参数</span>
+                    </div>
+                    <div class="indoor-card-body">
+                        <div class="indoor-env-grid">
+                            <div class="indoor-env-item">
+                                <div class="indoor-env-icon" style="background:rgba(255,107,107,0.15);">🌡</div>
+                                <div class="indoor-env-info">
+                                    <span class="indoor-env-label">室温</span>
+                                    <span class="indoor-env-val" id="ieTemp">23.5<span class="indoor-env-unit">°C</span></span>
+                                </div>
+                            </div>
+                            <div class="indoor-env-item">
+                                <div class="indoor-env-icon" style="background:rgba(78,205,196,0.15);">💧</div>
+                                <div class="indoor-env-info">
+                                    <span class="indoor-env-label">湿度</span>
+                                    <span class="indoor-env-val" id="ieHum">52.0<span class="indoor-env-unit">%</span></span>
+                                </div>
+                            </div>
+                            <div class="indoor-env-item">
+                                <div class="indoor-env-icon" style="background:rgba(255,217,61,0.15);">🫧</div>
+                                <div class="indoor-env-info">
+                                    <span class="indoor-env-label">CO₂</span>
+                                    <span class="indoor-env-val" id="ieCO2">680<span class="indoor-env-unit">ppm</span></span>
+                                </div>
+                            </div>
+                            <div class="indoor-env-item">
+                                <div class="indoor-env-icon" style="background:rgba(160,140,220,0.15);">🌫</div>
+                                <div class="indoor-env-info">
+                                    <span class="indoor-env-label">PM2.5</span>
+                                    <span class="indoor-env-val" id="iePM25">15<span class="indoor-env-unit">μg/m³</span></span>
+                                </div>
+                            </div>
+                            <div class="indoor-env-item">
+                                <div class="indoor-env-icon" style="background:rgba(255,165,0,0.15);">☀️</div>
+                                <div class="indoor-env-info">
+                                    <span class="indoor-env-label">照度</span>
+                                    <span class="indoor-env-val" id="ieLux">350<span class="indoor-env-unit">lux</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 电气参数 -->
+                <div class="indoor-card">
+                    <div class="indoor-card-head">
+                        <span class="indoor-card-icon">⚡</span>
+                        <span class="indoor-card-title">电气参数</span>
+                    </div>
+                    <div class="indoor-card-body">
+                        <div class="indoor-elec-grid">
+                            <div class="indoor-elec-item">
+                                <span class="indoor-elec-label">电压</span>
+                                <span class="indoor-elec-val" id="ieVoltage">220.3</span>
+                                <span class="indoor-elec-unit">V</span>
+                            </div>
+                            <div class="indoor-elec-item">
+                                <span class="indoor-elec-label">电流</span>
+                                <span class="indoor-elec-val" id="ieCurrent">5.2</span>
+                                <span class="indoor-elec-unit">A</span>
+                            </div>
+                            <div class="indoor-elec-item">
+                                <span class="indoor-elec-label">功率</span>
+                                <span class="indoor-elec-val" id="iePower">1145.6</span>
+                                <span class="indoor-elec-unit">W</span>
+                            </div>
+                            <div class="indoor-elec-item">
+                                <span class="indoor-elec-label">功率因数</span>
+                                <span class="indoor-elec-val" id="iePF">0.95</span>
+                                <span class="indoor-elec-unit"></span>
+                            </div>
+                            <div class="indoor-elec-item" style="grid-column:1/-1;">
+                                <span class="indoor-elec-label">累计电量</span>
+                                <span class="indoor-elec-val" id="ieEnergy">125.8</span>
+                                <span class="indoor-elec-unit">kWh</span>
+                                <div class="indoor-elec-bar"><div class="indoor-elec-bar-fill" id="ieEnergyBar" style="width:42%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 舒适度与占用状态 -->
+                <div class="indoor-card">
+                    <div class="indoor-card-head">
+                        <span class="indoor-card-icon">😊</span>
+                        <span class="indoor-card-title">舒适度与占用状态</span>
+                    </div>
+                    <div class="indoor-card-body">
+                        <div class="indoor-comfort-top">
+                            <div class="indoor-comfort-main">
+                                <div class="indoor-comfort-pmv-wrap">
+                                    <span class="indoor-comfort-pmv-label">PMV</span>
+                                    <span class="indoor-comfort-pmv-val" id="iePMV" style="color:#87CEEB;">-0.3</span>
+                                </div>
+                                <div class="indoor-comfort-ppd-wrap">
+                                    <span class="indoor-comfort-ppd-label">PPD</span>
+                                    <span class="indoor-comfort-ppd-val" id="iePPD">7%</span>
+                                </div>
+                                <div class="indoor-comfort-status" id="ieComfortStatus">
+                                    <span class="indoor-comfort-status-dot" style="background:#4ECDC4;"></span>
+                                </div>
+                            </div>
+                            <!-- PMV 色带 -->
+                            <div class="indoor-pmv-band">
+                                <div class="indoor-pmv-gradient"></div>
+                                <div class="indoor-pmv-labels">
+                                    <span>-3 冷</span><span>-2</span><span>-1</span><span>0 适中</span><span>+1</span><span>+2</span><span>+3 热</span>
+                                </div>
+                                <div class="indoor-pmv-marker" id="iePMVMarker" style="left:43%;"></div>
+                            </div>
+                        </div>
+                        <div class="indoor-comfort-occ">
+                            <div class="indoor-occ-item">
+                                <span class="indoor-occ-icon">🧑</span>
+                                <span class="indoor-occ-label">是否有人</span>
+                                <span class="indoor-occ-val" id="iePresence" style="color:#4ECDC4;">● 有人</span>
+                            </div>
+                            <div class="indoor-occ-item">
+                                <span class="indoor-occ-label">估计人数</span>
+                                <span class="indoor-occ-val" id="iePeople">3 人</span>
+                            </div>
+                            <div class="indoor-occ-item">
+                                <span class="indoor-occ-label">活动水平</span>
+                                <span class="indoor-occ-val" id="ieActivity">静坐 / 轻度活动</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== 右列：在线状态 + 终端控制 + 趋势告警 ====== -->
+            <div class="indoor-right">
+                <!-- 设备在线状态 -->
+                <div class="indoor-card">
+                    <div class="indoor-card-head">
+                        <span class="indoor-card-icon">📡</span>
+                        <span class="indoor-card-title">设备在线状态</span>
+                    </div>
+                    <div class="indoor-card-body" style="padding:6px 10px;">
+                        <table class="indoor-dev-table">
+                            <thead><tr><th>设备名称</th><th>状态</th><th>通信</th><th>最近上报</th></tr></thead>
+                            <tbody id="ieDevTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 终端控制 -->
+                <div class="indoor-card">
+                    <div class="indoor-card-head">
+                        <span class="indoor-card-icon">🎛️</span>
+                        <span class="indoor-card-title">终端控制</span>
+                    </div>
+                    <div class="indoor-card-body" style="gap:6px;">
+                        <div class="indoor-ctrl-row">
+                            <span class="indoor-ctrl-label">🌬 空调设定温度</span>
+                            <span class="indoor-ctrl-val">
+                                <button class="indoor-ctrl-btn" onclick="indoorCtrlAdj('acSetTemp',-1)">−</button>
+                                <span id="ieAcSetTemp" style="min-width:36px;text-align:center;display:inline-block;">24°C</span>
+                                <button class="indoor-ctrl-btn" onclick="indoorCtrlAdj('acSetTemp',1)">+</button>
+                            </span>
+                        </div>
+                        <div class="indoor-ctrl-row">
+                            <span class="indoor-ctrl-label">🔌 智能插座</span>
+                            <label class="indoor-toggle"><input type="checkbox" id="iePlugSwitch" checked onchange="indoorToggle('plug')"><span class="indoor-toggle-slider"></span></label>
+                        </div>
+                        <div class="indoor-ctrl-row">
+                            <span class="indoor-ctrl-label">🔒 智能空开</span>
+                            <label class="indoor-toggle"><input type="checkbox" id="ieCbSwitch" checked onchange="indoorToggle('cb')"><span class="indoor-toggle-slider"></span></label>
+                        </div>
+                        <div class="indoor-ctrl-row">
+                            <span class="indoor-ctrl-label">💡 照明</span>
+                            <label class="indoor-toggle"><input type="checkbox" id="ieLightSwitch" checked onchange="indoorToggle('light')"><span class="indoor-toggle-slider"></span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 趋势与告警 -->
+                <div class="indoor-card" style="flex:1; min-height:0;">
+                    <div class="indoor-card-head">
+                        <span class="indoor-card-icon">📈</span>
+                        <span class="indoor-card-title">趋势与告警</span>
+                    </div>
+                    <div class="indoor-card-body" style="gap:6px; overflow-y:auto;">
+                        <div class="indoor-mini-chart-wrap">
+                            <div class="indoor-mini-chart-title">室温 / 功率趋势</div>
+                            <div class="indoor-mini-chart" id="ieChartTempPower" style="height:110px;"></div>
+                        </div>
+                        <div class="indoor-mini-chart-wrap">
+                            <div class="indoor-mini-chart-title">CO₂ / 估计人数趋势</div>
+                            <div class="indoor-mini-chart" id="ieChartCO2People" style="height:110px;"></div>
+                        </div>
+                        <div class="indoor-alert-box" id="ieAlertBox">
+                            <div class="indoor-alert-title">⚠ 异常提示</div>
+                            <div class="indoor-alert-list" id="ieAlertList">
+                                <div class="indoor-alert-item" style="color:#4ECDC4;">✅ 所有参数正常</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ===== 城市微气候模拟 ===== -->
     <div class="placeholder-page" id="simPage"><div class="p-icon">🌡️</div>城市微气候模拟<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
@@ -618,6 +1225,9 @@ function showPage(name) {
     if (name === 'monitor') {
         btns.monitor.classList.add('active');
         setTimeout(function() { initTodayPage(); }, 200);
+    } else if (name === 'indoor') {
+        btns.indoor.classList.add('active');
+        setTimeout(function() { initIndoorPage(); }, 200);
     } else if (name === 'data' || name === 'selfStation') {
         // outdoor sub-pages
         btns.outdoor.classList.add('active');
@@ -637,7 +1247,10 @@ function showPage(name) {
     if (name === 'home') {
         setTimeout(function() {
             if (voltageChart) voltageChart.resize();
-        }, 200);
+            loadCoordBarCharts();
+            loadMicroclimateChart();
+            loadBuildingBarChart();
+        }, 300);
     }
 }
 
@@ -1255,6 +1868,13 @@ window.addEventListener('resize', () => {
     resizeDataCharts();
     resizeSelfCharts();
     resizeExtrCharts();
+    if (ieChartTempPower) ieChartTempPower.resize();
+    if (ieChartCO2People) ieChartCO2People.resize();
+    if (microclimateChart) microclimateChart.resize();
+    if (buildingBarChart) buildingBarChart.resize();
+    if (coordBarShed) coordBarShed.resize();
+    if (coordBarCurt) coordBarCurt.resize();
+    if (coordBarTotal) coordBarTotal.resize();
 });
 
 // ==================== 极端值页面 ====================
@@ -1388,6 +2008,311 @@ function showDayDetail(dayData, label) {
 // load on first visit
 // default loaded when user clicks the button
 
+// ==================== 室内环境-电气集成终端 ====================
+var indoorInited = false;
+var ieChartTempPower = null;
+var ieChartCO2People = null;
+var indoorMockTimer = null;
+
+// 模拟数据
+var indoorMockData = {
+    roomId: '澳门大学 N21-5003',
+    roomType: '实验室 / 办公室',
+    onlineCnt: 8, totalCnt: 9,
+    comm: 'Wi-Fi + RS485',
+    gateway: 'N21-GW-01',
+    gatewayOnline: true,
+    temperature: 23.5, humidity: 52.0, co2: 680, pm25: 15, lux: 350,
+    voltage: 220.3, current: 5.2, power: 1145.6, pf: 0.95, energy: 125.8,
+    pmv: -0.3, ppd: 7, comfortStatus: '舒适', presence: true, peopleCnt: 3, activity: '静坐 / 轻度活动',
+    acSetTemp: 24,
+    plugOn: true, cbOn: true, lightOn: true,
+    devices: [
+        { name:'温湿度传感器', id:'TH-S01', online:true, comm:'Wi-Fi', time:'10s 前' },
+        { name:'CO₂传感器', id:'CO2-S01', online:true, comm:'RS485', time:'8s 前' },
+        { name:'人体存在传感器', id:'PR-S01', online:true, comm:'Wi-Fi', time:'12s 前' },
+        { name:'智能插座', id:'SP-01', online:true, comm:'Wi-Fi', time:'5s 前' },
+        { name:'智能空开', id:'CB-01', online:true, comm:'RS485', time:'15s 前' },
+        { name:'智能电表', id:'EM-01', online:true, comm:'RS485', time:'3s 前' },
+        { name:'空调控制器', id:'AC-01', online:true, comm:'Wi-Fi', time:'6s 前' },
+        { name:'室内控制面板', id:'CP-01', online:false, comm:'Wi-Fi', time:'2 分钟前' },
+        { name:'Wi-Fi 网关', id:'GW-01', online:true, comm:'—', time:'1s 前' }
+    ],
+    trendHistory: [] // {time, temperature, power, co2, people}
+};
+
+// 初始化趋势历史 (过去30个点)
+(function initTrendHistory() {
+    var now = Date.now();
+    for (var i = 29; i >= 0; i--) {
+        var t = now - i * 60000;
+        var baseT = 23.5 + Math.sin(i * 0.35) * 0.8;
+        var baseP = 1145 + Math.sin(i * 0.4) * 180;
+        var baseC = 680 + Math.sin(i * 0.3) * 120;
+        var basePpl = 3 + Math.round(Math.sin(i * 0.5) * 1);
+        indoorMockData.trendHistory.push({
+            time: new Date(t),
+            temperature: +(baseT + (Math.random() - 0.5) * 0.3).toFixed(1),
+            power: +(baseP + (Math.random() - 0.5) * 40).toFixed(1),
+            co2: Math.round(baseC + (Math.random() - 0.5) * 30),
+            people: Math.max(1, Math.min(5, basePpl + (Math.random() > 0.7 ? 1 : 0)))
+        });
+    }
+})();
+
+function indoorSimulateData() {
+    var d = indoorMockData;
+    d.temperature = +(d.temperature + (Math.random() - 0.5) * 0.2).toFixed(1);
+    d.humidity = +(d.humidity + (Math.random() - 0.5) * 0.6).toFixed(1);
+    d.co2 = Math.round(d.co2 + (Math.random() - 0.5) * 15);
+    d.pm25 = Math.max(5, Math.min(35, Math.round(d.pm25 + (Math.random() - 0.5) * 3)));
+    d.lux = Math.max(200, Math.min(500, Math.round(d.lux + (Math.random() - 0.5) * 20)));
+    d.voltage = +(d.voltage + (Math.random() - 0.5) * 0.4).toFixed(1);
+    d.current = +(d.current + (Math.random() - 0.5) * 0.15).toFixed(1);
+    d.power = +(d.voltage * d.current * d.pf).toFixed(1);
+    d.energy = +(d.energy + d.power / 3600000 * 60).toFixed(1);
+    d.pmv = +(d.pmv + (Math.random() - 0.5) * 0.05).toFixed(2);
+    d.ppd = Math.max(5, Math.min(15, Math.round(d.ppd + (Math.random() - 0.5) * 1.5)));
+    d.peopleCnt = Math.max(1, Math.min(6, d.peopleCnt + (Math.random() > 0.85 ? (Math.random() > 0.5 ? 1 : -1) : 0)));
+
+    // 舒适度判定
+    if (Math.abs(d.pmv) < 0.5) { d.comfortStatus = '舒适'; }
+    else if (d.pmv < -1) { d.comfortStatus = '偏冷'; }
+    else if (d.pmv < 0) { d.comfortStatus = '略凉'; }
+    else if (d.pmv > 1) { d.comfortStatus = '偏热'; }
+    else { d.comfortStatus = '略暖'; }
+
+    // 更新设备上报时间
+    var now = new Date();
+    d.devices.forEach(function(dev) {
+        if (dev.online) {
+            var sec = Math.floor(Math.random() * 20) + 1;
+            dev.time = sec + 's 前';
+        }
+    });
+    d.devices[8].time = '1s 前'; // 网关永远最近
+
+    // 更新趋势
+    d.trendHistory.push({
+        time: new Date(),
+        temperature: d.temperature, power: d.power,
+        co2: d.co2, people: d.peopleCnt
+    });
+    if (d.trendHistory.length > 30) d.trendHistory.shift();
+}
+
+function initIndoorPage() {
+    if (indoorInited) { indoorRefreshUI(); return; }
+    indoorInited = true;
+
+    // 初始化 ECharts
+    var tpDom = document.getElementById('ieChartTempPower');
+    var cpDom = document.getElementById('ieChartCO2People');
+    if (tpDom) ieChartTempPower = echarts.init(tpDom);
+    if (cpDom) ieChartCO2People = echarts.init(cpDom);
+
+    indoorRefreshUI();
+
+    // 定时刷新
+    if (indoorMockTimer) clearInterval(indoorMockTimer);
+    indoorMockTimer = setInterval(function() {
+        indoorSimulateData();
+        indoorRefreshUI();
+    }, 3000);
+}
+
+function indoorRefreshUI() {
+    var d = indoorMockData;
+
+    // 房间概况
+    document.getElementById('irOnlineCnt').textContent = d.onlineCnt + ' / ' + d.totalCnt + ' 台';
+    document.getElementById('irOnlineRate').textContent = (d.onlineCnt / d.totalCnt * 100).toFixed(1) + '%';
+    document.getElementById('irGateway').textContent = d.gateway + (d.gatewayOnline ? ' (在线)' : ' (离线)');
+    document.getElementById('irGateway').style.color = d.gatewayOnline ? '#4ECDC4' : '#E74C3C';
+    var now = new Date();
+    document.getElementById('irUpdateTime').textContent =
+        now.getHours().toString().padStart(2,'0') + ':' +
+        now.getMinutes().toString().padStart(2,'0') + ':' +
+        now.getSeconds().toString().padStart(2,'0');
+
+    // 环境参数
+    document.getElementById('ieTemp').innerHTML = d.temperature.toFixed(1) + '<span class="indoor-env-unit">°C</span>';
+    document.getElementById('ieHum').innerHTML = d.humidity.toFixed(1) + '<span class="indoor-env-unit">%</span>';
+    document.getElementById('ieCO2').innerHTML = d.co2 + '<span class="indoor-env-unit">ppm</span>';
+    document.getElementById('iePM25').innerHTML = d.pm25 + '<span class="indoor-env-unit">μg/m³</span>';
+    document.getElementById('ieLux').innerHTML = d.lux + '<span class="indoor-env-unit">lux</span>';
+
+    // 电气参数
+    document.getElementById('ieVoltage').textContent = d.voltage.toFixed(1);
+    document.getElementById('ieCurrent').textContent = d.current.toFixed(1);
+    document.getElementById('iePower').textContent = d.power.toFixed(1);
+    document.getElementById('iePF').textContent = d.pf.toFixed(2);
+    document.getElementById('ieEnergy').textContent = d.energy.toFixed(1);
+    // 累计电量进度条 (假设月度限额 300 kWh)
+    var energyPct = Math.min(100, d.energy / 300 * 100);
+    document.getElementById('ieEnergyBar').style.width = energyPct.toFixed(0) + '%';
+
+    // 舒适度
+    var pmvEl = document.getElementById('iePMV');
+    pmvEl.textContent = d.pmv.toFixed(1);
+    // PMV 颜色
+    var pmvAbs = Math.abs(d.pmv);
+    if (pmvAbs < 0.5) pmvEl.style.color = '#4ECDC4';
+    else if (pmvAbs < 1.0) pmvEl.style.color = '#FFD93D';
+    else if (pmvAbs < 2.0) pmvEl.style.color = '#FFA07A';
+    else pmvEl.style.color = '#E74C3C';
+
+    document.getElementById('iePPD').textContent = d.ppd + '%';
+    var statusEl = document.getElementById('ieComfortStatus');
+    var statusDot = statusEl.querySelector('.indoor-comfort-status-dot');
+    if (d.comfortStatus === '舒适') { statusDot.style.background = '#4ECDC4'; }
+    else if (d.comfortStatus === '略凉' || d.comfortStatus === '略暖') { statusDot.style.background = '#FFD93D'; }
+    else { statusDot.style.background = '#E74C3C'; }
+    statusEl.childNodes[1] && (statusEl.childNodes[1].textContent = ' ' + d.comfortStatus);
+
+    // PMV 标记位置 (映射 -3~+3 到 2%~98%)
+    var pmvLeft = ((d.pmv + 3) / 6 * 96 + 2);
+    document.getElementById('iePMVMarker').style.left = pmvLeft.toFixed(1) + '%';
+
+    // 占用状态
+    document.getElementById('iePresence').innerHTML = d.presence ? '<span style="color:#4ECDC4;">● 有人</span>' : '<span style="color:#E74C3C;">● 无人</span>';
+    document.getElementById('iePeople').textContent = d.peopleCnt + ' 人';
+
+    // 设备在线状态表
+    var tbody = document.getElementById('ieDevTableBody');
+    tbody.innerHTML = d.devices.map(function(dev) {
+        var statusHtml = dev.online
+            ? '<span class="dev-online">● 在线</span>'
+            : '<span class="dev-offline">● 离线</span>';
+        return '<tr>' +
+            '<td>' + dev.name + '<br><span style="font-size:10px;color:#667788;">' + dev.id + '</span></td>' +
+            '<td>' + statusHtml + '</td>' +
+            '<td class="dev-comm">' + dev.comm + '</td>' +
+            '<td class="dev-time">' + dev.time + '</td>' +
+            '</tr>';
+    }).join('');
+
+    // 更新趋势图表
+    indoorUpdateCharts();
+
+    // 更新告警
+    indoorUpdateAlerts();
+}
+
+function indoorUpdateCharts() {
+    var d = indoorMockData;
+    var hist = d.trendHistory;
+    var xData = hist.map(function(h) {
+        return h.time.getHours().toString().padStart(2,'0') + ':' +
+               h.time.getMinutes().toString().padStart(2,'0');
+    });
+    var tData = hist.map(function(h) { return h.temperature; });
+    var pData = hist.map(function(h) { return h.power; });
+    var cData = hist.map(function(h) { return h.co2; });
+    var pplData = hist.map(function(h) { return h.people; });
+
+    var grid = { left: 42, right: 42, top: 12, bottom: 20 };
+
+    if (ieChartTempPower) {
+        ieChartTempPower.setOption({
+            grid: grid,
+            tooltip: { trigger: 'axis', confine: true, textStyle: { fontSize: 11 } },
+            xAxis: { type: 'category', data: xData, axisLabel: { fontSize: 9, color: '#667788' }, axisLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } } },
+            yAxis: [
+                { type: 'value', name: '°C', nameTextStyle: { fontSize: 9, color: '#667788' },
+                    axisLabel: { fontSize: 9, color: '#667788' }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.04)' } } },
+                { type: 'value', name: 'W', nameTextStyle: { fontSize: 9, color: '#667788' },
+                    axisLabel: { fontSize: 9, color: '#667788' }, splitLine: { show: false } }
+            ],
+            series: [
+                { name: '室温', type: 'line', data: tData, smooth: true, symbol: 'none',
+                    lineStyle: { color: '#FF6B6B', width: 1.5 },
+                    areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(255,107,107,0.2)'},{offset:1,color:'rgba(255,107,107,0.01)'}] } } },
+                { name: '功率', type: 'line', yAxisIndex: 1, data: pData, smooth: true, symbol: 'none',
+                    lineStyle: { color: '#FFD93D', width: 1.5 },
+                    areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(255,217,61,0.2)'},{offset:1,color:'rgba(255,217,61,0.01)'}] } } }
+            ]
+        }, true);
+    }
+
+    if (ieChartCO2People) {
+        ieChartCO2People.setOption({
+            grid: grid,
+            tooltip: { trigger: 'axis', confine: true, textStyle: { fontSize: 11 } },
+            xAxis: { type: 'category', data: xData, axisLabel: { fontSize: 9, color: '#667788' }, axisLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } } },
+            yAxis: [
+                { type: 'value', name: 'ppm', nameTextStyle: { fontSize: 9, color: '#667788' },
+                    axisLabel: { fontSize: 9, color: '#667788' }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.04)' } } },
+                { type: 'value', name: '人', nameTextStyle: { fontSize: 9, color: '#667788' },
+                    axisLabel: { fontSize: 9, color: '#667788' }, splitLine: { show: false }, min: 0, max: 8 }
+            ],
+            series: [
+                { name: 'CO₂', type: 'line', data: cData, smooth: true, symbol: 'none',
+                    lineStyle: { color: '#4ECDC4', width: 1.5 },
+                    areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(78,205,196,0.2)'},{offset:1,color:'rgba(78,205,196,0.01)'}] } } },
+                { name: '人数', type: 'line', yAxisIndex: 1, data: pplData, smooth: true, symbol: 'none',
+                    lineStyle: { color: '#A78BFA', width: 1.5, type: 'dashed' },
+                    areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(167,139,250,0.15)'},{offset:1,color:'rgba(167,139,250,0.01)'}] } } }
+            ]
+        }, true);
+    }
+}
+
+function indoorUpdateAlerts() {
+    var d = indoorMockData;
+    var alerts = [];
+    if (d.temperature > 28) alerts.push({ cls: 'error', msg: '🔴 室温偏高 (' + d.temperature.toFixed(1) + '°C)，建议检查空调' });
+    else if (d.temperature > 26) alerts.push({ cls: 'warn', msg: '🟡 室温略高 (' + d.temperature.toFixed(1) + '°C)' });
+    if (d.co2 > 1000) alerts.push({ cls: 'error', msg: '🔴 CO₂ 浓度过高 (' + d.co2 + ' ppm)，请通风' });
+    else if (d.co2 > 800) alerts.push({ cls: 'warn', msg: '🟡 CO₂ 浓度偏高 (' + d.co2 + ' ppm)' });
+    if (d.humidity > 80) alerts.push({ cls: 'warn', msg: '🟡 湿度过高 (' + d.humidity.toFixed(1) + '%)' });
+    if (d.humidity < 30) alerts.push({ cls: 'warn', msg: '🟡 湿度过低 (' + d.humidity.toFixed(1) + '%)' });
+    if (d.pm25 > 25) alerts.push({ cls: 'warn', msg: '🟡 PM2.5 偏高 (' + d.pm25 + ' μg/m³)' });
+    if (Math.abs(d.pmv) > 1.5) alerts.push({ cls: 'warn', msg: '🟡 热舒适度偏离较大 (PMV=' + d.pmv.toFixed(1) + ')' });
+
+    var offlineDevs = d.devices.filter(function(dev) { return !dev.online; });
+    offlineDevs.forEach(function(dev) {
+        alerts.push({ cls: 'error', msg: '🔴 ' + dev.name + ' (' + dev.id + ') 离线' });
+    });
+
+    if (alerts.length === 0) {
+        alerts.push({ cls: '', msg: '✅ 所有参数正常' });
+    }
+
+    document.getElementById('ieAlertList').innerHTML = alerts.map(function(a) {
+        return '<div class="indoor-alert-item' + (a.cls ? ' ' + a.cls : '') + '">' + a.msg + '</div>';
+    }).join('');
+}
+
+// 控制交互
+function indoorCtrlAdj(field, delta) {
+    if (field === 'acSetTemp') {
+        indoorMockData.acSetTemp = Math.max(16, Math.min(30, indoorMockData.acSetTemp + delta));
+        document.getElementById('ieAcSetTemp').textContent = indoorMockData.acSetTemp + '°C';
+    }
+}
+
+function indoorToggle(type) {
+    if (type === 'plug') indoorMockData.plugOn = document.getElementById('iePlugSwitch').checked;
+    if (type === 'cb') indoorMockData.cbOn = document.getElementById('ieCbSwitch').checked;
+    if (type === 'light') indoorMockData.lightOn = document.getElementById('ieLightSwitch').checked;
+    // 更新相关设备在线状态
+    if (type === 'plug') {
+        var sp = indoorMockData.devices[3];
+        sp.online = indoorMockData.plugOn;
+        if (!indoorMockData.plugOn) sp.time = '离线';
+    }
+    if (type === 'cb') {
+        var cb = indoorMockData.devices[4];
+        cb.online = indoorMockData.cbOn;
+        if (!indoorMockData.cbOn) cb.time = '离线';
+    }
+    indoorRefreshUI();
+}
+
+// 窗口 resize 时重绘图表
+var _origIndoorResize = window.addEventListener('resize', function(){}); // placeholder, actual resize handled below
+
 // ==================== 初始化 ====================
 loadSelfStationDevices();
 setInterval(loadSelfStationDevices, 5000);
@@ -1484,6 +2409,141 @@ function loadStationCompare() {
 loadStationCompare();
 setInterval(loadStationCompare, 300000);
 
+// ====== 仪表盘室内终端面板 ======
+function refreshDashIndoorPanel() {
+    var d = indoorMockData;
+    if (!d) return;
+    document.getElementById('dashIndoorTemp').textContent = d.temperature.toFixed(1) + '°C';
+    document.getElementById('dashIndoorHum').textContent = d.humidity.toFixed(1) + '%';
+    document.getElementById('dashIndoorCO2').textContent = d.co2 + ' ppm';
+    document.getElementById('dashIndoorPM25').textContent = d.pm25 + ' μg/m³';
+    document.getElementById('dashIndoorPower').textContent = d.power.toFixed(0) + ' W';
+    document.getElementById('dashIndoorEnergy').textContent = d.energy.toFixed(1) + ' kWh';
+    var pmvEl = document.getElementById('dashIndoorPMV');
+    pmvEl.textContent = d.pmv.toFixed(1);
+    pmvEl.style.color = Math.abs(d.pmv) < 0.5 ? '#4ECDC4' : Math.abs(d.pmv) < 1.5 ? '#FFD93D' : '#E74C3C';
+    document.getElementById('dashIndoorDevices').textContent = d.onlineCnt + '/' + d.totalCnt + ' 在线';
+}
+refreshDashIndoorPanel();
+setInterval(refreshDashIndoorPanel, 5000);
+
+// ====== 城市微气候分布折线图 ======
+var microclimateChart = null;
+
+function loadMicroclimateChart() {
+    var dom = document.getElementById('microclimateLineChart');
+    if (!dom || dom.clientWidth === 0) return;
+    if (microclimateChart) { microclimateChart.resize(); return; }
+
+    var times = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
+    // 数据来源: 微气候温度分布数据表.xlsx，各区域6个空间采样点均值
+    var data = [
+        { name:'1号街区', values:[30.22,30.99,31.63,32.12,32.78,32.88,32.24,32.57,31.93,31.16,30.67] },
+        { name:'2号街区', values:[30.03,30.67,31.21,31.63,32.09,32.24,32.03,32.13,31.62,30.94,30.53] },
+        { name:'3号街区', values:[30.21,30.87,31.43,31.87,32.41,32.57,32.24,32.37,31.85,31.15,30.72] },
+        { name:'4号街区', values:[30.10,30.75,31.28,31.71,32.18,32.34,32.12,32.21,31.71,31.03,30.61] },
+        { name:'5号街区', values:[29.90,30.50,30.99,31.38,31.77,31.95,31.90,31.89,31.44,30.80,30.41] },
+        { name:'6号街区', values:[30.16,30.83,31.40,31.84,32.39,32.53,32.18,32.33,31.79,31.09,30.65] },
+        { name:'7号街区', values:[30.41,31.09,31.68,32.16,32.79,32.95,32.47,32.66,32.10,31.38,30.94] },
+        { name:'8号街区', values:[30.35,31.10,31.75,32.24,32.99,33.08,32.37,32.69,32.06,31.29,30.81] },
+        { name:'9号街区', values:[30.37,31.13,31.78,32.29,33.05,33.16,32.42,32.74,32.11,31.35,30.86] },
+        { name:'10号街区',values:[29.94,30.55,31.05,31.46,31.86,32.03,31.93,31.96,31.49,30.84,30.44] }
+    ];
+    var colors = ['#FF6B6B','#FF8E53','#FFD93D','#4ECDC4','#3182CE','#A78BFA','#F472B6','#34D399','#60A5FA','#FBBF24'];
+
+    var series = data.map(function(d, i) {
+        return {
+            name: d.name, type: 'line', data: d.values,
+            smooth: true, symbol: 'circle', symbolSize: 4,
+            lineStyle: { width: 1.8, color: colors[i] },
+            itemStyle: { color: colors[i] }
+        };
+    });
+
+    microclimateChart = echarts.init(dom);
+    microclimateChart.setOption({
+        grid: { left: 38, right: 14, top: 14, bottom: 28 },
+        tooltip: { trigger: 'axis', confine: false, appendToBody: true, textStyle: { fontSize: 11 },
+            position: function(pos, params, dom, rect, size) {
+                return [pos[0], pos[1] + 20];
+            },
+            formatter: function(params) {
+                var s = '<span style="font-size:11px;color:#c8d6e5;">' + params[0].name + '</span>';
+                for (var i = 0; i < params.length; i++) {
+                    var p = params[i];
+                    s += '<br/>' + p.marker + ' ' + p.seriesName + ': <b>' + p.value + '°C</b>';
+                }
+                return s;
+            }
+        },
+        legend: { show: false },
+        xAxis: { type: 'category', data: times,
+            axisLabel: { fontSize: 9, color: '#889' },
+            axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } } },
+        yAxis: { type: 'value', name: '°C', min: 28, nameTextStyle: { fontSize: 9, color: '#667' },
+            axisLabel: { fontSize: 9, color: '#889' },
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } } },
+        series: series
+    });
+
+}
+
+// hover → 显示澳门本岛建筑街区图（整个面板区域触发，独立于图表初始化）
+(function bindMicroclimateOverlay() {
+    var panel = document.getElementById('panelMicroclimate');
+    var overlay = document.getElementById('microclimateMapOverlay');
+    if (panel && overlay) {
+        panel.addEventListener('mouseenter', function() {
+            overlay.style.display = 'block';
+        });
+        panel.addEventListener('mouseleave', function() {
+            overlay.style.display = 'none';
+        });
+    }
+})();
+
+setTimeout(loadMicroclimateChart, 400);
+
+// ====== 建筑能效密度分布柱状图 ======
+var buildingBarChart = null;
+
+function loadBuildingBarChart() {
+    var dom = document.getElementById('buildingBarChart');
+    if (!dom || dom.clientWidth === 0) return;
+    if (buildingBarChart) { buildingBarChart.resize(); return; }
+
+    var areas = ['1号','2号','3号','4号','5号','6号','7号','8号','9号','10号'];
+    var values = [15.53, 14.01, 12.73, 11.40, 10.87, 13.99, 12.93, 14.19, 14.73, 11.22];
+
+    buildingBarChart = echarts.init(dom);
+    buildingBarChart.setOption({
+        grid: { left: 40, right: 14, top: 14, bottom: 26 },
+        tooltip: { trigger: 'axis', confine: false, appendToBody: true, textStyle: { fontSize: 11 },
+            formatter: function(params) {
+                var p = params[0];
+                return p.name + '号街区<br/>' + p.marker + ' 能耗强度: <b>' + p.value + ' W/m²</b>';
+            }
+        },
+        xAxis: { type: 'category', data: areas,
+            axisLabel: { show: false },
+            axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } } },
+        yAxis: { type: 'value', name: 'W/m²', nameTextStyle: { fontSize: 9, color: '#667' },
+            axisLabel: { fontSize: 9, color: '#889' },
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } } },
+        series: [{
+            type: 'bar', data: values, barMaxWidth: 20,
+            itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: '#FF8E53' }, { offset: 1, color: 'rgba(18,28,46,0.5)' }
+                ]),
+                borderRadius: [3, 3, 0, 0]
+            },
+            label: { show: true, position: 'top', fontSize: 9, color: '#c8d6e5' }
+        }]
+    });
+}
+setTimeout(loadBuildingBarChart, 500);
+
 // ====== 协同治理 - 建筑电压调优图表 ======
 var voltageChart = null;
 function loadVoltageChart() {
@@ -1495,13 +2555,21 @@ function loadVoltageChart() {
     }).then(function(csv) {
         if (!csv) return;
         var lines = csv.trim().split('\n');
-        var step = Math.max(1, Math.floor((lines.length - 1) / 200));
-        var timeData = [], beforeData = [], afterData = [];
-        for (var i = 1; i < lines.length; i += step) {
+        // 只取 0–120s 的数据
+        var rawRows = [];
+        for (var i = 1; i < lines.length; i++) {
             var cols = lines[i].split(',');
-            timeData.push(parseFloat(cols[0]));
-            beforeData.push(parseFloat(cols[1]));
-            afterData.push(parseFloat(cols[2]));
+            var t = parseFloat(cols[0]);
+            if (t > 120) break;
+            rawRows.push({ t: t, before: parseFloat(cols[1]), after: parseFloat(cols[2]) });
+        }
+        if (!rawRows.length) return;
+        // 降采样到约 200 个点
+        var step = Math.max(1, Math.floor(rawRows.length / 200));
+        var beforeData = [], afterData = [];
+        for (var j = 0; j < rawRows.length; j += step) {
+            beforeData.push([rawRows[j].t, rawRows[j].before]);
+            afterData.push([rawRows[j].t, rawRows[j].after]);
         }
         if (!voltageChart) voltageChart = echarts.init(dom);
         voltageChart.setOption({
@@ -1519,10 +2587,23 @@ function loadVoltageChart() {
     },
     textStyle: { fontSize: 11 }
 },
-            xAxis: { type: 'category', data: timeData, name: '时间 (s)', nameLocation: 'middle', nameGap: 22,
-                axisLabel: { fontSize: 10, color: '#889' }, nameTextStyle: { fontSize: 10, color: '#667' } },
+            xAxis: { type: 'value', name: '时间 (s)', nameLocation: 'middle', nameGap: 22,
+                min: 0, max: 120, interval: 30,
+                axisLabel: { fontSize: 10, color: '#889', formatter: function(v) { return v; } },
+                nameTextStyle: { fontSize: 10, color: '#667' },
+                splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } } },
             yAxis: { type: 'value', name: 'P.U.', min: 0.948, max: 0.9525,
-                axisLabel: { fontSize: 10, color: '#889' }, nameTextStyle: { fontSize: 10, color: '#667' },
+                axisLabel: { fontSize: 10, color: '#889',
+                    formatter: (function() {
+                        var shown = {};
+                        return function(v) {
+                            var key = v < 0.95 ? 'under' : 'normal';
+                            if (shown[key]) return '';
+                            shown[key] = true;
+                            return v < 0.95 ? '欠压' : '正常电压';
+                        };
+                    })()
+                }, nameTextStyle: { fontSize: 10, color: '#667' },
                 splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } } },
             series: [
                 { name: '优化前', type: 'line', data: beforeData, symbol: 'none', lineStyle: { width: 1.5, color: '#E74C3C' } },
@@ -1537,11 +2618,69 @@ function loadVoltageChart() {
 }
 loadVoltageChart();
 
+// ====== 协同治理 - 电网协同优化柱状图 ======
+var coordBarShed = null, coordBarCurt = null, coordBarTotal = null;
+
+function loadCoordBarCharts() {
+    // 数据来源: 电网协同优化数据表.xlsx，单位转换为万元
+    var scenarios = ['C1', 'C2', 'C3'];
+    var shedData = [232.54, 140.19, 110.90];   // 失负荷惩罚成本 (万元)
+    var curtData = [32.01,  36.78,  31.58];    // 新能源弃用成本 (万元)
+    var totalData = [620.40, 509.99, 477.23];  // 总运行成本 (万元)
+
+    var colors = ['#3182CE', '#4ECDC4', '#1A936F'];
+
+    function makeBarOption(title, data, yName, color) {
+        return {
+            grid: { left: 40, right: 8, top: 25, bottom: 22 },
+            title: { text: title, left: 'center', top: 2, textStyle: { fontSize: 10, color: '#c8d6e5', fontWeight: 500 } },
+            xAxis: { type: 'category', data: scenarios, axisLabel: { fontSize: 10, color: '#889' },
+                axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } } },
+            yAxis: { type: 'value', name: yName, nameTextStyle: { fontSize: 9, color: '#667' },
+                axisLabel: { fontSize: 9, color: '#889', formatter: function(v) { return v; } },
+                splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } } },
+            series: [{
+                type: 'bar', data: data, barMaxWidth: 32,
+                itemStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: color }, { offset: 1, color: 'rgba(18,28,46,0.6)' }
+                    ]),
+                    borderRadius: [4, 4, 0, 0]
+                },
+                label: { show: true, position: 'top', fontSize: 9, color: '#c8d6e5' }
+            }]
+        };
+    }
+
+    var domShed = document.getElementById('coordBarShed');
+    var domCurt = document.getElementById('coordBarCurt');
+    var domTotal = document.getElementById('coordBarTotal');
+
+    if (domShed && domShed.clientWidth > 0) {
+        if (!coordBarShed) coordBarShed = echarts.init(domShed);
+        coordBarShed.setOption(makeBarOption('系统可靠性损失(MWh)', shedData, '', '#E74C3C'), true);
+    }
+    if (domCurt && domCurt.clientWidth > 0) {
+        if (!coordBarCurt) coordBarCurt = echarts.init(domCurt);
+        coordBarCurt.setOption(makeBarOption(' 可再生能源弃电量(MWh)', curtData, '', '#FFD93D'), true);
+    }
+    if (domTotal && domTotal.clientWidth > 0) {
+        if (!coordBarTotal) coordBarTotal = echarts.init(domTotal);
+        coordBarTotal.setOption(makeBarOption('总运行成本(万元)', totalData, '', '#3182CE'), true);
+    }
+}
+setTimeout(loadCoordBarCharts, 600);
+
 // resize on window change
 var origResize = window.onresize;
 window.onresize = function() {
     if (origResize) origResize();
     if (voltageChart) voltageChart.resize();
+    if (coordBarShed) coordBarShed.resize();
+    if (coordBarCurt) coordBarCurt.resize();
+    if (coordBarTotal) coordBarTotal.resize();
+    if (microclimateChart) microclimateChart.resize();
+    if (buildingBarChart) buildingBarChart.resize();
 };
 </script>
 </body>
