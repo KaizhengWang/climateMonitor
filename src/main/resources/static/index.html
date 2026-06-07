@@ -15,9 +15,9 @@
         #navbar { height: 38px; background: #F0F5FB; display: flex; align-items: center; padding: 0 16px; overflow-x: auto; gap: 4px; border-bottom: 1px solid rgba(0,0,0,0.04); }
         #navbar::-webkit-scrollbar { height: 2px; }
         #navbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 2px; }
-        #navbar button { padding: 6px 14px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #3A4B67; cursor: pointer; font-size: 13px; font-weight: 500; white-space: nowrap; flex-shrink: 0; transition: all 0.15s; }
-        #navbar button:hover { color: #0F7B6B; background: #E4EDF5; }
-        #navbar button.active { color: #0F7B6B; border-bottom-color: #0F7B6B; font-weight: 600; background: transparent; }
+        #navbar button, #navbar a { padding: 6px 14px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #3A4B67; cursor: pointer; font-size: 13px; font-weight: 500; white-space: nowrap; flex-shrink: 0; transition: all 0.15s; text-decoration: none; font-family: inherit; line-height: normal; }
+        #navbar button:hover, #navbar a:hover { color: #0F7B6B; background: #E4EDF5; }
+        #navbar button.active, #navbar a.active { color: #0F7B6B; border-bottom-color: #0F7B6B; font-weight: 600; background: transparent; }
         #subNav { height: 36px; background: #E8EEF6; display: none; align-items: center; padding: 0 16px; gap: 4px; border-bottom: 1px solid rgba(0,0,0,0.04); }
         #subNav button { padding: 4px 14px; background: transparent; border: none; color: #5A6B87; cursor: pointer; font-size: 12px; border-radius: 3px; transition: all 0.15s; }
         #subNav button:hover { color: #0F7B6B; background: rgba(15,123,107,0.06); }
@@ -529,11 +529,11 @@
 <div id="navbar">
     <button id="btnMonitor">今日气象</button>
     <button id="btnOutdoor">室外终端气象监测</button>
-    <button id="btnExtremes">极端气候</button>
     <button id="btnIndoor">室内环境-电气集成终端</button>
-    <button id="btnSim">城市微气候模拟</button>
-    <button id="btnBuilding">建筑管理</button>
-    <button id="btnGrid">城市电网</button>
+    <button id="btnExtremes">极端气候</button>
+    <button id="btnSim">微气候空间分布在线模拟</button>
+    <button id="btnBuilding">建筑能效管理</button>
+    <a id="btnGrid" href="/grid-optimization.html">城市电网源网荷协同优化</a>
     <button id="btnCoord">气候-电网-建筑协同治理</button>
 </div>
 <div id="subNav" style="display:none;">
@@ -667,11 +667,11 @@
                     </div>
                 </div>
             </div>
-            <!-- 下方右：城市电网源荷不均衡 -->
+            <!-- 下方右：城市电网源网荷协同优化源荷不均衡 -->
             <div class="dash-panel" id="panelGrid">
                 <div class="dash-panel-head">
                     <span class="dash-panel-icon">&#x26A1;</span>
-                    <span class="dash-panel-title">城市电网源荷不均衡</span>
+                    <span class="dash-panel-title">城市电网源网荷协同优化</span>
                 </div>
                 <div class="dash-panel-body" id="panelGridChart">
                     <div class="dash-placeholder">源荷曲线 / 负载均衡指标</div>
@@ -1166,14 +1166,14 @@
         </div>
     </div>
 
-    <!-- ===== 城市微气候模拟 ===== -->
-    <div class="placeholder-page" id="simPage"><div class="p-icon">🌡️</div>城市微气候模拟<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
+    <!-- ===== 微气候空间分布在线模拟 ===== -->
+    <div class="placeholder-page" id="simPage"><div class="p-icon">🌡️</div>微气候空间分布在线模拟<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
 
     <!-- ===== 建筑管理 ===== -->
     <div class="placeholder-page" id="buildingPage"><div class="p-icon">🏢</div>建筑管理<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
 
-    <!-- ===== 城市电网 ===== -->
-    <div class="placeholder-page" id="gridPage"><div class="p-icon">⚡</div>城市电网<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
+    <!-- ===== 城市电网源网荷协同优化 ===== -->
+    <div class="placeholder-page" id="gridPage"><div class="p-icon">⚡</div>城市电网源网荷协同优化<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
 
     <!-- ===== 气候-电网-建筑协同治理 ===== -->
     <div class="placeholder-page" id="coordPage"><div class="p-icon">🔗</div>气候-电网-建筑协同治理<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
@@ -1270,7 +1270,6 @@ btns.extremes.addEventListener('click', function() { showPage('extremes'); });
 btns.indoor.addEventListener('click', function() { showPage('indoor'); });
 btns.sim.addEventListener('click', function() { showPage('sim'); });
 btns.building.addEventListener('click', function() { showPage('building'); });
-btns.grid.addEventListener('click', function() { showPage('grid'); });
 btns.coord.addEventListener('click', function() { showPage('coord'); });
 
 // ==================== 今日气象 ====================
