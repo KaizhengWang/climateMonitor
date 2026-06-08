@@ -565,21 +565,59 @@
         }
         .bf-monitor {
             min-height: 0; overflow: hidden;
-            border-radius: 5px; background: #020711;
+            border-radius: 5px; background: rgba(18,28,46,0.94);
             border: 1px solid rgba(78,205,196,0.16);
             display: flex; flex-direction: column;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
         }
         .bf-monitor-title {
             height: 18px; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
             color: #e9fbff; font-weight: 600; font-size: 9px;
-            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            background: linear-gradient(90deg,rgba(78,205,196,0.12),rgba(255,255,255,0.015));
         }
         .bf-monitor img {
             flex: 1; min-height: 0; width: 100%;
             object-fit: contain; object-position: center;
             display: block;
             padding: 1px; box-sizing: border-box;
+            cursor: pointer; transition: opacity 0.2s;
+        }
+        .bf-monitor img.bf-chart-img,
+        .img-modal-content img.bf-chart-img {
+            filter: invert(1) hue-rotate(180deg) saturate(1.12) brightness(1.08) contrast(1.04);
+        }
+        .bf-monitor img:hover { opacity: 0.8; }
+        /* 图片放大弹窗 */
+        .img-modal-overlay {
+            display: none; position: fixed; inset: 0; z-index: 9999;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+            justify-content: center; align-items: center;
+        }
+        .img-modal-overlay.show { display: flex; }
+        .img-modal-close {
+            position: absolute; top: 20px; right: 28px;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.20);
+            color: #fff; font-size: 24px; cursor: pointer; z-index: 2;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .img-modal-close:hover { background: rgba(255,255,255,0.20); }
+        .img-modal-content {
+            max-width: 92vw; max-height: 92vh; padding: 16px;
+            background: rgba(18,28,46,0.96); border-radius: 10px;
+            border: 1px solid rgba(78,205,196,0.25);
+            box-shadow: 0 8px 48px rgba(0,0,0,0.6);
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .img-modal-content img {
+            max-width: 90vw; max-height: 80vh;
+            object-fit: contain; display: block;
+        }
+        .img-modal-label {
+            margin-top: 10px; color: #c8d6e5; font-size: 14px; font-weight: 600;
         }
         .bf-status-strip {
             min-height: 0; display: grid; grid-template-columns: 1.35fr repeat(2,1fr); grid-template-rows: 1fr 1fr; gap: 4px;
@@ -802,6 +840,33 @@
         #extremesPage { background: #0a1628; overflow-y: auto; flex-direction: column; }
         .extr-header { background: rgba(18,28,46,0.94); padding: 16px 24px; margin: 16px 24px 0; border-radius: 10px; border: 1px solid rgba(78,205,196,0.18); display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
         .extr-header h2 { margin: 0 20px 0 0; font-size: 20px; color: #e8edf3; }
+        .extr-header span { color: #a9bfd0; font-size: 15px; }
+        .extr-header select {
+            min-width: 124px;
+            padding: 8px 36px 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background-color: #121c2e;
+            color: #e8edf3;
+            color-scheme: dark;
+            font-size: 15px;
+            line-height: 1.25;
+        }
+        .extr-header #extrStation { min-width: 220px; }
+        .extr-header select option {
+            background-color: #121c2e;
+            color: #e8edf3;
+        }
+        .extr-header select option:checked {
+            background-color: #1f6fd0;
+            color: #ffffff;
+        }
+        .extr-header .btn-query {
+            padding: 9px 26px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+        }
         .extr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 24px 24px; }
         @media (max-width: 900px) { .extr-grid { grid-template-columns: 1fr; } }
         .extr-section { background: rgba(18,28,46,0.94); border-radius: 10px; border: 1px solid rgba(78,205,196,0.16); overflow: hidden; }
@@ -1239,9 +1304,16 @@
                 <div class="dash-panel-head">
                     <span class="dash-panel-icon">&#x26A1;</span>
                     <span class="dash-panel-title">城市电网源网荷协同优化</span>
+                    <span style="font-size:10px;color:#889;margin-left:auto;">CLMP + DR + TIR</span>
                 </div>
-                <div class="dash-panel-body" id="panelGridChart">
-                    <div class="dash-placeholder">源荷曲线 / 负载均衡指标</div>
+                <div class="dash-panel-body" id="panelGridChart" style="padding:6px 10px;display:flex;flex-direction:column;gap:4px;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;">
+                        <div class="dash-metric"><span class="dash-metric-label">系统负荷</span><span class="dash-metric-val" style="color:#FFD93D;">5.82 GW</span></div>
+                        <div class="dash-metric"><span class="dash-metric-label">最大CLMP</span><span class="dash-metric-val" style="color:#FF6B6B;">299 $/MWh</span></div>
+                        <div class="dash-metric"><span class="dash-metric-label">峰值线路利用率</span><span class="dash-metric-val" style="color:#FF6B6B;">0.98</span></div>
+                        <div class="dash-metric"><span class="dash-metric-label">DR可调容量</span><span class="dash-metric-val" style="color:#2FE680;">61 MW</span></div>
+                    </div>
+                    <div id="gridDashChart" style="flex:1; min-height:0;"></div>
                 </div>
             </div>
         </div>
@@ -1388,10 +1460,10 @@
     <div id="extremesPage">
         <div class="extr-header">
             <h2>年度极端值</h2>
-            <span style="color:#a9bfd0;font-size:13px;">站点</span>
-            <select id="extrStation" style="background:rgba(255,255,255,0.05);color:#e8edf3;border:1px solid rgba(255,255,255,0.12);"></select>
-            <span style="color:#a9bfd0;font-size:13px;">年份</span>
-            <select id="extrYear" style="background:rgba(255,255,255,0.05);color:#e8edf3;border:1px solid rgba(255,255,255,0.12);"><option value="">--</option></select>
+            <span>站点</span>
+            <select id="extrStation"></select>
+            <span>年份</span>
+            <select id="extrYear"><option value="">--</option></select>
             <button class="btn-query" id="btnExtrQuery">查询</button>
         </div>
 
@@ -1874,15 +1946,15 @@
                     <div class="g-head"><span class="g-icon"></span><span class="g-title">建筑灵活性实时监测</span><span style="margin-left:auto;color:#2FE680;font-size:12px;">● 设备、建筑、电网友好协同运行</span></div>
                     <div class="bf-monitor-scroll">
                         <div class="bf-monitor-grid">
-                            <div class="bf-monitor"><div class="bf-monitor-title">1号空调功率下调</div><img src="建筑灵活性/图片1.png" alt="1号空调功率下调曲线"></div>
-                            <div class="bf-monitor"><div class="bf-monitor-title">2号空调功率上调</div><img src="建筑灵活性/图片2.png" alt="2号空调功率上调曲线"></div>
-                            <div class="bf-monitor"><div class="bf-monitor-title">3号空调状态</div><img src="建筑灵活性/图片3.png" alt="3号空调状态曲线"></div>
-                            <div class="bf-monitor"><div class="bf-monitor-title">4号空调状态</div><img src="建筑灵活性/图片4.png" alt="4号空调状态曲线"></div>
-                            <div class="bf-monitor"><div class="bf-monitor-title">建筑集群负荷功率响应</div><img src="建筑灵活性/图片5.png" alt="建筑集群负荷功率响应"></div>
-                            <div class="bf-monitor"><div class="bf-monitor-title">建筑灵活性指标</div><img src="建筑灵活性/图片6.png" alt="建筑灵活性指标"></div>
-                            <div class="bf-monitor"><div class="bf-monitor-title">电网友好互动曲线</div><img src="建筑灵活性/图片7.png" alt="电网友好互动曲线"></div>
-                            <div class="bf-monitor"><div class="bf-monitor-title">台区电压分布</div><img src="建筑灵活性/图片8.png" alt="台区电压分布"></div>
-                            <div class="bf-monitor"><div class="bf-monitor-title">本研究台区电压效果</div><img src="建筑灵活性/图片9.png" alt="本研究台区电压效果"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">1号空调功率下调</div><img class="bf-chart-img" src="建筑灵活性/图片1.png" alt="监控：1号空调功率下调"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">2号空调功率上调</div><img class="bf-chart-img" src="建筑灵活性/图片2.png" alt="监控：2号空调功率上调"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">3号空调状态</div><img class="bf-chart-img" src="建筑灵活性/图片3.png" alt="单体建筑功率响应"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">4号空调状态</div><img class="bf-chart-img" src="建筑灵活性/图片4.png" alt="聚合功率状态"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">建筑集群负荷功率响应</div><img class="bf-chart-img" src="建筑灵活性/图片5.png" alt="集群温度监测"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">建筑灵活性指标</div><img class="bf-chart-img" src="建筑灵活性/图片6.png" alt="集群功率监测"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">电网友好互动曲线</div><img class="bf-chart-img" src="建筑灵活性/图片7.png" alt="优化前台区电压"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">台区电压分布</div><img class="bf-chart-img" src="建筑灵活性/图片8.png" alt="传统方法台区电压"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">本研究台区电压效果</div><img class="bf-chart-img" src="建筑灵活性/图片9.png" alt="优化后台区电压"></div>
                         </div>
                     </div>
                 </div>
@@ -1948,7 +2020,7 @@
                         <div class="g-head"><span class="g-icon"></span><span class="g-title">电网友好互动与事件</span></div>
                         <div class="g-body bf-interaction-scroll">
                             <div class="bf-card-list" style="margin-bottom:10px;">
-                                <div class="bf-row"><span>台区电压</span><b class="g-green">0.949 p.u.</b></div>
+                                <div class="bf-row"><span>台区电压</span><b class="g-green">0.959 p.u.</b></div>
                                 <div class="bf-row"><span>越限节点</span><b class="g-green">0 个</b></div>
                                 <div class="bf-row"><span>削峰贡献</span><b class="g-cyan">0.32 MW</b></div>
                             </div>
@@ -1962,6 +2034,15 @@
                     </div>
                 </div>
             </section>
+        </div>
+    </div>
+
+    <!-- 建筑灵活性图片放大弹窗 -->
+    <div class="img-modal-overlay" id="bfImgModal">
+        <div class="img-modal-close" id="bfImgModalClose">&times;</div>
+        <div class="img-modal-content">
+            <img id="bfImgModalImg" src="" alt="">
+            <div class="img-modal-label" id="bfImgModalLabel"></div>
         </div>
     </div>
 
@@ -2211,6 +2292,7 @@ function showPage(name) {
             loadCoordBarCharts();
             loadMicroclimateChart();
             loadBuildingBarChart();
+            loadGridDashChart();
         }, 300);
     }
 }
@@ -2397,6 +2479,42 @@ function renderBuildingFlexChart() {
 function resizeBuildingFlexCharts() {
     if (bfLoadChart) bfLoadChart.resize();
 }
+
+// 建筑灵活性监测图片点击放大
+(function() {
+    var modal = document.getElementById('bfImgModal');
+    var modalImg = document.getElementById('bfImgModalImg');
+    var modalLabel = document.getElementById('bfImgModalLabel');
+    var modalClose = document.getElementById('bfImgModalClose');
+
+    function openModal(src, title) {
+        modalImg.src = src;
+        modalImg.className = 'bf-chart-img';
+        modalLabel.textContent = title || '';
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
+    });
+
+    // delegate click on all bf-monitor images
+    document.addEventListener('click', function(e) {
+        var img = e.target.closest('.bf-monitor img');
+        if (!img) return;
+        var titleEl = img.parentElement.querySelector('.bf-monitor-title');
+        var title = titleEl ? titleEl.textContent : '';
+        openModal(img.src, title);
+    });
+})();
 
 // ==================== 今日气象 ====================
 var todayMap = null;
@@ -3809,7 +3927,53 @@ window.onresize = function() {
     if (coordBarTotal) coordBarTotal.resize();
     if (microclimateChart) microclimateChart.resize();
     if (buildingBarChart) buildingBarChart.resize();
+    if (gridDashChart) gridDashChart.resize();
 };
+
+// ====== 首页 - 城市电网源网荷协同优化 面板图表 ======
+var gridDashChart = null;
+function loadGridDashChart() {
+    var dom = document.getElementById('gridDashChart');
+    if (!dom || dom.clientWidth === 0) return;
+    if (gridDashChart) { gridDashChart.resize(); return; }
+
+    gridDashChart = echarts.init(dom);
+    gridDashChart.setOption({
+        backgroundColor: 'transparent',
+        grid: { left: 44, right: 14, top: 8, bottom: 26 },
+        tooltip: { trigger: 'axis', confine: true, textStyle: { fontSize: 11 } },
+        xAxis: { type: 'category', data: ['C1', 'C2', 'C3'],
+            axisLabel: { fontSize: 9, color: '#889' },
+            axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } } },
+        yAxis: { type: 'value', name: '万元', nameTextStyle: { fontSize: 9, color: '#667' },
+            axisLabel: { fontSize: 9, color: '#889' },
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } } },
+        series: [
+            { name: '总运行成本', type: 'bar', data: [620.40, 509.99, 477.23], barMaxWidth: 24,
+                itemStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: '#4ECDC4' }, { offset: 1, color: 'rgba(78,205,196,0.2)' }
+                    ]),
+                    borderRadius: [3, 3, 0, 0]
+                },
+                label: { show: true, position: 'top', fontSize: 9, color: '#c8d6e5',
+                    formatter: function(p) { return p.value; } }
+            },
+            { name: '失负荷惩罚', type: 'bar', data: [232.54, 140.19, 110.90], barMaxWidth: 24,
+                itemStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: '#FF6B6B' }, { offset: 1, color: 'rgba(255,107,107,0.2)' }
+                    ]),
+                    borderRadius: [3, 3, 0, 0]
+                },
+                label: { show: true, position: 'top', fontSize: 9, color: '#e8edf3',
+                    formatter: function(p) { return p.value; } }
+            }
+        ],
+        legend: { right: 6, top: 2, textStyle: { fontSize: 9, color: '#889' }, itemWidth: 12, itemHeight: 8 }
+    });
+}
+setTimeout(loadGridDashChart, 700);
 </script>
 </body>
 </html>
