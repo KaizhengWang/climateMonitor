@@ -131,6 +131,559 @@
         .sc-self-tag { font-size: 10px; background: #3182CE; color: #fff; padding: 0 4px; border-radius: 2px; margin-left: 4px; }
         .sc-chart-note { font-size: 10px; color: #aab; text-align: center; padding: 2px 8px; line-height: 1.4; }
 
+        /* ====== 城市电网源网荷协同优化 ====== */
+        #gridPage {
+            width: 100%; height: 100%; display: none;
+            background: #0a1628; color: #e8edf3;
+            padding: 8px; box-sizing: border-box;
+            gap: 8px; overflow: hidden;
+        }
+        .grid-layout {
+            width: 100%; height: 100%;
+            display: grid;
+            grid-template-columns: 30% 42% 28%;
+            grid-template-rows: minmax(0, 1fr) 250px;
+            gap: 8px;
+        }
+        .grid-col { min-height: 0; display: grid; gap: 8px; }
+        .grid-left { grid-template-rows: 108px 108px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr); }
+        .grid-right { grid-template-rows: 140px 1fr 152px minmax(0,1fr); }
+        .grid-center { min-height: 0; display: grid; grid-template-rows: minmax(0,1fr) 250px; gap: 8px; }
+        .g-panel {
+            min-height: 0; overflow: hidden; border-radius: 8px;
+            background: rgba(18,28,46,0.94);
+            border: 1px solid rgba(78,205,196,0.18);
+            box-shadow: 0 2px 16px rgba(0,0,0,0.22);
+            display: flex; flex-direction: column;
+        }
+        .g-panel:hover { border-color: rgba(78,205,196,0.32); }
+        .g-head {
+            height: 36px; flex-shrink: 0;
+            display: flex; align-items: center; gap: 8px;
+            padding: 0 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            background: linear-gradient(90deg,rgba(78,205,196,0.12),rgba(255,255,255,0.015));
+        }
+        .g-icon {
+            width: 15px; height: 15px; border-radius: 3px;
+            border: 2px solid #4ECDC4;
+            box-shadow: 0 0 10px rgba(78,205,196,0.8);
+            flex-shrink: 0;
+        }
+        .g-title { font-size: 16px; color: #ecfbff; font-weight: 700; letter-spacing: 0.5px; }
+        .g-body { flex: 1; min-height: 0; padding: 10px; overflow: hidden; }
+        .g-overview {
+            height: 100%; display: grid; grid-template-columns: 1fr 1fr;
+            gap: 4px 18px; align-content: center;
+        }
+        .g-overview span, .g-row span { color: #a9bfd0; font-size: 13px; }
+        .g-overview b, .g-row b { color: #f5fbff; font-size: 14px; }
+        .g-kpis { height: 100%; display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+        .g-kpi, .g-mini-kpi {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; border-radius: 6px;
+            background: rgba(15,123,107,0.12);
+            border: 1px solid rgba(78,205,196,0.18);
+        }
+        .g-kpi span, .g-mini-kpi span { color: #9bb1c2; font-size: 12px; }
+        .g-kpi b { margin-top: 4px; color: #fff; font-size: 22px; line-height: 1; }
+        .g-media { height: 100%; min-height: 0; display: grid; grid-template-columns: 52% 1fr; gap: 10px; }
+        .g-media img, .g-chart-image {
+            width: 100%; height: 100%; min-height: 0; object-fit: cover; object-position: center;
+            border-radius: 5px; background: #d9dde1;
+        }
+        .g-list { min-height: 0; display: grid; gap: 7px; align-content: center; }
+        .g-row {
+            min-height: 34px; display: flex; justify-content: space-between; align-items: center;
+            gap: 10px; padding: 6px 9px; border-radius: 6px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .g-cyan { color: #4ECDC4 !important; }
+        .g-green { color: #2FE680 !important; }
+        .g-yellow { color: #FFD93D !important; }
+        .g-red { color: #ff4f76 !important; }
+        .g-tabs { margin-left: auto; display: flex; gap: 6px; overflow: hidden; }
+        .g-tab {
+            padding: 5px 10px; border-radius: 5px; font-size: 12px; color: #c8d6e5;
+            background: rgba(15,123,107,0.08);
+            border: 1px solid rgba(78,205,196,0.22);
+            white-space: nowrap;
+        }
+        .g-tab.active { color: #4ECDC4; border-color: #4ECDC4; background: rgba(78,205,196,0.13); }
+        .g-map {
+            position: relative; flex: 1; min-height: 0; margin: 10px; overflow: hidden;
+            border-radius: 7px; border: 1px solid rgba(78,205,196,0.22);
+            background: #10233b;
+        }
+        .g-map:before {
+            content: ""; position: absolute; inset: 0;
+            background:
+                linear-gradient(rgba(8,20,34,0.10),rgba(8,20,34,0.10)),
+                url("pic/城市电网源网荷协同优化-附录图/fig3. the GIS data of urban distribution network and buildings.png") center/cover no-repeat;
+            filter: saturate(0.9) contrast(0.96);
+        }
+        .g-map:after {
+            content: ""; position: absolute; inset: 0;
+            background:
+                radial-gradient(circle at 73% 55%,rgba(231,76,60,0.25),transparent 18%),
+                radial-gradient(circle at 35% 46%,rgba(255,217,61,0.16),transparent 22%),
+                linear-gradient(180deg,transparent 58%,rgba(4,16,29,0.88) 100%);
+        }
+        .g-map-info, .g-risk-card, .g-timebar, .g-dispatch { position: absolute; z-index: 3; }
+        .g-map-info {
+            top: 16px; left: 16px; width: 300px; padding: 12px 14px;
+            border-radius: 7px; background: rgba(6,20,38,0.80);
+            border: 1px solid rgba(78,205,196,0.25);
+            font-size: 14px; line-height: 1.65; color: #e9fbff;
+        }
+        .g-map-info b { color: #4ECDC4; }
+        .g-risk-card {
+            top: 16px; right: 16px; width: 172px; padding: 12px;
+            border-radius: 7px; background: rgba(6,20,38,0.82);
+            border: 1px solid rgba(255,255,255,0.12);
+            font-size: 13px; color: #e9fbff;
+        }
+        .g-risk-bar { height: 9px; border-radius: 12px; margin: 8px 0; background: linear-gradient(90deg,#4ECDC4,#2FE680,#FFD93D,#E74C3C); }
+        .g-risk-labels { display: flex; justify-content: space-between; color: #9bb1c2; }
+        .g-net { position: absolute; inset: 0; z-index: 2; }
+        .g-line {
+            position: absolute; height: 3px; border-radius: 3px;
+            background: rgba(176,101,24,0.72);
+            transform-origin: left center;
+            box-shadow: 0 0 8px rgba(255,178,60,0.22);
+        }
+        .g-node {
+            position: absolute; width: 10px; height: 10px; border-radius: 50%;
+            background: #7b1616; border: 2px solid #e59b3c;
+            box-shadow: 0 0 10px rgba(255,58,56,0.55);
+        }
+        .g-node:after {
+            content: attr(data-id); position: absolute; left: -8px; top: -19px; width: 30px;
+            color: #0b1219; text-align: center; font-size: 14px; font-weight: 900;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.42);
+        }
+        .g-node.hot { width: 13px; height: 13px; background: #e3292f; border-color: #ffbd52; }
+        .g-dispatch {
+            right: 27%; top: 56%; padding: 5px 10px; border-radius: 12px;
+            color: #082233; font-weight: 800; font-size: 12px;
+            background: linear-gradient(90deg,#4ECDC4,#2FE680);
+            box-shadow: 0 0 16px rgba(78,205,196,0.55);
+        }
+        .g-timebar {
+            left: 18px; right: 18px; bottom: 14px;
+            display: grid; grid-template-columns: 44px 1fr 118px; gap: 12px; align-items: center;
+        }
+        .g-play {
+            width: 36px; height: 30px; display: grid; place-items: center;
+            border-radius: 6px; border: 1px solid rgba(78,205,196,0.45);
+            color: #4ECDC4; background: rgba(15,123,107,0.18); font-size: 18px;
+        }
+        .g-progress { height: 8px; border-radius: 18px; background: linear-gradient(90deg,#28a7e5,#4ECDC4 34%,#FFD93D 58%,#ff4f76 76%,#28a7e5); position: relative; }
+        .g-progress:after {
+            content: ""; position: absolute; left: 65%; top: -8px; width: 24px; height: 24px;
+            border-radius: 50%; background: #effcff; border: 5px solid #4ECDC4;
+            box-shadow: 0 0 18px rgba(78,205,196,0.9);
+        }
+        .g-hours { display: flex; justify-content: space-between; margin-top: 10px; color: #c8d6e5; font-size: 12px; }
+        .g-now { text-align: right; font-size: 17px; font-weight: 800; color: #fff; }
+        .g-now b { color: #FFD93D; font-size: 21px; }
+        .g-summary { height: 60px; margin: 0 10px 10px; display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+        .g-summary .g-mini-kpi b { color: #fff; font-size: 17px; margin-top: 2px; }
+        .g-bottom { grid-column: 1 / 4; min-height: 0; display: grid; grid-template-columns: 1.2fr 0.9fr 1fr; gap: 8px; }
+        .g-clmp-body { display: grid; grid-template-rows: minmax(0,1fr) 46px; gap: 7px; }
+        .g-mini-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; }
+        .g-mini-kpi b { color: #fff; font-size: 17px; margin-top: 2px; }
+        .g-command-grid { height: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+        .g-command {
+            padding: 9px; border-radius: 7px; min-height: 0;
+            background: rgba(15,123,107,0.10);
+            border: 1px solid rgba(78,205,196,0.20);
+        }
+        .g-command b { display: block; color: #4ECDC4; font-size: 14px; margin-bottom: 5px; }
+        .g-command p { margin: 0; color: #d7e8f1; font-size: 12px; line-height: 1.45; }
+        .g-badge { display: inline-flex; margin-top: 6px; padding: 2px 8px; border-radius: 10px; background: #2FE680; color: #092617; font-size: 11px; font-weight: 800; }
+        .g-benefit { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; margin-bottom: 8px; }
+        .g-benefit-card {
+            min-height: 54px; border-radius: 6px; text-align: center; padding: 7px;
+            background: rgba(15,123,107,0.10);
+            border: 1px solid rgba(78,205,196,0.18);
+        }
+        .g-benefit-card span { color: #a9bfd0; font-size: 13px; }
+        .g-benefit-card b { display: block; color: #2FE680; font-size: 25px; line-height: 1.15; }
+        .g-chart { width: 100%; height: 100%; min-height: 0; }
+        .grid-shell {
+            width: 100%; height: 100%; min-height: 0;
+            display: grid;
+            grid-template-columns: 300px minmax(620px, 1fr) 330px;
+            grid-template-rows: minmax(0, 1fr);
+            gap: 10px;
+        }
+        .grid-side-simple {
+            min-height: 0; display: grid; gap: 10px;
+            grid-template-rows: 210px 260px minmax(0, 1fr);
+        }
+        .grid-main-simple {
+            min-height: 0; display: grid; gap: 10px;
+            grid-template-rows: minmax(430px, 1fr) 260px;
+        }
+        .grid-main-bottom {
+            min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        .g-map-panel .g-head { height: 42px; }
+        .g-map-panel .g-map { margin: 10px 10px 8px; }
+        .g-map-panel .g-summary { height: 66px; }
+        .g-status-grid {
+            height: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+        }
+        .g-status-card {
+            min-height: 0; padding: 12px; border-radius: 7px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(78,205,196,0.16);
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .g-status-card span { color: #9bb1c2; font-size: 12px; }
+        .g-status-card b { color: #fff; font-size: 20px; margin-top: 5px; line-height: 1.1; }
+        .g-status-card small { color: #6f879a; font-size: 11px; margin-top: 5px; }
+        .g-command-list { height: 100%; display: grid; gap: 8px; align-content: start; }
+        .g-command-row {
+            min-height: 58px; padding: 10px 12px; border-radius: 7px;
+            background: rgba(15,123,107,0.10);
+            border: 1px solid rgba(78,205,196,0.18);
+        }
+        .g-command-row b { display: block; color: #4ECDC4; font-size: 14px; margin-bottom: 4px; }
+        .g-command-row span { color: #d7e8f1; font-size: 12px; line-height: 1.45; }
+        .g-risk-list { height: 100%; display: grid; gap: 8px; align-content: start; }
+        .g-risk-item {
+            display: grid; grid-template-columns: 1fr auto; align-items: center;
+            min-height: 44px; padding: 8px 10px; border-radius: 7px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .g-risk-item span { color: #a9bfd0; font-size: 13px; }
+        .g-risk-item b { font-size: 14px; }
+        .g-clmp-simple {
+            height: 100%; display: grid; grid-template-rows: 1fr 48px; gap: 8px;
+        }
+        .g-clmp-visual {
+            min-height: 0; border-radius: 7px; overflow: hidden;
+            border: 1px solid rgba(78,205,196,0.16);
+            background:
+                linear-gradient(90deg,#1e6c76 0 20%,#19836f 20% 36%,#0fa642 36% 50%,#d7ef32 50% 64%,#fff04a 64% 76%,#27b52e 76% 88%,#1d7a84 88% 100%);
+            position: relative;
+        }
+        .g-clmp-visual:before {
+            content: ""; position: absolute; inset: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.18) 1px, transparent 1px), linear-gradient(90deg,rgba(255,255,255,0.15) 1px, transparent 1px);
+            background-size: 100% 20%, 12.5% 100%;
+            opacity: 0.5;
+        }
+        .g-clmp-visual:after {
+            content: "CLMP空间离散高值区集中在 11-18 h，峰值 299 $/MWh";
+            position: absolute; left: 12px; right: 12px; bottom: 10px;
+            color: #061526; font-size: 14px; font-weight: 700;
+            text-shadow: 0 1px rgba(255,255,255,0.35);
+        }
+        @media(max-width:1400px) {
+            .grid-shell { grid-template-columns: 280px minmax(520px,1fr) 300px; gap: 8px; }
+            .grid-side-simple { gap: 8px; }
+            .grid-main-simple { gap: 8px; }
+            .g-title { font-size: 15px; }
+            .g-tabs { display: none; }
+        }
+
+        /* ====== 微气候空间分布在线模拟 ====== */
+        #simPage {
+            width: 100%; height: 100%; display: none;
+            background: #0a1628; color: #e8edf3;
+            padding: 8px; box-sizing: border-box;
+            gap: 8px; overflow: hidden;
+        }
+        .sim-shell {
+            width: 100%; height: 100%; min-height: 0;
+            display: grid;
+            grid-template-columns: 300px minmax(620px, 1fr) 330px;
+            grid-template-rows: minmax(0,1fr);
+            gap: 10px;
+        }
+        .sim-side, .sim-right {
+            min-height: 0; display: grid; gap: 10px;
+        }
+        .sim-side { grid-template-rows: 206px 250px minmax(0,1fr); }
+        .sim-right { grid-template-rows: 208px 260px minmax(0,1fr); }
+        .sim-main {
+            min-height: 0; display: grid; gap: 10px;
+            grid-template-rows: minmax(0,1fr) 116px;
+        }
+        .sim-overview {
+            height: 100%; display: grid; grid-template-columns: 1fr 1.15fr;
+            gap: 7px 14px; align-content: center;
+        }
+        .sim-overview span, .sim-row span { color: #a9bfd0; font-size: 13px; }
+        .sim-overview b, .sim-row b { color: #f5fbff; font-size: 14px; text-align: right; }
+        .sim-metric-grid {
+            height: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 9px;
+        }
+        .sim-metric {
+            min-height: 0; display: flex; flex-direction: column; justify-content: center;
+            padding: 12px; border-radius: 7px;
+            background: rgba(15,123,107,0.10);
+            border: 1px solid rgba(78,205,196,0.16);
+        }
+        .sim-metric span { color: #9bb1c2; font-size: 12px; }
+        .sim-metric b { margin-top: 6px; color: #fff; font-size: 27px; line-height: 1; }
+        .sim-metric small { color: #dcebf4; font-size: 13px; margin-left: 2px; }
+        .sim-chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .sim-chip {
+            padding: 4px 10px; border-radius: 6px;
+            background: rgba(78,205,196,0.10);
+            border: 1px solid rgba(78,205,196,0.22);
+            color: #c8d6e5; font-size: 12px;
+        }
+        .sim-map-panel .g-head { height: 42px; }
+        .sim-tabs { margin-left: 12px; display: flex; gap: 8px; }
+        .sim-tab {
+            padding: 5px 14px; border-radius: 5px;
+            background: rgba(15,123,107,0.08);
+            border: 1px solid rgba(78,205,196,0.22);
+            color: #c8d6e5; font-size: 13px;
+        }
+        .sim-tab.active { background: #20d6ee; color: #082033; border-color: #20d6ee; font-weight: 700; }
+        .sim-model-tag { margin-left: auto; color: #20d6ee; font-size: 15px; font-weight: 700; }
+        .sim-map-stage {
+            flex: 1; min-height: 0; position: relative; margin: 10px;
+            border-radius: 7px; overflow: hidden;
+            border: 1px solid rgba(78,205,196,0.22);
+            background: #0f2235;
+        }
+        .sim-map-stage img {
+            width: 100%; height: 100%; object-fit: contain; object-position: center;
+            display: block; background: #d7e4ea;
+        }
+        .sim-map-note, .sim-legend, .sim-timebar { position: absolute; z-index: 2; }
+        .sim-map-note {
+            top: 18px; left: 18px; width: 260px; padding: 12px 14px;
+            border-radius: 7px; background: rgba(6,20,38,0.78);
+            border: 1px solid rgba(78,205,196,0.26);
+            line-height: 1.55; font-size: 13px; color: #e9fbff;
+        }
+        .sim-map-note b { color: #20d6ee; }
+        .sim-legend {
+            top: 18px; right: 18px; width: 160px; padding: 12px;
+            border-radius: 7px; background: rgba(6,20,38,0.80);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #e9fbff; font-size: 13px;
+        }
+        .sim-legend-bar { height: 10px; border-radius: 12px; margin: 10px 0; background: linear-gradient(90deg,#fff2c6,#f7ae63,#e8541f,#9e250e); }
+        .sim-legend-labels { display: flex; justify-content: space-between; color: #c8d6e5; font-size: 12px; }
+        .sim-timebar {
+            left: 18px; right: 18px; bottom: 18px;
+            height: 62px; display: grid; grid-template-columns: 40px 1fr 64px;
+            gap: 12px; align-items: center; padding: 0 12px;
+            border-radius: 7px; background: rgba(6,20,38,0.78);
+            border: 1px solid rgba(78,205,196,0.18);
+        }
+        .sim-play {
+            width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+            background: #20d6ee; color: #092235; font-weight: 800; font-size: 16px;
+        }
+        .sim-progress { height: 7px; border-radius: 20px; background: linear-gradient(90deg,#3182CE,#20d6ee,#2FE680,#FFD93D,#FF6B6B); position: relative; }
+        .sim-progress:after {
+            content: ""; position: absolute; left: 70%; top: -6px;
+            width: 19px; height: 19px; border-radius: 50%;
+            background: #effcff; border: 5px solid #20d6ee;
+            box-shadow: 0 0 14px rgba(32,214,238,0.85);
+        }
+        .sim-hours { display: flex; justify-content: space-between; margin-top: 9px; color: #b8cddd; font-size: 12px; }
+        .sim-now { color: #20d6ee; font-size: 18px; font-weight: 800; text-align: right; }
+        .sim-kpi-row {
+            display: grid; grid-template-columns: repeat(4,1fr); gap: 10px;
+        }
+        .sim-big-kpi {
+            border-radius: 7px; background: rgba(18,28,46,0.94);
+            border: 1px solid rgba(78,205,196,0.18);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .sim-big-kpi span { color: #9bb1c2; font-size: 13px; }
+        .sim-big-kpi b { margin-top: 8px; color: #fff; font-size: 27px; line-height: 1; }
+        .sim-list { height: 100%; display: grid; gap: 7px; align-content: start; }
+        .sim-row {
+            min-height: 39px; display: grid; grid-template-columns: 1fr auto; align-items: center;
+            gap: 10px; padding: 8px 10px; border-radius: 6px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .sim-detail-grid { height: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+        .sim-detail {
+            padding: 12px; border-radius: 7px;
+            background: rgba(15,123,107,0.10);
+            border: 1px solid rgba(78,205,196,0.16);
+        }
+        .sim-detail span { display: block; color: #9bb1c2; font-size: 12px; }
+        .sim-detail b { display: block; color: #fff; font-size: 20px; margin-top: 7px; }
+        .sim-chart { width: 100%; height: 100%; min-height: 0; }
+        .sim-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #dcebf4; }
+        .sim-table th { text-align: left; color: #9bb1c2; background: rgba(78,205,196,0.10); padding: 9px; }
+        .sim-table td { padding: 10px 9px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        @media(max-width:1400px) {
+            .sim-shell { grid-template-columns: 280px minmax(520px,1fr) 300px; gap: 8px; }
+            .sim-side, .sim-right, .sim-main { gap: 8px; }
+            .sim-tabs { display: none; }
+            .sim-model-tag { display: none; }
+        }
+
+        /* ====== 建筑灵活性管理 ====== */
+        #buildingPage {
+            width: 100%; height: 100%; display: none;
+            background: #0a1628; color: #e8edf3;
+            padding: 8px; box-sizing: border-box;
+            gap: 8px; overflow: hidden;
+        }
+        .bf-shell {
+            width: 100%; height: 100%; min-height: 0;
+            display: grid;
+            grid-template-columns: 49% minmax(520px,1fr);
+            grid-template-rows: minmax(0,1fr);
+            gap: 10px;
+        }
+        .bf-left {
+            min-height: 0; display: grid; gap: 10px;
+            grid-template-rows: minmax(0,1fr) 120px;
+        }
+        .bf-monitor-grid {
+            min-height: 0; display: grid;
+            grid-template-columns: repeat(2,1fr);
+            grid-template-rows: repeat(2,minmax(0,1fr));
+            gap: 8px;
+        }
+        .bf-monitor {
+            min-height: 0; overflow: hidden;
+            border-radius: 7px; background: #020711;
+            border: 1px solid rgba(78,205,196,0.16);
+            display: flex; flex-direction: column;
+        }
+        .bf-monitor-title {
+            height: 28px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            color: #e9fbff; font-weight: 700; font-size: 13px;
+            background: rgba(255,255,255,0.02);
+        }
+        .bf-monitor img {
+            flex: 1; min-height: 0; width: 100%;
+            object-fit: contain; object-position: center;
+            display: block;
+            padding: 6px; box-sizing: border-box;
+        }
+        .bf-status-strip {
+            min-height: 0; display: grid; grid-template-columns: 1.35fr repeat(2,1fr); grid-template-rows: 1fr 1fr; gap: 8px;
+        }
+        .bf-success, .bf-mini {
+            border-radius: 8px; background: rgba(18,28,46,0.94);
+            border: 1px solid rgba(78,205,196,0.18);
+            display: flex; align-items: center;
+        }
+        .bf-success { gap: 12px; padding: 0 14px; grid-row: 1 / 3; }
+        .bf-check {
+            width: 34px; height: 34px; border-radius: 50%;
+            display: grid; place-items: center;
+            border: 2px solid #2FE680; color: #2FE680; font-size: 22px; flex-shrink: 0;
+            box-shadow: 0 0 14px rgba(47,230,128,0.28);
+        }
+        .bf-success b { color: #20d6ee; font-size: 18px; }
+        .bf-success span { color: #e8edf3; font-size: 14px; line-height: 1.35; }
+        .bf-mini { flex-direction: column; justify-content: center; text-align: center; }
+        .bf-mini span { color: #9bb1c2; font-size: 12px; }
+        .bf-mini b { color: #20d6ee; font-size: 22px; margin-top: 4px; }
+        .bf-right {
+            min-height: 0; display: grid; gap: 10px;
+            grid-template-rows: 56px minmax(0,1fr) 230px;
+        }
+        .bf-controls {
+            min-height: 0; display: grid; grid-template-columns: 1.2fr 1fr 1fr 130px; gap: 10px;
+        }
+        .bf-select, .bf-selected {
+            border-radius: 8px; background: rgba(18,28,46,0.94);
+            border: 1px solid rgba(78,205,196,0.22);
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 8px 12px;
+        }
+        .bf-select label { color: #9bb1c2; font-size: 12px; margin-bottom: 4px; }
+        .bf-select select {
+            width: 100%; border: none; outline: none; background: transparent;
+            color: #fff; font-size: 14px; font-family: inherit;
+        }
+        .bf-selected {
+            align-items: center; color: #2FE680; font-weight: 800; font-size: 15px;
+            background: rgba(15,123,107,0.18);
+        }
+        .bf-main-img-panel .g-head { height: 38px; }
+        .bf-main-img-wrap {
+            flex: 1; min-height: 0; position: relative; margin: 10px;
+            overflow: hidden; border-radius: 8px;
+            border: 1px solid rgba(32,214,238,0.35);
+            box-shadow: inset 0 0 28px rgba(32,214,238,0.08);
+            background: #061526;
+        }
+        .bf-main-img-wrap img {
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            display: block;
+        }
+        .bf-main-tag {
+            position: absolute; z-index: 2;
+            padding: 10px 12px; border-radius: 8px;
+            background: rgba(6,20,38,0.76);
+            border: 1px solid rgba(78,205,196,0.28);
+            color: #e9fbff; box-shadow: 0 0 16px rgba(32,214,238,0.18);
+        }
+        .bf-main-tag span { display: block; color: #c8d6e5; font-size: 12px; }
+        .bf-main-tag b { display: block; color: #20d6ee; font-size: 22px; line-height: 1.1; margin-top: 4px; }
+        .bf-main-tag small { color: #9bb1c2; font-size: 11px; }
+        .bf-tag-load { left: 26px; top: 38%; }
+        .bf-tag-pv { left: 40%; top: 9%; }
+        .bf-tag-ac { right: 28px; top: 30%; }
+        .bf-tag-comfort { right: 34px; top: 58%; }
+        .bf-tag-cap { left: 42%; bottom: 7%; }
+        .bf-summary-grid {
+            min-height: 0; display: grid; grid-template-columns: repeat(3,1fr); gap: 10px;
+        }
+        .bf-card .g-body { padding: 10px 12px; }
+        .bf-card-list { display: grid; gap: 8px; height: 100%; align-content: center; }
+        .bf-row {
+            min-height: 38px; display: grid; grid-template-columns: 1fr auto; align-items: center;
+            padding: 7px 10px; border-radius: 6px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .bf-row span { color: #a9bfd0; font-size: 13px; }
+        .bf-row b { color: #fff; font-size: 16px; }
+        .bf-chart { width: 100%; height: 100%; min-height: 0; }
+        .bf-right-bottom {
+            min-height: 0; display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: minmax(0,1fr);
+            gap: 10px;
+        }
+        .bf-interaction-scroll {
+            min-height: 0; overflow-y: auto; padding-right: 4px;
+        }
+        .bf-interaction-scroll::-webkit-scrollbar { width: 4px; }
+        .bf-interaction-scroll::-webkit-scrollbar-thumb { background: rgba(78,205,196,0.25); border-radius: 3px; }
+        .bf-event-list { display: grid; gap: 8px; align-content: start; height: 100%; }
+        .bf-event {
+            padding: 8px 10px; border-radius: 6px;
+            background: rgba(6,20,38,0.72);
+            color: #2FE680; font-size: 13px; font-weight: 700;
+        }
+        @media(max-width:1400px) {
+            .bf-shell { grid-template-columns: 48% minmax(500px,1fr); gap: 8px; }
+            .bf-left, .bf-right, .bf-right-bottom { gap: 8px; }
+            .bf-status-strip { grid-template-columns: 1fr 1fr; }
+            .bf-success { grid-column: 1 / 3; }
+            .bf-controls { grid-template-columns: 1fr 1fr; }
+            .bf-tag-ac, .bf-tag-comfort { right: 16px; }
+        }
+
         /* ====== 今日气象 ====== */
         #monitorPage { display: flex; background: #0d1b2a; color: #e0e0e0; height: 100%; overflow: hidden; }
         .today-left { width: 270px; min-width: 270px; background: rgba(18,28,46,0.95); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.06); }
@@ -532,8 +1085,8 @@
     <button id="btnIndoor">室内环境-电气集成终端</button>
     <button id="btnExtremes">极端气候</button>
     <button id="btnSim">微气候空间分布在线模拟</button>
-    <button id="btnBuilding">建筑能效管理</button>
-    <a id="btnGrid" href="/grid-optimization.html">城市电网源网荷协同优化</a>
+    <button id="btnBuilding">建筑灵活性管理</button>
+    <button id="btnGrid">城市电网源网荷协同优化</button>
     <button id="btnCoord">气候-电网-建筑协同治理</button>
 </div>
 <div id="subNav" style="display:none;">
@@ -1167,13 +1720,393 @@
     </div>
 
     <!-- ===== 微气候空间分布在线模拟 ===== -->
-    <div class="placeholder-page" id="simPage"><div class="p-icon">🌡️</div>微气候空间分布在线模拟<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
+    <div id="simPage">
+        <div class="sim-shell">
+            <section class="sim-side">
+                <div class="g-panel">
+                    <div class="g-head"><span class="g-icon"></span><span class="g-title">模拟区域概况</span></div>
+                    <div class="g-body sim-overview">
+                        <span>模拟城市</span><b>澳门</b>
+                        <span>当前区域</span><b>澳门半岛 / 氹仔重点区</b>
+                        <span>模型尺度</span><b>街区-建筑耦合</b>
+                        <span>空间分辨率</span><b>100 m / 建筑单体</b>
+                        <span>模拟时刻</span><b>2025-05-29 15:00</b>
+                        <span>模型状态</span><b class="g-green">在线运行</b>
+                    </div>
+                </div>
 
-    <!-- ===== 建筑管理 ===== -->
-    <div class="placeholder-page" id="buildingPage"><div class="p-icon">🏢</div>建筑管理<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
+                <div class="g-panel">
+                    <div class="g-head"><span class="g-icon"></span><span class="g-title">边界气象输入</span></div>
+                    <div class="g-body">
+                        <div class="sim-metric-grid">
+                            <div class="sim-metric"><span>背景气温</span><b class="g-red">31.6<small>°C</small></b></div>
+                            <div class="sim-metric"><span>相对湿度</span><b>74<small>%</small></b></div>
+                            <div class="sim-metric"><span>背景风速</span><b class="g-yellow">2.1<small>m/s</small></b></div>
+                            <div class="sim-metric"><span>太阳辐照</span><b>820<small>W/m²</small></b></div>
+                        </div>
+                        <div class="sim-chip-row">
+                            <span class="sim-chip">热浪日</span>
+                            <span class="sim-chip">低风速</span>
+                            <span class="sim-chip">高辐照</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="g-panel">
+                    <div class="g-head"><span class="g-icon"></span><span class="g-title">城市形态与人为热</span></div>
+                    <div class="g-body sim-list">
+                        <div class="sim-row"><span>建筑密度</span><b>0.62</b></div>
+                        <div class="sim-row"><span>平均建筑高度</span><b>42 m</b></div>
+                        <div class="sim-row"><span>不透水面比例</span><b>71%</b></div>
+                        <div class="sim-row"><span>绿地 / 水体占比</span><b>18% / 9%</b></div>
+                        <div class="sim-row"><span>空间废热强度</span><b class="g-yellow">中高</b></div>
+                        <div class="sim-row"><span>建筑能耗反馈</span><b class="g-green">已耦合</b></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="sim-main">
+                <div class="g-panel sim-map-panel">
+                    <div class="g-head">
+                        <span class="g-icon"></span><span class="g-title">微气候空间分布在线模拟</span>
+                        <div class="sim-tabs">
+                            <span class="sim-tab active">气温分布</span>
+                            <span class="sim-tab">湿度分布</span>
+                            <span class="sim-tab">风速流场</span>
+                            <span class="sim-tab">热岛强度</span>
+                            <span class="sim-tab">建筑能耗</span>
+                        </div>
+                        <span class="sim-model-tag">WRF + UCM + 建筑能耗反馈</span>
+                    </div>
+                    <div class="sim-map-stage">
+                        <img src="微气候模拟/38cae0279d9adcbfee0d5f495165728f.png" alt="澳门微气候空间分布模拟地图">
+                        <div class="sim-map-note">
+                            <b>当前图层：2 m 气温</b><br>
+                            典型夏季日 15:00 | 热浪背景<br>
+                            最高温区：B8-B10、B12
+                        </div>
+                        <div class="sim-legend">
+                            <b>气温图例</b>
+                            <div class="sim-legend-bar"></div>
+                            <div class="sim-legend-labels"><span>31.0°C</span><span>33.5°C</span></div>
+                        </div>
+                        <div class="sim-timebar">
+                            <div class="sim-play">▶</div>
+                            <div>
+                                <div class="sim-progress"></div>
+                                <div class="sim-hours"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+                            </div>
+                            <div class="sim-now">15:00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sim-kpi-row">
+                    <div class="sim-big-kpi"><span>区域平均气温</span><b>32.4°C</b></div>
+                    <div class="sim-big-kpi"><span>最高气温</span><b class="g-red">33.5°C</b></div>
+                    <div class="sim-big-kpi"><span>最大热岛强度</span><b class="g-yellow">+2.1°C</b></div>
+                    <div class="sim-big-kpi"><span>高风险建筑群</span><b class="g-cyan">8处</b></div>
+                </div>
+            </section>
+
+            <section class="sim-right">
+                <div class="g-panel">
+                    <div class="g-head"><span class="g-icon"></span><span class="g-title">微气候热点诊断</span></div>
+                    <div class="g-body sim-list">
+                        <div class="sim-row"><span>高温热点</span><b class="g-red">B8、B9、B10、B12</b></div>
+                        <div class="sim-row"><span>低风速区域</span><b>B7-B10 建筑密集区</b></div>
+                        <div class="sim-row"><span>湿热累积</span><b class="g-yellow">B3、B8、B16</b></div>
+                        <div class="sim-row"><span>冷负荷高值</span><b>B3、B4、B16</b></div>
+                    </div>
+                </div>
+
+                <div class="g-panel">
+                    <div class="g-head"><span class="g-icon"></span><span class="g-title">选中区域详情：B8</span></div>
+                    <div class="g-body">
+                        <div class="sim-detail-grid">
+                            <div class="sim-detail"><span>当前气温</span><b>33.4 °C</b></div>
+                            <div class="sim-detail"><span>相对湿度</span><b>76 %</b></div>
+                            <div class="sim-detail"><span>近地风速</span><b>0.7 m/s</b></div>
+                            <div class="sim-detail"><span>冷负荷等级</span><b>高</b></div>
+                            <div class="sim-detail"><span>热岛贡献</span><b class="g-yellow">+1.9 °C</b></div>
+                            <div class="sim-detail"><span>治理优先级</span><b class="g-red">P1</b></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="g-panel">
+                    <div class="g-head"><span class="g-icon"></span><span class="g-title">日内趋势与季节尺度</span></div>
+                    <div class="g-body" style="display:grid;grid-template-rows:minmax(0,1fr) 124px;gap:10px;">
+                        <div class="sim-chart" id="simTrendChart"></div>
+                        <table class="sim-table">
+                            <thead><tr><th>月份</th><th>平均热岛</th><th>高温小时</th><th>冷负荷增量</th></tr></thead>
+                            <tbody>
+                                <tr><td>6月</td><td class="g-yellow">+1.2°C</td><td>96 h</td><td>+8.4%</td></tr>
+                                <tr><td>7月</td><td class="g-yellow">+1.8°C</td><td>168 h</td><td>+13.7%</td></tr>
+                                <tr><td>8月</td><td class="g-red">+2.1°C</td><td>204 h</td><td>+16.2%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- ===== 建筑灵活性管理 ===== -->
+    <div id="buildingPage">
+        <div class="bf-shell">
+            <section class="bf-left">
+                <div class="g-panel">
+                    <div class="g-head"><span class="g-icon"></span><span class="g-title">建筑灵活性实时监测</span><span style="margin-left:auto;color:#2FE680;font-size:12px;">● 设备、建筑、电网友好协同运行</span></div>
+                    <div class="g-body">
+                        <div class="bf-monitor-grid">
+                            <div class="bf-monitor"><div class="bf-monitor-title">设备监测 | 1号空调功率下调</div><img src="建筑灵活性/图片1.png" alt="1号空调功率下调曲线"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">设备监测 | 2号空调功率上调</div><img src="建筑灵活性/图片2.png" alt="2号空调功率上调曲线"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">建筑集群 | 负荷功率响应</div><img src="建筑灵活性/图片5.png" alt="建筑集群负荷功率响应"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">电网效果 | 本研究台区电压</div><img src="建筑灵活性/图片9.png" alt="本研究台区电压效果"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bf-status-strip">
+                    <div class="bf-success"><div class="bf-check">✓</div><span>灵活性调用任务已完成 <b>96.4%</b>，设备响应、楼宇舒适与台区电压均处于<b style="color:#2FE680;">可控状态</b>。</span></div>
+                    <div class="bf-mini"><span>在线设备</span><b>154</b></div>
+                    <div class="bf-mini"><span>执行策略</span><b class="g-green">12</b></div>
+                    <div class="bf-mini"><span>关注房间</span><b class="g-yellow">5</b></div>
+                    <div class="bf-mini"><span>告警闭环</span><b class="g-green">100%</b></div>
+                </div>
+            </section>
+
+            <section class="bf-right">
+                <div class="bf-controls">
+                    <div class="bf-select"><label>目标建筑</label><select><option>澳门半岛 B-08 号办公楼</option></select></div>
+                    <div class="bf-select"><label>运行场景</label><select><option>午后削峰调节</option></select></div>
+                    <div class="bf-select"><label>控制模式</label><select><option>自动闭环</option></select></div>
+                    <div class="bf-selected">● 已选中</div>
+                </div>
+
+                <div class="g-panel bf-main-img-panel">
+                    <div class="g-head"><span class="g-icon"></span><span class="g-title">目标建筑运行概览</span><span style="margin-left:auto;color:#8fd8ff;font-size:12px;">● BEMS 已接入</span></div>
+                    <div class="bf-main-img-wrap">
+                        <img src="建筑灵活性/image.png" alt="建筑灵活性运行概览">
+                        <div class="bf-main-tag bf-tag-load"><span>当前楼宇负荷</span><b>1.86 MW</b><small>基线 2.18 MW | 已降 0.32 MW</small></div>
+                        <div class="bf-main-tag bf-tag-pv"><span>屋顶光伏出力</span><b>128 kW</b><small>自用率 86% | 并网正常</small></div>
+                        <div class="bf-main-tag bf-tag-ac"><span>空调机组在线</span><b class="g-green">32/32 台</b><small>可控 29 台 | 无离线</small></div>
+                        <div class="bf-main-tag bf-tag-comfort"><span>办公区舒适率</span><b class="g-green">97.6%</b><small>23-26°C | 关注 5 间</small></div>
+                        <div class="bf-main-tag bf-tag-cap"><span>可调节容量</span><b class="g-yellow">24 MW</b><small>上调 9 MW | 下调 15 MW</small></div>
+                    </div>
+                </div>
+
+                <div class="bf-summary-grid">
+                    <div class="g-panel bf-card">
+                        <div class="g-head"><span class="g-icon"></span><span class="g-title">运行状态</span></div>
+                        <div class="g-body bf-card-list">
+                            <div class="bf-row"><span>当前任务</span><b class="g-yellow">午后削峰</b></div>
+                            <div class="bf-row"><span>任务完成率</span><b class="g-green">96.4%</b></div>
+                        </div>
+                    </div>
+                    <div class="g-panel bf-card">
+                        <div class="g-head"><span class="g-icon"></span><span class="g-title">负荷与容量</span></div>
+                        <div class="g-body bf-card-list">
+                            <div class="bf-row"><span>当前负荷</span><b class="g-green">1.86 MW</b></div>
+                            <div class="bf-row"><span>已释放容量</span><b class="g-green">37 MW</b></div>
+                        </div>
+                    </div>
+                    <div class="g-panel bf-card">
+                        <div class="g-head"><span class="g-icon"></span><span class="g-title">设备状态</span></div>
+                        <div class="g-body bf-card-list">
+                            <div class="bf-row"><span>空调在线</span><b class="g-green">32/32</b></div>
+                            <div class="bf-row"><span>可控设备</span><b class="g-green">29 台</b></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bf-right-bottom">
+                    <div class="g-panel">
+                        <div class="g-head"><span class="g-icon"></span><span class="g-title">柔性负荷调节趋势</span></div>
+                        <div class="g-body"><div class="bf-chart" id="bfLoadChart"></div></div>
+                    </div>
+                    <div class="g-panel bf-card">
+                        <div class="g-head"><span class="g-icon"></span><span class="g-title">电网友好互动与事件</span></div>
+                        <div class="g-body bf-interaction-scroll">
+                            <div class="bf-card-list" style="margin-bottom:10px;">
+                                <div class="bf-row"><span>台区电压</span><b class="g-green">0.949 p.u.</b></div>
+                                <div class="bf-row"><span>越限节点</span><b class="g-green">0 个</b></div>
+                                <div class="bf-row"><span>削峰贡献</span><b class="g-cyan">0.32 MW</b></div>
+                            </div>
+                            <div class="bf-event-list">
+                                <div class="bf-event">15:30 台区低压越限解除</div>
+                                <div class="bf-event">15:24 第三批设备完成响应</div>
+                                <div class="bf-event">15:12 策略通过舒适校验</div>
+                                <div class="bf-event">15:00 午后削峰任务启动</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
 
     <!-- ===== 城市电网源网荷协同优化 ===== -->
-    <div class="placeholder-page" id="gridPage"><div class="p-icon">⚡</div>城市电网源网荷协同优化<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
+    <div id="gridPage">
+        <div class="grid-shell">
+            <section class="grid-side-simple">
+                <div class="g-panel">
+                    <div class="g-head"><span class="g-icon"></span><span class="g-title">调度场景概况</span></div>
+                    <div class="g-body g-overview">
+                        <span>调度区域</span><b>珠海城市电网</b>
+                        <span>电网规模</span><b>62 节点 / 70 线路</b>
+                        <span>源荷规模</span><b>5 PV / 154061 建筑</b>
+                        <span>调度周期</span><b>24 h，当前 15:00</b>
+                        <span>场景类型</span><b>热浪日 S0</b>
+                        <span>优化模式</span><b>CLMP + DR + TIR</b>
+                    </div>
+                </div>
+
+                <div class="g-panel">
+                    <div class="g-head"><span class="g-icon"></span><span class="g-title">源网荷关键状态</span></div>
+                    <div class="g-body">
+                        <div class="g-status-grid">
+                            <div class="g-status-card"><span>最高气温</span><b>34.79 °C</b><small>空间温差 6.82 °C</small></div>
+                            <div class="g-status-card"><span>PV实际出力</span><b class="g-cyan">7.42 MW</b><small>效率损失 0.21%</small></div>
+                            <div class="g-status-card"><span>最大线路利用率</span><b class="g-red">0.98</b><small>瓶颈 L6 / L25 / L40</small></div>
+                            <div class="g-status-card"><span>DR可调容量</span><b class="g-cyan">61 MW</b><small>已调用 37 MW</small></div>
+                            <div class="g-status-card"><span>峰值冷负荷</span><b class="g-red">142 MW</b><small>室温约束满足</small></div>
+                            <div class="g-status-card"><span>TIR备用</span><b class="g-green">486 MW</b><small>冲击时段 11-18 h</small></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="g-panel">
+                    <div class="g-head"><span class="g-icon"></span><span class="g-title">协同优化指令</span></div>
+                    <div class="g-body">
+                        <div class="g-command-list">
+                            <div class="g-command-row"><b>源侧调度</b><span>协调PV1-PV5与常规机组出力，降低午后高温导致的光伏效率损失和局部弃光。</span></div>
+                            <div class="g-command-row"><b>网侧控制</b><span>启用动态流量约束，对L6、L25、L40进行潮流转移与阻塞监测。</span></div>
+                            <div class="g-command-row"><b>荷侧响应</b><span>高CLMP节点优先调用建筑空调需求响应，保持室温在22-26 °C约束内。</span></div>
+                            <div class="g-command-row"><b>韧性备用</b><span>热冲击时段释放TIR温度备用，降低15:00削负荷峰值与舒适风险。</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid-main-simple">
+                <div class="g-panel g-map-panel">
+                    <div class="g-head">
+                        <span class="g-icon"></span><span class="g-title">城市电网源网荷协同优化态势图</span>
+                        <div class="g-tabs">
+                            <span class="g-tab active">电网拓扑</span><span class="g-tab">气候驱动</span><span class="g-tab">CLMP分布</span>
+                            <span class="g-tab">线路利用率</span><span class="g-tab">光伏出力</span><span class="g-tab">建筑DR</span><span class="g-tab">TIR备用</span>
+                        </div>
+                    </div>
+                    <div class="g-map">
+                        <div class="g-net">
+                            <span class="g-line" style="left:18%;top:29%;width:20%;transform:rotate(24deg)"></span>
+                            <span class="g-line" style="left:35%;top:37%;width:19%;transform:rotate(-18deg)"></span>
+                            <span class="g-line" style="left:50%;top:32%;width:22%;transform:rotate(26deg)"></span>
+                            <span class="g-line" style="left:61%;top:49%;width:17%;transform:rotate(-35deg)"></span>
+                            <span class="g-line" style="left:27%;top:59%;width:25%;transform:rotate(-3deg)"></span>
+                            <span class="g-line" style="left:45%;top:63%;width:20%;transform:rotate(15deg)"></span>
+                            <span class="g-line" style="left:30%;top:20%;width:36%;transform:rotate(61deg)"></span>
+                            <span class="g-line" style="left:73%;top:36%;width:16%;transform:rotate(18deg)"></span>
+                            <span class="g-node" style="left:18%;top:29%" data-id="47"></span>
+                            <span class="g-node" style="left:31%;top:36%" data-id="45"></span>
+                            <span class="g-node" style="left:38%;top:51%" data-id="41"></span>
+                            <span class="g-node" style="left:50%;top:43%" data-id="34"></span>
+                            <span class="g-node" style="left:58%;top:58%" data-id="26"></span>
+                            <span class="g-node hot" style="left:70%;top:56%" data-id="15"></span>
+                            <span class="g-node" style="left:77%;top:42%" data-id="9"></span>
+                            <span class="g-node hot" style="left:73%;top:66%" data-id="19"></span>
+                            <span class="g-node" style="left:88%;top:33%" data-id="4"></span>
+                            <span class="g-node" style="left:84%;top:62%" data-id="12"></span>
+                            <span class="g-node" style="left:27%;top:63%" data-id="51"></span>
+                            <span class="g-node" style="left:33%;top:78%" data-id="55"></span>
+                            <span class="g-node" style="left:47%;top:80%" data-id="57"></span>
+                            <span class="g-node" style="left:64%;top:77%" data-id="30"></span>
+                        </div>
+                        <div class="g-map-info">
+                            <b>当前图层：城市电网拓扑</b><br>
+                            当前时刻：15:00，热浪场景 S0<br>
+                            高风险线路：L6、L25、L40<br>
+                            调度策略：CLMP + 建筑DR + TIR
+                        </div>
+                        <div class="g-risk-card">
+                            <b>运行风险等级</b><div class="g-risk-bar"></div>
+                            <div class="g-risk-labels"><span>低</span><span>中</span><span>高</span></div>
+                            <div style="margin-top:8px;line-height:1.55;color:#c8d6e5;">节点：负荷/价格<br>线路：利用率/裕度</div>
+                        </div>
+                        <div class="g-dispatch">拥塞峰值</div>
+                        <div class="g-timebar">
+                            <div class="g-play">▶</div>
+                            <div><div class="g-progress"></div><div class="g-hours"><span>00</span><span>06</span><span>12</span><span>15</span><span>18</span><span>24</span></div></div>
+                            <div class="g-now">当前 <b>15:00</b></div>
+                        </div>
+                    </div>
+                    <div class="g-summary">
+                        <div class="g-mini-kpi"><span>系统负荷</span><b>5.82 GW</b></div>
+                        <div class="g-mini-kpi"><span>最大CLMP</span><b>299 $/MWh</b></div>
+                        <div class="g-mini-kpi"><span>最大线路利用率</span><b>0.98</b></div>
+                        <div class="g-mini-kpi"><span>前馈荷风险</span><b>可控</b></div>
+                    </div>
+                </div>
+
+                <div class="grid-main-bottom">
+                    <div class="g-panel">
+                        <div class="g-head"><span class="g-icon"></span><span class="g-title">关键线路利用率趋势</span></div>
+                        <div class="g-body"><div class="g-chart" id="gridLineChart"></div></div>
+                    </div>
+                    <div class="g-panel">
+                        <div class="g-head"><span class="g-icon"></span><span class="g-title">CLMP空间离散度</span></div>
+                        <div class="g-body g-clmp-simple">
+                            <div class="g-clmp-visual"></div>
+                            <div class="g-mini-row">
+                                <div class="g-mini-kpi"><span>峰值时刻</span><b>14:00</b></div>
+                                <div class="g-mini-kpi"><span>空间离散度</span><b>299.27</b></div>
+                                <div class="g-mini-kpi"><span>高价时段</span><b>11-18 h</b></div>
+                                <div class="g-mini-kpi"><span>机制</span><b>热-网耦合</b></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid-side-simple">
+                <div class="g-panel">
+                    <div class="g-head"><span class="g-icon"></span><span class="g-title">运行风险诊断</span></div>
+                    <div class="g-body">
+                        <div class="g-risk-list">
+                            <div class="g-risk-item"><span>光伏效率损失</span><b class="g-yellow">中高</b></div>
+                            <div class="g-risk-item"><span>线路动态降额</span><b class="g-red">高</b></div>
+                            <div class="g-risk-item"><span>建筑冷负荷峰值</span><b class="g-red">高</b></div>
+                            <div class="g-risk-item"><span>网络阻塞</span><b class="g-red">局部严重</b></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="g-panel">
+                    <div class="g-head"><span class="g-icon"></span><span class="g-title">优化效果评估</span></div>
+                    <div class="g-body">
+                        <div class="g-benefit">
+                            <div class="g-benefit-card"><span>失负荷降低</span><b>52%</b></div>
+                            <div class="g-benefit-card"><span>运行成本降低</span><b>23%</b></div>
+                            <div class="g-benefit-card"><span>弃光变化</span><b class="g-yellow">可控</b></div>
+                        </div>
+                        <div class="g-chart" id="gridBenefitChart"></div>
+                    </div>
+                </div>
+
+                <div class="g-panel">
+                    <div class="g-head"><span class="g-icon"></span><span class="g-title">模型链路与刷新状态</span></div>
+                    <div class="g-body g-list">
+                        <div class="g-row"><span>气候输入</span><b>WRF / UCM</b></div>
+                        <div class="g-row"><span>建筑负荷</span><b>CLMP + DR</b></div>
+                        <div class="g-row"><span>电网求解</span><b>OPF / Gurobi</b></div>
+                        <div class="g-row"><span>更新时间</span><b>2025-05-29 15:30:45</b></div>
+                        <div class="g-row"><span>优化刷新</span><b class="g-green">15 分钟</b></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
 
     <!-- ===== 气候-电网-建筑协同治理 ===== -->
     <div class="placeholder-page" id="coordPage"><div class="p-icon">🔗</div>气候-电网-建筑协同治理<br><span style="font-size:13px;margin-top:8px;">功能开发中</span></div>
@@ -1244,6 +2177,15 @@ function showPage(name) {
     if (name === 'extremes') {
         setTimeout(function() { resizeExtrCharts(); }, 100);
     }
+    if (name === 'grid') {
+        setTimeout(function() { initGridPage(); }, 100);
+    }
+    if (name === 'sim') {
+        setTimeout(function() { initSimPage(); }, 100);
+    }
+    if (name === 'building') {
+        setTimeout(function() { initBuildingFlexPage(); }, 100);
+    }
     if (name === 'home') {
         setTimeout(function() {
             if (voltageChart) voltageChart.resize();
@@ -1270,7 +2212,172 @@ btns.extremes.addEventListener('click', function() { showPage('extremes'); });
 btns.indoor.addEventListener('click', function() { showPage('indoor'); });
 btns.sim.addEventListener('click', function() { showPage('sim'); });
 btns.building.addEventListener('click', function() { showPage('building'); });
+btns.grid.addEventListener('click', function() { showPage('grid'); });
 btns.coord.addEventListener('click', function() { showPage('coord'); });
+
+// ==================== 城市电网源网荷协同优化 ====================
+var gridLineChart = null;
+var gridBenefitChart = null;
+
+function initGridPage() {
+    if (!gridLineChart) {
+        var lineDom = document.getElementById('gridLineChart');
+        if (lineDom) gridLineChart = echarts.init(lineDom);
+    }
+    if (!gridBenefitChart) {
+        var benefitDom = document.getElementById('gridBenefitChart');
+        if (benefitDom) gridBenefitChart = echarts.init(benefitDom);
+    }
+    renderGridCharts();
+    resizeGridCharts();
+}
+
+function renderGridCharts() {
+    if (gridLineChart) {
+        gridLineChart.setOption({
+            color: ['#4ECDC4', '#ff6b8a'],
+            grid: { left: 40, right: 14, top: 32, bottom: 30 },
+            tooltip: { trigger: 'axis' },
+            legend: { top: 0, right: 0, textStyle: { color: '#c8d6e5', fontSize: 11 } },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['00','03','06','09','12','13','14','15','16','17','18','21','24'],
+                axisLabel: { color: '#8899aa' },
+                axisLine: { lineStyle: { color: 'rgba(255,255,255,0.12)' } }
+            },
+            yAxis: {
+                type: 'value',
+                min: 0.2,
+                max: 1,
+                name: '利用率',
+                nameTextStyle: { color: '#8899aa' },
+                axisLabel: { color: '#8899aa' },
+                splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } }
+            },
+            series: [
+                { name: 'Case3-S0', type: 'line', smooth: true, symbol: 'none', lineStyle: { width: 4 }, areaStyle: { color: 'rgba(78,205,196,0.16)' }, data: [.25,.28,.35,.48,.91,.96,.98,.91,.76,.55,.39,.30,.24] },
+                { name: 'Case2-S0', type: 'line', smooth: true, symbol: 'none', lineStyle: { width: 4 }, data: [.22,.25,.31,.42,.82,.88,.86,.79,.63,.48,.34,.27,.20] }
+            ]
+        }, true);
+    }
+    if (gridBenefitChart) {
+        gridBenefitChart.setOption({
+            color: ['#8899aa', '#4ECDC4', '#E74C3C'],
+            grid: { left: 42, right: 10, top: 16, bottom: 28 },
+            tooltip: { trigger: 'axis' },
+            xAxis: {
+                type: 'category',
+                data: ['负荷削减','PV弃光','运行成本'],
+                axisLabel: { color: '#8899aa' },
+                axisLine: { lineStyle: { color: 'rgba(255,255,255,0.12)' } }
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: { color: '#8899aa' },
+                splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } }
+            },
+            series: [
+                { name: '基线', type: 'bar', barGap: 0, data: [2000, 310, 4.8] },
+                { name: '协同优化', type: 'bar', data: [1390, 286, 3.7] },
+                { name: 'TIR增强', type: 'bar', data: [1120, 280, 3.4] }
+            ]
+        }, true);
+    }
+}
+
+function resizeGridCharts() {
+    if (gridLineChart) gridLineChart.resize();
+    if (gridBenefitChart) gridBenefitChart.resize();
+}
+
+// ==================== 微气候空间分布在线模拟 ====================
+var simTrendChart = null;
+
+function initSimPage() {
+    if (!simTrendChart) {
+        var dom = document.getElementById('simTrendChart');
+        if (dom) simTrendChart = echarts.init(dom);
+    }
+    renderSimTrendChart();
+    resizeSimCharts();
+}
+
+function renderSimTrendChart() {
+    if (!simTrendChart) return;
+    simTrendChart.setOption({
+        color: ['#ff6b8a', '#4ECDC4', '#FFD93D'],
+        grid: { left: 38, right: 16, top: 28, bottom: 28 },
+        tooltip: { trigger: 'axis' },
+        legend: { top: 0, right: 0, textStyle: { color: '#c8d6e5', fontSize: 11 } },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: ['00','03','06','09','12','15','18','21','24'],
+            axisLabel: { color: '#8899aa' },
+            axisLine: { lineStyle: { color: 'rgba(255,255,255,0.12)' } }
+        },
+        yAxis: {
+            type: 'value',
+            axisLabel: { color: '#8899aa' },
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } }
+        },
+        series: [
+            { name: '气温', type: 'line', smooth: true, symbol: 'none', lineStyle: { width: 3 }, data: [29.6,29.2,30.1,31.6,32.8,33.4,32.6,31.2,30.5] },
+            { name: '冷负荷', type: 'line', smooth: true, symbol: 'none', lineStyle: { width: 3 }, areaStyle: { color: 'rgba(78,205,196,0.12)' }, data: [42,46,58,79,104,121,110,82,61] },
+            { name: '热岛强度', type: 'line', smooth: true, symbol: 'none', lineStyle: { width: 2 }, data: [0.7,0.6,0.8,1.2,1.8,2.1,1.7,1.1,0.8] }
+        ]
+    }, true);
+}
+
+function resizeSimCharts() {
+    if (simTrendChart) simTrendChart.resize();
+}
+
+// ==================== 建筑灵活性管理 ====================
+var bfLoadChart = null;
+
+function initBuildingFlexPage() {
+    if (!bfLoadChart) {
+        var dom = document.getElementById('bfLoadChart');
+        if (dom) bfLoadChart = echarts.init(dom);
+    }
+    renderBuildingFlexChart();
+    resizeBuildingFlexCharts();
+}
+
+function renderBuildingFlexChart() {
+    if (!bfLoadChart) return;
+    bfLoadChart.setOption({
+        color: ['#8899aa', '#4ECDC4', '#FFD93D'],
+        grid: { left: 42, right: 16, top: 28, bottom: 30 },
+        tooltip: { trigger: 'axis' },
+        legend: { top: 0, right: 0, textStyle: { color: '#c8d6e5', fontSize: 11 } },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: ['14:00','14:20','14:40','15:00','15:20','15:40','16:00'],
+            axisLabel: { color: '#8899aa' },
+            axisLine: { lineStyle: { color: 'rgba(255,255,255,0.12)' } }
+        },
+        yAxis: {
+            type: 'value',
+            name: 'MW',
+            nameTextStyle: { color: '#8899aa' },
+            axisLabel: { color: '#8899aa' },
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } }
+        },
+        series: [
+            { name: '基线负荷', type: 'line', smooth: true, symbol: 'none', lineStyle: { width: 3 }, data: [2.12,2.18,2.22,2.18,2.15,2.09,2.04] },
+            { name: '优化负荷', type: 'line', smooth: true, symbol: 'none', lineStyle: { width: 4 }, areaStyle: { color: 'rgba(78,205,196,0.12)' }, data: [2.12,2.03,1.94,1.86,1.82,1.88,1.96] },
+            { name: '释放容量', type: 'bar', barMaxWidth: 12, data: [0,0.15,0.28,0.32,0.33,0.21,0.08] }
+        ]
+    }, true);
+}
+
+function resizeBuildingFlexCharts() {
+    if (bfLoadChart) bfLoadChart.resize();
+}
 
 // ==================== 今日气象 ====================
 var todayMap = null;
@@ -1867,6 +2974,9 @@ window.addEventListener('resize', () => {
     resizeDataCharts();
     resizeSelfCharts();
     resizeExtrCharts();
+    resizeGridCharts();
+    resizeSimCharts();
+    resizeBuildingFlexCharts();
     if (ieChartTempPower) ieChartTempPower.resize();
     if (ieChartCO2People) ieChartCO2People.resize();
     if (microclimateChart) microclimateChart.resize();
