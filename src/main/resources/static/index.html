@@ -406,15 +406,20 @@
             grid-template-rows: minmax(0,1fr);
             gap: 10px;
         }
-        .sim-side, .sim-right {
+        .sim-side, .sim-right, .sim-main {
             min-height: 0; display: grid; gap: 10px;
+            overflow-y: auto;
         }
-        .sim-side { grid-template-rows: 206px 250px minmax(0,1fr); }
-        .sim-right { grid-template-rows: 208px 260px minmax(0,1fr); }
+        .sim-side::-webkit-scrollbar, .sim-right::-webkit-scrollbar, .sim-main::-webkit-scrollbar { width: 4px; }
+        .sim-side::-webkit-scrollbar-thumb, .sim-right::-webkit-scrollbar-thumb, .sim-main::-webkit-scrollbar-thumb { background: rgba(78,205,196,0.20); border-radius: 3px; }
+        .sim-side { grid-template-rows: auto auto minmax(0,1fr); }
+        .sim-right { grid-template-rows: auto auto minmax(0,1fr); }
         .sim-main {
-            min-height: 0; display: grid; gap: 10px;
-            grid-template-rows: minmax(0,1fr) 116px;
+            grid-template-rows: minmax(0,1fr) auto;
         }
+        .sim-side .g-body, .sim-right .g-body, .sim-main .g-body { overflow-y: auto; overflow-x: hidden; }
+        .sim-side .g-body::-webkit-scrollbar, .sim-right .g-body::-webkit-scrollbar, .sim-main .g-body::-webkit-scrollbar { width: 3px; }
+        .sim-side .g-body::-webkit-scrollbar-thumb, .sim-right .g-body::-webkit-scrollbar-thumb, .sim-main .g-body::-webkit-scrollbar-thumb { background: rgba(78,205,196,0.18); border-radius: 2px; }
         .sim-overview {
             height: 100%; display: grid; grid-template-columns: 1fr 1.15fr;
             gap: 7px 14px; align-content: center;
@@ -530,6 +535,8 @@
             .sim-side, .sim-right, .sim-main { gap: 8px; }
             .sim-tabs { display: none; }
             .sim-model-tag { display: none; }
+            .sim-side { grid-template-rows: auto auto minmax(0,1fr); }
+            .sim-right { grid-template-rows: auto auto minmax(0,1fr); }
         }
 
         /* ====== 建筑灵活性管理 ====== */
@@ -542,58 +549,58 @@
         .bf-shell {
             width: 100%; height: 100%; min-height: 0;
             display: grid;
-            grid-template-columns: 49% minmax(520px,1fr);
+            grid-template-columns: 56% minmax(480px,1fr);
             grid-template-rows: minmax(0,1fr);
             gap: 10px;
         }
         .bf-left {
-            min-height: 0; display: grid; gap: 10px;
-            grid-template-rows: minmax(0,1fr) 120px;
+            min-height: 0; display: grid; gap: 8px;
+            grid-template-rows: minmax(0,1fr) 80px;
         }
         .bf-monitor-grid {
             min-height: 0; display: grid;
-            grid-template-columns: repeat(2,1fr);
-            grid-template-rows: repeat(2,minmax(0,1fr));
-            gap: 8px;
+            grid-template-columns: repeat(3,1fr);
+            grid-template-rows: repeat(3,minmax(0,1fr));
+            gap: 4px;
         }
         .bf-monitor {
             min-height: 0; overflow: hidden;
-            border-radius: 7px; background: #020711;
+            border-radius: 5px; background: #020711;
             border: 1px solid rgba(78,205,196,0.16);
             display: flex; flex-direction: column;
         }
         .bf-monitor-title {
-            height: 28px; flex-shrink: 0;
+            height: 18px; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            color: #e9fbff; font-weight: 700; font-size: 13px;
+            color: #e9fbff; font-weight: 600; font-size: 9px;
             background: rgba(255,255,255,0.02);
         }
         .bf-monitor img {
             flex: 1; min-height: 0; width: 100%;
             object-fit: contain; object-position: center;
             display: block;
-            padding: 6px; box-sizing: border-box;
+            padding: 1px; box-sizing: border-box;
         }
         .bf-status-strip {
-            min-height: 0; display: grid; grid-template-columns: 1.35fr repeat(2,1fr); grid-template-rows: 1fr 1fr; gap: 8px;
+            min-height: 0; display: grid; grid-template-columns: 1.35fr repeat(2,1fr); grid-template-rows: 1fr 1fr; gap: 4px;
         }
         .bf-success, .bf-mini {
-            border-radius: 8px; background: rgba(18,28,46,0.94);
+            border-radius: 6px; background: rgba(18,28,46,0.94);
             border: 1px solid rgba(78,205,196,0.18);
             display: flex; align-items: center;
         }
-        .bf-success { gap: 12px; padding: 0 14px; grid-row: 1 / 3; }
+        .bf-success { gap: 8px; padding: 0 10px; grid-row: 1 / 3; }
         .bf-check {
-            width: 34px; height: 34px; border-radius: 50%;
+            width: 24px; height: 24px; border-radius: 50%;
             display: grid; place-items: center;
-            border: 2px solid #2FE680; color: #2FE680; font-size: 22px; flex-shrink: 0;
-            box-shadow: 0 0 14px rgba(47,230,128,0.28);
+            border: 2px solid #2FE680; color: #2FE680; font-size: 16px; flex-shrink: 0;
+            box-shadow: 0 0 12px rgba(47,230,128,0.28);
         }
-        .bf-success b { color: #20d6ee; font-size: 18px; }
-        .bf-success span { color: #e8edf3; font-size: 14px; line-height: 1.35; }
+        .bf-success b { color: #20d6ee; font-size: 13px; }
+        .bf-success span { color: #e8edf3; font-size: 11px; line-height: 1.25; }
         .bf-mini { flex-direction: column; justify-content: center; text-align: center; }
-        .bf-mini span { color: #9bb1c2; font-size: 12px; }
-        .bf-mini b { color: #20d6ee; font-size: 22px; margin-top: 4px; }
+        .bf-mini span { color: #9bb1c2; font-size: 10px; }
+        .bf-mini b { color: #20d6ee; font-size: 16px; margin-top: 1px; }
         .bf-right {
             min-height: 0; display: grid; gap: 10px;
             grid-template-rows: 56px minmax(0,1fr) 230px;
@@ -664,6 +671,11 @@
             grid-template-rows: minmax(0,1fr);
             gap: 10px;
         }
+        .bf-monitor-scroll {
+            flex: 1; min-height: 0; overflow-y: auto; padding: 10px;
+        }
+        .bf-monitor-scroll::-webkit-scrollbar { width: 3px; }
+        .bf-monitor-scroll::-webkit-scrollbar-thumb { background: rgba(78,205,196,0.20); border-radius: 2px; }
         .bf-interaction-scroll {
             min-height: 0; overflow-y: auto; padding-right: 4px;
         }
@@ -1858,12 +1870,17 @@
             <section class="bf-left">
                 <div class="g-panel">
                     <div class="g-head"><span class="g-icon"></span><span class="g-title">建筑灵活性实时监测</span><span style="margin-left:auto;color:#2FE680;font-size:12px;">● 设备、建筑、电网友好协同运行</span></div>
-                    <div class="g-body">
+                    <div class="bf-monitor-scroll">
                         <div class="bf-monitor-grid">
-                            <div class="bf-monitor"><div class="bf-monitor-title">设备监测 | 1号空调功率下调</div><img src="建筑灵活性/图片1.png" alt="1号空调功率下调曲线"></div>
-                            <div class="bf-monitor"><div class="bf-monitor-title">设备监测 | 2号空调功率上调</div><img src="建筑灵活性/图片2.png" alt="2号空调功率上调曲线"></div>
-                            <div class="bf-monitor"><div class="bf-monitor-title">建筑集群 | 负荷功率响应</div><img src="建筑灵活性/图片5.png" alt="建筑集群负荷功率响应"></div>
-                            <div class="bf-monitor"><div class="bf-monitor-title">电网效果 | 本研究台区电压</div><img src="建筑灵活性/图片9.png" alt="本研究台区电压效果"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">1号空调功率下调</div><img src="建筑灵活性/图片1.png" alt="1号空调功率下调曲线"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">2号空调功率上调</div><img src="建筑灵活性/图片2.png" alt="2号空调功率上调曲线"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">3号空调状态</div><img src="建筑灵活性/图片3.png" alt="3号空调状态曲线"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">4号空调状态</div><img src="建筑灵活性/图片4.png" alt="4号空调状态曲线"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">建筑集群负荷功率响应</div><img src="建筑灵活性/图片5.png" alt="建筑集群负荷功率响应"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">建筑灵活性指标</div><img src="建筑灵活性/图片6.png" alt="建筑灵活性指标"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">电网友好互动曲线</div><img src="建筑灵活性/图片7.png" alt="电网友好互动曲线"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">台区电压分布</div><img src="建筑灵活性/图片8.png" alt="台区电压分布"></div>
+                            <div class="bf-monitor"><div class="bf-monitor-title">本研究台区电压效果</div><img src="建筑灵活性/图片9.png" alt="本研究台区电压效果"></div>
                         </div>
                     </div>
                 </div>
