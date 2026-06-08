@@ -799,25 +799,27 @@
         .self-charts .chart-inner { width: 100%; height: 300px; }
 
         /* ====== 极端值页面 ====== */
-        #extremesPage { background: #f0f2f5; overflow-y: auto; flex-direction: column; }
-        .extr-header { background: #fff; padding: 16px 24px; margin: 16px 24px 0; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
-        .extr-header h2 { margin: 0 20px 0 0; font-size: 20px; }
+        #extremesPage { background: #0a1628; overflow-y: auto; flex-direction: column; }
+        .extr-header { background: rgba(18,28,46,0.94); padding: 16px 24px; margin: 16px 24px 0; border-radius: 10px; border: 1px solid rgba(78,205,196,0.18); display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .extr-header h2 { margin: 0 20px 0 0; font-size: 20px; color: #e8edf3; }
         .extr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 24px 24px; }
         @media (max-width: 900px) { .extr-grid { grid-template-columns: 1fr; } }
-        .extr-section { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow: hidden; }
-        .extr-section .sec-title { padding: 12px 18px; font-size: 15px; font-weight: 600; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 8px; }
+        .extr-section { background: rgba(18,28,46,0.94); border-radius: 10px; border: 1px solid rgba(78,205,196,0.16); overflow: hidden; }
+        .extr-section .sec-title { padding: 12px 18px; font-size: 15px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 8px; color: #c8d6e5; }
         .extr-section .sec-title .icon { font-size: 20px; }
         .extr-rank { padding: 8px 0; }
-        .extr-rank .rank-row { display: flex; align-items: center; padding: 8px 18px; gap: 12px; cursor: pointer; transition: background 0.15s; }
-        .extr-rank .rank-row:hover { background: #f7fafc; }
-        .extr-rank .rank-row.sel { background: #e0f7f5; }
+        .extr-rank .rank-row { display: flex; align-items: center; padding: 8px 18px; gap: 12px; cursor: pointer; transition: background 0.15s; color: #c8d6e5; }
+        .extr-rank .rank-row:hover { background: rgba(78,205,196,0.08); }
+        .extr-rank .rank-row.sel { background: rgba(78,205,196,0.15); }
         .extr-rank .rank-num { width: 24px; height: 24px; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
-        .extr-rank .rank-date { font-weight: 500; min-width: 80px; }
-        .extr-rank .rank-val { font-weight: 600; color: #333; }
-        .extr-rank .rank-sub { font-size: 12px; color: #999; margin-left: auto; }
-        .extr-detail { margin: 16px 24px 24px; background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: none; }
-        .extr-detail .detail-header { padding: 12px 18px; font-size: 15px; font-weight: 500; border-bottom: 1px solid #f0f0f0; }
+        .extr-rank .rank-date { font-weight: 500; min-width: 80px; color: #e8edf3; }
+        .extr-rank .rank-val { font-weight: 600; color: #e8edf3; }
+        .extr-rank .rank-sub { font-size: 12px; color: #8899aa; margin-left: auto; }
+        .extr-detail { margin: 16px 24px 24px; background: rgba(18,28,46,0.94); border-radius: 10px; border: 1px solid rgba(78,205,196,0.16); display: none; }
+        .extr-detail .detail-header { padding: 12px 18px; font-size: 15px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,0.06); color: #c8d6e5; }
         .extr-detail .chart-inner { width: 100%; height: 350px; }
+        .extr-detail .chart-box { background: transparent; }
+        .extr-detail .chart-title { color: #c8d6e5; }
 
         /* ====== 室内环境-电气集成终端 ====== */
         #indoorPage { flex-direction: column; }
@@ -1386,10 +1388,10 @@
     <div id="extremesPage">
         <div class="extr-header">
             <h2>年度极端值</h2>
-            <span style="color:#666;font-size:13px;">站点</span>
-            <select id="extrStation"></select>
-            <span style="color:#666;font-size:13px;">年份</span>
-            <select id="extrYear"><option value="">--</option></select>
+            <span style="color:#a9bfd0;font-size:13px;">站点</span>
+            <select id="extrStation" style="background:rgba(255,255,255,0.05);color:#e8edf3;border:1px solid rgba(255,255,255,0.12);"></select>
+            <span style="color:#a9bfd0;font-size:13px;">年份</span>
+            <select id="extrYear" style="background:rgba(255,255,255,0.05);color:#e8edf3;border:1px solid rgba(255,255,255,0.12);"><option value="">--</option></select>
             <button class="btn-query" id="btnExtrQuery">查询</button>
         </div>
 
@@ -2739,10 +2741,10 @@ function renderCharts(records) {
     var tempNums = tempAll.filter(function(v) { return v != null; });
     var tempDataMin = tempNums.length ? Math.min.apply(null, tempNums) : 0;
     var tempYmin = Math.floor((tempDataMin - 3) / 5) * 5;
-    cTemp.setOption({ grid: grid, tooltip: { trigger: 'axis' }, xAxis: xOpt, yAxis: { type: 'value', name: '°C', min: tempYmin, splitLine: { lineStyle: { color: '#f5f5f5' } } }, series: tempSeries }, true);
+    cTemp.setOption({ grid: grid, tooltip: { trigger: 'axis' }, xAxis: xOpt, yAxis: { type: 'value', name: '°C', min: tempYmin, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } } }, series: tempSeries }, true);
 
     // ── 湿度趋势 ──
-    cHum.setOption({ grid: grid, tooltip: { trigger: 'axis' }, xAxis: xOpt, yAxis: { type: 'value', name: '%', splitLine: { lineStyle: { color: '#f5f5f5' } }, min: 0, max: 100 },
+    cHum.setOption({ grid: grid, tooltip: { trigger: 'axis' }, xAxis: xOpt, yAxis: { type: 'value', name: '%', splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } }, min: 0, max: 100 },
         series: [
             { name: '相对湿度', type: 'line', smooth: true, data: humData, color: '#4ECDC4', symbol: 'none',
                 areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(78,205,196,0.2)'},{offset:1,color:'rgba(78,205,196,0.02)'}] } },
@@ -2751,7 +2753,7 @@ function renderCharts(records) {
         ]}, true);
 
     // ── 风速趋势 ──
-    cWind.setOption({ grid: grid, tooltip: { trigger: 'axis' }, xAxis: xOpt, yAxis: { type: 'value', name: 'km/h', splitLine: { lineStyle: { color: '#f5f5f5' } } },
+    cWind.setOption({ grid: grid, tooltip: { trigger: 'axis' }, xAxis: xOpt, yAxis: { type: 'value', name: 'km/h', splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } } },
         series: [
             { name: '平均风速', type: 'line', smooth: true, data: windData, color: '#FFD93D', symbol: 'none', lineStyle: { width: 2 },
                 areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(255,217,61,0.25)'},{offset:1,color:'rgba(255,217,61,0.02)'}] } } },
@@ -2759,7 +2761,7 @@ function renderCharts(records) {
         ]}, true);
 
     // ── 雨量 ──
-    cRain.setOption({ grid: grid, tooltip: { trigger: 'axis' }, xAxis: xOpt, yAxis: { type: 'value', name: 'mm', splitLine: { lineStyle: { color: '#f5f5f5' } } },
+    cRain.setOption({ grid: grid, tooltip: { trigger: 'axis' }, xAxis: xOpt, yAxis: { type: 'value', name: 'mm', splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } } },
         series: [
             { name: '1h雨量', type: 'bar', data: rain1hData, color: '#5A67F2', barMaxWidth: useDaily ? 18 : 5, itemStyle: { borderRadius: [3,3,0,0] } },
             { name: '日累计雨量', type: 'line', smooth: true, data: rainDayData, color: '#1E3A5F', symbol: 'none', lineStyle: { width: 1.5 } }
@@ -2910,7 +2912,7 @@ function hexToRgba(hex, alpha) {
 function buildSelfChartOption(title, yName, xData, seriesData, color, axisOpts) {
     axisOpts = axisOpts || {};
     var grid = { left: '8%', right: '8%', bottom: '12%', top: '15%', containLabel: true };
-    var yOpts = { type: 'value', name: yName, splitLine: { lineStyle: { color: '#f5f5f5' } } };
+    var yOpts = { type: 'value', name: yName, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } } };
     if (axisOpts.min != null) {
         yOpts.min = axisOpts.min;
     } else {
@@ -3049,7 +3051,7 @@ function loadExtremes() {
 
 function renderExtremeRank(containerId, days, key, label, unit, color, icon) {
     const container = document.getElementById(containerId);
-    if (!days || !days.length) { container.innerHTML = '<div style="padding:16px;color:#999;">暂无数据</div>'; return; }
+    if (!days || !days.length) { container.innerHTML = '<div style="padding:16px;color:#8899aa;">暂无数据</div>'; return; }
 
     const colors = ['#E74C3C','#E67E22','#F1C40F','#2ECC71','#3498DB'];
     container.innerHTML = days.map((d, i) => `
@@ -3095,11 +3097,11 @@ function showDayDetail(dayData, label) {
     const grid = { left: '8%', right: '6%', bottom: '12%', top: '15%', containLabel: true };
     const xOpt = { type: 'category', data: xData, axisLabel: { rotate: 45, fontSize: 10 } };
 
-    var ySplit = { splitLine: { lineStyle: { color: '#f5f5f5' } } };
+    var ySplit = { splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } } };
 
     extrChartTemp.setOption({
         grid, tooltip: { trigger: 'axis' },
-        xAxis: xOpt, yAxis: { type: 'value', name: '°C', scale: true, splitLine: { lineStyle: { color: '#f5f5f5' } } },
+        xAxis: xOpt, yAxis: { type: 'value', name: '°C', scale: true, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } } },
         series: [
             { name: '气温', type: 'line', smooth: true, data: temp, symbol: 'none', lineStyle: { color: '#FF6B6B', width: 2 },
                 areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(255,107,107,0.25)'},{offset:1,color:'rgba(255,107,107,0.02)'}] } } },
@@ -3109,7 +3111,7 @@ function showDayDetail(dayData, label) {
 
     extrChartHum.setOption({
         grid, tooltip: { trigger: 'axis' },
-        xAxis: xOpt, yAxis: { type: 'value', name: '% / °C', scale: true, splitLine: { lineStyle: { color: '#f5f5f5' } } },
+        xAxis: xOpt, yAxis: { type: 'value', name: '% / °C', scale: true, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } } },
         series: [
             { name: '湿度', type: 'line', smooth: true, data: hum, symbol: 'none', lineStyle: { color: '#4ECDC4', width: 2 },
                 areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(78,205,196,0.2)'},{offset:1,color:'rgba(78,205,196,0.02)'}] } } },
@@ -3119,7 +3121,7 @@ function showDayDetail(dayData, label) {
 
     extrChartWind.setOption({
         grid, tooltip: { trigger: 'axis' },
-        xAxis: xOpt, yAxis: { type: 'value', name: 'km/h / mm', scale: true, splitLine: { lineStyle: { color: '#f5f5f5' } } },
+        xAxis: xOpt, yAxis: { type: 'value', name: 'km/h / mm', scale: true, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } } },
         series: [
             { name: '10min风速', type: 'line', smooth: true, data: wind, symbol: 'none', lineStyle: { color: '#FFD93D', width: 2 },
                 areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:'rgba(255,217,61,0.25)'},{offset:1,color:'rgba(255,217,61,0.02)'}] } } },
