@@ -2331,6 +2331,70 @@ function initGridPage() {
     }
     renderGridCharts();
     resizeGridCharts();
+    bindGridTabs();
+}
+
+var gridTabsBound = false;
+function bindGridTabs() {
+    if (gridTabsBound) return;
+    gridTabsBound = true;
+
+    var tabs = document.querySelectorAll('.g-tabs .g-tab');
+    if (!tabs.length) return;
+
+    // 动态插入图片层
+    var gMap = document.querySelector('.g-map');
+    var img = document.createElement('img');
+    img.id = 'gridTabImage';
+    img.style.cssText = 'display:none;position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;z-index:1;background:rgba(13,27,42,0.95);';
+    gMap.insertBefore(img, gMap.firstChild);
+
+    var base = 'pic/城市电网源网荷协同优化-附录图/';
+    var images = {
+        '气候驱动': base + 'fig4. the intra-urban temperature distribution at representative hours under a heatwave day.png'
+    };
+
+    var infoPanel = document.querySelector('.g-map-info');
+    var netEl = document.querySelector('.g-net');
+    var riskEl = document.querySelector('.g-risk-card');
+    var dispatchEl = document.querySelector('.g-dispatch');
+    var timebarEl = document.querySelector('.g-timebar');
+
+    var origInfoHTML = infoPanel ? infoPanel.innerHTML : '';
+
+    function showTopoElements(show) {
+        var els = [netEl, riskEl, dispatchEl, timebarEl];
+        els.forEach(function(el) { if (el) el.style.display = show ? '' : 'none'; });
+    }
+
+    tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            var key = tab.textContent.trim();
+
+            if (key === '电网拓扑') {
+                img.style.display = 'none';
+                showTopoElements(true);
+                if (infoPanel) infoPanel.innerHTML = origInfoHTML;
+            } else if (images[key]) {
+                img.src = images[key];
+                img.style.display = 'block';
+                showTopoElements(false);
+                if (infoPanel) {
+                    infoPanel.innerHTML = '<b>当前图层：气候驱动输入</b><br>' +
+                        'T<sub>max</sub>：34.79 ℃，ΔT：6.82 ℃<br>' +
+                        '热浪空间异质性 CV：0.057<br>' +
+                        '影响对象：PV、OHL、建筑冷负荷';
+                }
+            } else {
+                // 假按钮：恢复默认
+                img.style.display = 'none';
+                showTopoElements(true);
+                if (infoPanel) infoPanel.innerHTML = origInfoHTML;
+            }
+        });
+    });
 }
 
 function renderGridCharts() {
