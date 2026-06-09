@@ -12,10 +12,10 @@
         #headerTitle:hover { opacity: 0.85; }
         #headerRefresh { position: absolute; right: 24px; padding: 5px 10px; background: transparent; border: 1.5px solid #0F7B6B; color: #FFFFFF; border-radius: 4px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
         #headerRefresh:hover { background: #0F7B6B; }
-        #navbar { height: 38px; background: #F0F5FB; display: flex; align-items: center; padding: 0 16px; overflow-x: auto; gap: 4px; border-bottom: 1px solid rgba(0,0,0,0.04); }
+        #navbar { height: 38px; background: #F0F5FB; display: flex; align-items: center; justify-content: center; padding: 0 16px; overflow-x: auto; gap: 4px; border-bottom: 1px solid rgba(0,0,0,0.04); }
         #navbar::-webkit-scrollbar { height: 2px; }
         #navbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 2px; }
-        #navbar button, #navbar a { padding: 6px 14px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #3A4B67; cursor: pointer; font-size: 13px; font-weight: 500; white-space: nowrap; flex-shrink: 0; transition: all 0.15s; text-decoration: none; font-family: inherit; line-height: normal; }
+        #navbar button, #navbar a { flex: 1; max-width: 200px; padding: 6px 0; background: transparent; border: none; border-bottom: 2px solid transparent; color: #3A4B67; cursor: pointer; font-size: 13px; font-weight: 500; white-space: nowrap; text-align: center; transition: all 0.15s; text-decoration: none; font-family: inherit; line-height: normal; }
         #navbar button:hover, #navbar a:hover { color: #0F7B6B; background: #E4EDF5; }
         #navbar button.active, #navbar a.active { color: #0F7B6B; border-bottom-color: #0F7B6B; font-weight: 600; background: transparent; }
         #subNav { height: 36px; background: #E8EEF6; display: none; align-items: center; padding: 0 16px; gap: 4px; border-bottom: 1px solid rgba(0,0,0,0.04); }
@@ -1162,7 +1162,7 @@
     <button id="btnMonitor">今日气象</button>
     <button id="btnOutdoor">室外终端气象监测</button>
     <button id="btnIndoor">室内环境-电气集成终端</button>
-    <button id="btnExtremes">极端气候</button>
+    <button id="btnExtremes">极端气象事件分析</button>
     <button id="btnSim">微气候空间分布在线模拟</button>
     <button id="btnBuilding">建筑灵活性管理</button>
     <button id="btnGrid">城市电网源网荷协同优化</button>
